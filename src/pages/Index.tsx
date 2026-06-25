@@ -39,8 +39,7 @@ export default function Index() {
     img.onload = () => {
       const scale = 3;
       const svgW = 900 * scale;
-      const svgH = 1796 * scale;
-      const halfH = Math.ceil(svgH / 2);
+      const svgH = 1330 * scale;
 
       // Рисуем полную схему на canvas
       const fullCanvas = document.createElement('canvas');
@@ -52,27 +51,52 @@ export default function Index() {
       fullCtx.drawImage(img, 0, 0, svgW, svgH);
       URL.revokeObjectURL(svgUrl);
 
-      // Верхняя половина
-      const topCanvas = document.createElement('canvas');
-      topCanvas.width = svgW;
-      topCanvas.height = halfH;
-      const topCtx = topCanvas.getContext('2d')!;
-      topCtx.fillStyle = '#fafafa';
-      topCtx.fillRect(0, 0, svgW, halfH);
-      topCtx.drawImage(fullCanvas, 0, 0, svgW, halfH, 0, 0, svgW, halfH);
-      const png1 = topCanvas.toDataURL('image/png');
-
-      // Нижняя половина
-      const botCanvas = document.createElement('canvas');
-      botCanvas.width = svgW;
-      botCanvas.height = svgH - halfH;
-      const botCtx = botCanvas.getContext('2d')!;
-      botCtx.fillStyle = '#fafafa';
-      botCtx.fillRect(0, 0, svgW, svgH - halfH);
-      botCtx.drawImage(fullCanvas, 0, halfH, svgW, svgH - halfH, 0, 0, svgW, svgH - halfH);
-      const png2 = botCanvas.toDataURL('image/png');
-
       const pageCss = pageSize === 'A3' ? 'A3 portrait' : 'A4 portrait';
+
+      // A3: схема целиком на 1 листе; A4: делим пополам на 2 листа
+      let schemaPages = '';
+      if (pageSize === 'A3') {
+        const png = fullCanvas.toDataURL('image/png');
+        schemaPages = `<img class="schema-img" src="${png}" /><div class="footer">Блок-схема оценки компетенций · Лист 1 из 2</div>`;
+      } else {
+        const halfH = Math.ceil(svgH / 2);
+        const topCanvas = document.createElement('canvas');
+        topCanvas.width = svgW; topCanvas.height = halfH;
+        const topCtx = topCanvas.getContext('2d')!;
+        topCtx.fillStyle = '#fafafa'; topCtx.fillRect(0, 0, svgW, halfH);
+        topCtx.drawImage(fullCanvas, 0, 0, svgW, halfH, 0, 0, svgW, halfH);
+        const png1 = topCanvas.toDataURL('image/png');
+
+        const botCanvas = document.createElement('canvas');
+        botCanvas.width = svgW; botCanvas.height = svgH - halfH;
+        const botCtx = botCanvas.getContext('2d')!;
+        botCtx.fillStyle = '#fafafa'; botCtx.fillRect(0, 0, svgW, svgH - halfH);
+        botCtx.drawImage(fullCanvas, 0, halfH, svgW, svgH - halfH, 0, 0, svgW, svgH - halfH);
+        const png2 = botCanvas.toDataURL('image/png');
+
+        schemaPages = `
+          <img class="schema-img" src="${png1}" />
+          <div class="footer">Блок-схема оценки компетенций · Лист 1 из 3</div>
+          <div class="page-break">
+            <img class="schema-img" src="${png2}" />
+            <div class="footer">Блок-схема оценки компетенций · Лист 2 из 3</div>
+          </div>`;
+      }
+
+      const legendHtml = `
+        <div class="legend">
+          <div class="legend-title">Условные обозначения</div>
+          <div class="legend-items">
+            <div class="legend-item"><div class="li-box round" style="background:#1a1a2e"></div><span>Начало / приём кандидата</span></div>
+            <div class="legend-item"><div class="li-box bordered"></div><span>Действие / этап процесса</span></div>
+            <div class="legend-item"><div class="li-box dashed"></div><span>Рандомное формирование</span></div>
+            <div class="legend-item"><div class="li-diamond"></div><span>Решение (да / нет)</span></div>
+            <div class="legend-item"><div class="li-box" style="background:#16a34a"></div><span>Положительный исход</span></div>
+            <div class="legend-item"><div class="li-box" style="background:#dc2626"></div><span>Отказ / чёрный список</span></div>
+            <div class="legend-item"><div class="li-doc"></div><span>Документ / отчётность</span></div>
+          </div>
+        </div>`;
+
       win!.document.write(`<!DOCTYPE html><html><head><title>Оценка компетенций при найме</title>
         <style>
           @page { size: ${pageCss}; margin: 8mm; }
@@ -97,15 +121,20 @@ export default function Index() {
           .rule.retry .rule-title { color: #9a3412; }
           .rule.fail .rule-title { color: #991b1b; }
           .rule-desc { font-size: 10px; color: #475569; }
+          .legend { margin-top: 14px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; }
+          .legend-title { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+          .legend-items { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+          .legend-item { display: flex; align-items: center; gap: 7px; font-size: 11px; }
+          .li-box { width: 22px; height: 16px; border-radius: 3px; shrink: 0; }
+          .li-box.round { border-radius: 8px; }
+          .li-box.bordered { background: #fff; border: 1.5px solid #1a1a2e; }
+          .li-box.dashed { background: #f0f9ff; border: 1.5px dashed #0ea5e9; }
+          .li-diamond { width: 16px; height: 16px; background: #fff7ed; border: 1.5px solid #ea580c; transform: rotate(45deg); flex-shrink: 0; }
+          .li-doc { width: 22px; height: 16px; background: #eff6ff; border: 1.5px solid #1a1a2e; border-radius: 2px 2px 0 0; clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%); }
           .page-break { page-break-before: always; padding-top: 4px; }
           .footer { margin-top: 10px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 6px; }
         </style></head><body>
-        <img class="schema-img" src="${png1}" />
-        <div class="footer">Блок-схема оценки компетенций при найме рабочих · Лист 1 из 2</div>
-        <div class="page-break">
-          <img class="schema-img" src="${png2}" />
-          <div class="footer">Блок-схема оценки компетенций при найме рабочих · Лист 2 из 2</div>
-        </div>
+        ${schemaPages}
         <div class="page-break">
           <h1>Оценка компетенций при найме рабочих</h1>
           <div class="subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
@@ -116,6 +145,7 @@ export default function Index() {
             <div class="rule retry"><div class="rule-title">Повтор</div><div class="rule-desc">Менее 7 — одна повторная попытка пройти конкурс.</div></div>
             <div class="rule fail"><div class="rule-title">Чёрный список</div><div class="rule-desc">Провал повторной попытки — отказ в приёме.</div></div>
           </div>
+          ${legendHtml}
           <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · Этапы процесса</div>
         </div>
         <script>window.onload=function(){window.print();window.close();}</` + `script></body></html>`);
@@ -130,7 +160,7 @@ export default function Index() {
     const src = new XMLSerializer().serializeToString(svgEl);
     const scale = 2;
     const w = 900 * scale;
-    const h = 1796 * scale;
+    const h = 1330 * scale;
     const canvas = document.createElement('canvas');
     canvas.width = w;
     canvas.height = h;

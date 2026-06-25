@@ -42,7 +42,7 @@ const FlowchartSVG = forwardRef<SVGSVGElement>((_, ref) => {
     <svg
       ref={ref}
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 900 1796"
+      viewBox="0 0 900 1330"
       width="100%"
       style={{ display: 'block', fontFamily: FONT }}
     >
@@ -55,7 +55,7 @@ const FlowchartSVG = forwardRef<SVGSVGElement>((_, ref) => {
         </filter>
       </defs>
 
-      <rect x="0" y="0" width="900" height="1796" fill="#fafafa" />
+      <rect x="0" y="0" width="900" height="1330" fill="#fafafa" />
 
       {/* ── СТРЕЛКИ ── */}
       <g stroke={C.line} strokeWidth="2" fill="none">
@@ -179,19 +179,7 @@ const FlowchartSVG = forwardRef<SVGSVGElement>((_, ref) => {
       <text x="450" y="1228" textAnchor="middle" fill={C.text} fontSize="16" fontWeight="600">10. Сводная ведомость</text>
       <text x="450" y="1250" textAnchor="middle" fill={C.line} fontSize="13">накопительный учёт в разрезе профессий</text>
 
-      {/* ── Условные обозначения ── */}
-      <g transform="translate(120,1380)">
-        <text x="0" y="0" fill={C.text} fontSize="15" fontWeight="700">Условные обозначения</text>
-        <Legend y={30} color={C.start} label="Начало / приём кандидата" round />
-        <Legend y={70} color={C.process} label="Действие / этап процесса" stroke />
-        <Legend y={110} color={C.rand} label="Рандомное формирование" stroke dashBlue />
-        <Legend y={150} color={C.decision} label="Решение (да / нет)" diamond />
-        <Legend y={190} color={C.pass} label="Положительный исход" />
-        <Legend y={230} color={C.fail} label="Отказ / чёрный список" />
-        <Legend y={270} color={C.doc} label="Документ / отчётность" stroke doc />
-      </g>
-
-      <text x="450" y="1776" textAnchor="middle" fill="#94a3b8" fontSize="12" fontFamily='"IBM Plex Mono", monospace'>
+      <text x="450" y="1318" textAnchor="middle" fill="#94a3b8" fontSize="12" fontFamily='"IBM Plex Mono", monospace'>
         Бизнес-процесс оценки компетенций при найме рабочих · 40–170 чел./день · 15 профессий
       </text>
     </svg>
