@@ -53,19 +53,25 @@ export default function Index() {
         .rule.retry .rule-title { color: #9a3412; }
         .rule.fail .rule-title { color: #991b1b; }
         .rule-desc { font-size: 10px; color: #475569; }
+        .page-break { page-break-before: always; }
         .footer { margin-top: 14px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; }
       </style></head><body>
       <h1>Оценка компетенций при найме рабочих</h1>
       <div class="subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
       <div class="svg-wrap">${svgSrc}</div>
-      <h2>Этапы процесса</h2>
-      <div class="steps">${stepsHtml}</div>
-      <div class="rules">
-        <div class="rule pass"><div class="rule-title">Прошёл</div><div class="rule-desc">7 и более верных ответов — допуск к оформлению на работу.</div></div>
-        <div class="rule retry"><div class="rule-title">Повтор</div><div class="rule-desc">Менее 7 — одна повторная попытка пройти конкурс.</div></div>
-        <div class="rule fail"><div class="rule-title">Чёрный список</div><div class="rule-desc">Провал повторной попытки — отказ в приёме.</div></div>
+      <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · Лист 1 — Блок-схема</div>
+      <div class="page-break">
+        <h1>Оценка компетенций при найме рабочих</h1>
+        <div class="subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
+        <h2 style="border-top:none; padding-top:0; margin-top:8px;">Этапы процесса</h2>
+        <div class="steps">${stepsHtml}</div>
+        <div class="rules">
+          <div class="rule pass"><div class="rule-title">Прошёл</div><div class="rule-desc">7 и более верных ответов — допуск к оформлению на работу.</div></div>
+          <div class="rule retry"><div class="rule-title">Повтор</div><div class="rule-desc">Менее 7 — одна повторная попытка пройти конкурс.</div></div>
+          <div class="rule fail"><div class="rule-title">Чёрный список</div><div class="rule-desc">Провал повторной попытки — отказ в приёме.</div></div>
+        </div>
+        <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · Лист 2 — Этапы процесса</div>
       </div>
-      <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих</div>
       <script>window.onload=function(){window.print();window.close();}</` + `script></body></html>`);
     win.document.close();
   };
