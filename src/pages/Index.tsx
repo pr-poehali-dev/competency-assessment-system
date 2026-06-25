@@ -20,16 +20,53 @@ export default function Index() {
   const printChart = () => {
     const svgEl = svgRef.current;
     if (!svgEl) return;
-    const src = new XMLSerializer().serializeToString(svgEl);
+    const svgSrc = new XMLSerializer().serializeToString(svgEl);
+    const stepsHtml = STEPS.map(s => `
+      <div class="step">
+        <div class="step-num">${s.n}</div>
+        <div><div class="step-title">${s.t}</div><div class="step-desc">${s.d}</div></div>
+      </div>`).join('');
     const win = window.open('', '_blank');
     if (!win) return;
-    win.document.write(`<!DOCTYPE html><html><head><title>Блок-схема оценки компетенций</title>
+    win.document.write(`<!DOCTYPE html><html><head><title>Оценка компетенций при найме</title>
       <style>
-        @page { size: A4 landscape; margin: 10mm; }
-        body { margin: 0; display: flex; justify-content: center; align-items: flex-start; background: #fff; }
-        svg { width: 100%; height: auto; max-height: 100vh; }
-        @media print { body { padding: 0; } }
-      </style></head><body>${src}<script>window.onload=function(){window.print();window.close();}</` + `script></body></html>`);
+        @page { size: A4 portrait; margin: 12mm; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; color: #1a1a2e; background: #fff; }
+        h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        .subtitle { font-size: 11px; color: #64748b; margin-bottom: 16px; }
+        .svg-wrap { width: 100%; max-width: 480px; margin: 0 auto 20px; }
+        svg { width: 100%; height: auto; display: block; }
+        h2 { font-size: 14px; font-weight: 700; margin: 16px 0 10px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+        .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .step { display: flex; gap: 10px; align-items: flex-start; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; }
+        .step-num { min-width: 28px; height: 28px; background: #1a1a2e; color: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+        .step-title { font-size: 13px; font-weight: 600; }
+        .step-desc { font-size: 11px; color: #64748b; margin-top: 2px; }
+        .rules { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .rule { border-radius: 8px; padding: 8px 10px; border: 1px solid; }
+        .rule.pass { background: #f0fdf4; border-color: #86efac; }
+        .rule.retry { background: #fff7ed; border-color: #fdba74; }
+        .rule.fail { background: #fef2f2; border-color: #fca5a5; }
+        .rule-title { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+        .rule.pass .rule-title { color: #166534; }
+        .rule.retry .rule-title { color: #9a3412; }
+        .rule.fail .rule-title { color: #991b1b; }
+        .rule-desc { font-size: 10px; color: #475569; }
+        .footer { margin-top: 14px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+      </style></head><body>
+      <h1>Оценка компетенций при найме рабочих</h1>
+      <div class="subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
+      <div class="svg-wrap">${svgSrc}</div>
+      <h2>Этапы процесса</h2>
+      <div class="steps">${stepsHtml}</div>
+      <div class="rules">
+        <div class="rule pass"><div class="rule-title">Прошёл</div><div class="rule-desc">7 и более верных ответов — допуск к оформлению на работу.</div></div>
+        <div class="rule retry"><div class="rule-title">Повтор</div><div class="rule-desc">Менее 7 — одна повторная попытка пройти конкурс.</div></div>
+        <div class="rule fail"><div class="rule-title">Чёрный список</div><div class="rule-desc">Провал повторной попытки — отказ в приёме.</div></div>
+      </div>
+      <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих</div>
+      <script>window.onload=function(){window.print();window.close();}</` + `script></body></html>`);
     win.document.close();
   };
 
