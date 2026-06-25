@@ -52,12 +52,27 @@ export default function Index() {
       URL.revokeObjectURL(svgUrl);
 
       const pageCss = pageSize === 'A3' ? 'A3 portrait' : 'A4 portrait';
+      // A3: 297×420мм при 96dpi ≈ 1123×1587px (область печати с отступами 8мм ≈ 1063×1527px)
+      const a3PrintH = 1527;
+      const a3PrintW = 1063;
 
       // A3: схема целиком на 1 листе; A4: делим пополам на 2 листа
       let schemaPages = '';
       if (pageSize === 'A3') {
-        const png = fullCanvas.toDataURL('image/png');
-        schemaPages = `<img class="schema-img" src="${png}" /><div class="footer">Блок-схема оценки компетенций · Лист 1 из 2</div>`;
+        // Перерисовываем схему точно под размер области печати A3
+        const a3Canvas = document.createElement('canvas');
+        // Сохраняем пропорции SVG (900:1330) и вписываем в A3
+        const ratio = 900 / 1330;
+        const a3H = a3PrintH;
+        const a3W = Math.round(a3H * ratio);
+        a3Canvas.width = a3W * 2;  // x2 для чёткости
+        a3Canvas.height = a3H * 2;
+        const a3Ctx = a3Canvas.getContext('2d')!;
+        a3Ctx.fillStyle = '#fafafa';
+        a3Ctx.fillRect(0, 0, a3Canvas.width, a3Canvas.height);
+        a3Ctx.drawImage(img, 0, 0, a3Canvas.width, a3Canvas.height);
+        const png = a3Canvas.toDataURL('image/png');
+        schemaPages = `<div class="schema-page"><img class="schema-img" src="${png}" /></div><div class="footer">Блок-схема оценки компетенций · Лист 1 из 2</div>`;
       } else {
         const halfH = Math.ceil(svgH / 2);
         const topCanvas = document.createElement('canvas');
@@ -105,6 +120,8 @@ export default function Index() {
           h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
           .subtitle { font-size: 11px; color: #64748b; margin-bottom: 12px; }
           .schema-img { display: block; width: 100%; height: auto; }
+          .schema-page { width: 100%; text-align: center; }
+          .schema-page .schema-img { display: inline-block; width: auto; height: 390mm; max-width: 100%; object-fit: contain; }
           h2 { font-size: 14px; font-weight: 700; margin: 14px 0 10px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
           .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
           .step { display: flex; gap: 10px; align-items: flex-start; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; }
