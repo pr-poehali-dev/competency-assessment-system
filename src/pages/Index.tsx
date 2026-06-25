@@ -64,7 +64,12 @@ export default function Index() {
           <div class="a3-page">
             <div class="a3-header">
               <div class="a3-title">Оценка компетенций при найме рабочих</div>
-              <div class="a3-subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
+              <div class="a3-metrics">
+                <div class="metric"><span class="metric-ico">👥</span><span class="metric-val">40–170</span><span class="metric-lbl">кандидатов в день</span></div>
+                <div class="metric"><span class="metric-ico">💼</span><span class="metric-val">15</span><span class="metric-lbl">профессий</span></div>
+                <div class="metric"><span class="metric-ico">✅</span><span class="metric-val">10</span><span class="metric-lbl">вопросов (5+5)</span></div>
+                <div class="metric"><span class="metric-ico">🎯</span><span class="metric-val">≥ 7</span><span class="metric-lbl">проходной балл</span></div>
+              </div>
             </div>
             <div class="a3-schema">
               <img class="schema-img-a3" src="${fullPng}" />
@@ -100,6 +105,15 @@ export default function Index() {
         const png2 = botCanvas.toDataURL('image/png');
 
         schemaPages = `
+          <div class="a4-header">
+            <div class="a3-title">Оценка компетенций при найме рабочих</div>
+            <div class="a3-metrics">
+              <div class="metric"><span class="metric-ico">👥</span><span class="metric-val">40–170</span><span class="metric-lbl">кандидатов в день</span></div>
+              <div class="metric"><span class="metric-ico">💼</span><span class="metric-val">15</span><span class="metric-lbl">профессий</span></div>
+              <div class="metric"><span class="metric-ico">✅</span><span class="metric-val">10</span><span class="metric-lbl">вопросов (5+5)</span></div>
+              <div class="metric"><span class="metric-ico">🎯</span><span class="metric-val">≥ 7</span><span class="metric-lbl">проходной балл</span></div>
+            </div>
+          </div>
           <img class="schema-img" src="${png1}" />
           <div class="footer">Блок-схема оценки компетенций · Лист 1 из 3</div>
           <div class="page-break">
@@ -131,12 +145,17 @@ export default function Index() {
           .subtitle { font-size: 11px; color: #64748b; margin-bottom: 12px; }
           .schema-img { display: block; width: 100%; height: auto; }
           .a3-page { display: flex; flex-direction: column; height: 100%; }
-          .a3-header { margin-bottom: 6mm; }
-          .a3-title { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
-          .a3-subtitle { font-size: 12px; color: #64748b; }
+          .a3-header { margin-bottom: 4mm; }
+          .a3-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+          .a3-metrics { display: flex; gap: 10px; margin-top: 6px; }
+          .metric { display: flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px 10px; }
+          .metric-ico { font-size: 16px; line-height: 1; }
+          .metric-val { font-size: 15px; font-weight: 700; font-family: monospace; color: #1a1a2e; }
+          .metric-lbl { font-size: 11px; color: #64748b; }
           .a3-schema { flex: 1; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
-          .schema-img-a3 { display: block; width: auto; max-width: 100%; height: 310mm; object-fit: contain; }
-          .a3-legend { margin-top: 6mm; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
+          .schema-img-a3 { display: block; width: auto; max-width: 100%; height: 300mm; object-fit: contain; }
+          .a3-legend { margin-top: 4mm; padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
+          .a4-header { margin-bottom: 4mm; }
           h2 { font-size: 14px; font-weight: 700; margin: 14px 0 10px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
           .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
           .step { display: flex; gap: 10px; align-items: flex-start; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; }
@@ -168,9 +187,7 @@ export default function Index() {
         </style></head><body>
         ${schemaPages}
         <div class="page-break">
-          <h1>Оценка компетенций при найме рабочих</h1>
-          <div class="subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
-          <h2 style="border-top:none; padding-top:0; margin-top:8px;">Этапы процесса</h2>
+          <h2 style="border-top:none; padding-top:0; margin-top:0;">Этапы процесса</h2>
           <div class="steps">${stepsHtml}</div>
           <div class="rules">
             <div class="rule pass"><div class="rule-title">Прошёл</div><div class="rule-desc">7 и более верных ответов — допуск к оформлению на работу.</div></div>
