@@ -57,22 +57,32 @@ export default function Index() {
       const a3PrintW = 1063;
 
       // A3: схема целиком на 1 листе; A4: делим пополам на 2 листа
+      const fullPng = fullCanvas.toDataURL('image/png');
       let schemaPages = '';
       if (pageSize === 'A3') {
-        // Перерисовываем схему точно под размер области печати A3
-        const a3Canvas = document.createElement('canvas');
-        // Сохраняем пропорции SVG (900:1330) и вписываем в A3
-        const ratio = 900 / 1330;
-        const a3H = a3PrintH;
-        const a3W = Math.round(a3H * ratio);
-        a3Canvas.width = a3W * 2;  // x2 для чёткости
-        a3Canvas.height = a3H * 2;
-        const a3Ctx = a3Canvas.getContext('2d')!;
-        a3Ctx.fillStyle = '#fafafa';
-        a3Ctx.fillRect(0, 0, a3Canvas.width, a3Canvas.height);
-        a3Ctx.drawImage(img, 0, 0, a3Canvas.width, a3Canvas.height);
-        const png = a3Canvas.toDataURL('image/png');
-        schemaPages = `<div class="schema-page"><img class="schema-img" src="${png}" /></div><div class="footer">Блок-схема оценки компетенций · Лист 1 из 2</div>`;
+        schemaPages = `
+          <div class="a3-page">
+            <div class="a3-header">
+              <div class="a3-title">Оценка компетенций при найме рабочих</div>
+              <div class="a3-subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
+            </div>
+            <div class="a3-schema">
+              <img class="schema-img-a3" src="${fullPng}" />
+            </div>
+            <div class="a3-legend">
+              <div class="legend-title">Условные обозначения</div>
+              <div class="legend-items">
+                <div class="legend-item"><div class="li-box round" style="background:#1a1a2e"></div><span>Начало / приём кандидата</span></div>
+                <div class="legend-item"><div class="li-box bordered"></div><span>Действие / этап процесса</span></div>
+                <div class="legend-item"><div class="li-box dashed"></div><span>Рандомное формирование</span></div>
+                <div class="legend-item"><div class="li-diamond"></div><span>Решение (да / нет)</span></div>
+                <div class="legend-item"><div class="li-box" style="background:#16a34a"></div><span>Положительный исход</span></div>
+                <div class="legend-item"><div class="li-box" style="background:#dc2626"></div><span>Отказ / чёрный список</span></div>
+                <div class="legend-item"><div class="li-doc"></div><span>Документ / отчётность</span></div>
+              </div>
+            </div>
+            <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · Лист 1 из 2</div>
+          </div>`;
       } else {
         const halfH = Math.ceil(svgH / 2);
         const topCanvas = document.createElement('canvas');
@@ -120,8 +130,13 @@ export default function Index() {
           h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
           .subtitle { font-size: 11px; color: #64748b; margin-bottom: 12px; }
           .schema-img { display: block; width: 100%; height: auto; }
-          .schema-page { width: 100%; text-align: center; }
-          .schema-page .schema-img { display: inline-block; width: auto; height: 390mm; max-width: 100%; object-fit: contain; }
+          .a3-page { display: flex; flex-direction: column; height: 100%; }
+          .a3-header { margin-bottom: 6mm; }
+          .a3-title { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+          .a3-subtitle { font-size: 12px; color: #64748b; }
+          .a3-schema { flex: 1; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
+          .schema-img-a3 { display: block; width: auto; max-width: 100%; height: 310mm; object-fit: contain; }
+          .a3-legend { margin-top: 6mm; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
           h2 { font-size: 14px; font-weight: 700; margin: 14px 0 10px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
           .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
           .step { display: flex; gap: 10px; align-items: flex-start; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; }
@@ -162,8 +177,8 @@ export default function Index() {
             <div class="rule retry"><div class="rule-title">Повтор</div><div class="rule-desc">Менее 7 — одна повторная попытка пройти конкурс.</div></div>
             <div class="rule fail"><div class="rule-title">Чёрный список</div><div class="rule-desc">Провал повторной попытки — отказ в приёме.</div></div>
           </div>
-          ${legendHtml}
-          <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · Этапы процесса</div>
+          ${pageSize === 'A4' ? legendHtml : ''}
+          <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · ${pageSize === 'A3' ? 'Лист 2 из 2' : 'Этапы процесса'}</div>
         </div>
         <script>window.onload=function(){window.print();window.close();}</` + `script></body></html>`);
       win!.document.close();
