@@ -36,27 +36,30 @@ const FlowchartSVG = forwardRef<SVGSVGElement>((_, ref) => {
 
       {/* lines first */}
       <g stroke={C.line} strokeWidth="2" fill="none">
-        <line x1="450" y1="92" x2="450" y2="120" markerEnd="url(#arrow)" />
-        <line x1="450" y1="180" x2="450" y2="208" markerEnd="url(#arrow)" />
-        <line x1="450" y1="268" x2="450" y2="296" markerEnd="url(#arrow)" />
-        <line x1="450" y1="356" x2="450" y2="384" markerEnd="url(#arrow)" />
-        <line x1="450" y1="444" x2="450" y2="472" markerEnd="url(#arrow)" />
-        <line x1="450" y1="532" x2="450" y2="560" markerEnd="url(#arrow)" />
-        <line x1="450" y1="660" x2="450" y2="700" markerEnd="url(#arrow)" />
+        <line x1="450" y1="92" x2="450" y2="118" markerEnd="url(#arrow)" />
+        <line x1="450" y1="180" x2="450" y2="206" markerEnd="url(#arrow)" />
+        <line x1="450" y1="268" x2="450" y2="294" markerEnd="url(#arrow)" />
+        <line x1="450" y1="356" x2="450" y2="382" markerEnd="url(#arrow)" />
+        <line x1="450" y1="444" x2="450" y2="470" markerEnd="url(#arrow)" />
+        <line x1="450" y1="532" x2="450" y2="558" markerEnd="url(#arrow)" />
+        {/* подсчёт -> ромб решения */}
+        <line x1="450" y1="620" x2="450" y2="626" markerEnd="url(#arrow)" />
+        {/* ДА: ромб -> прошёл */}
+        <line x1="450" y1="718" x2="450" y2="740" markerEnd="url(#arrow)" />
         {/* pass branch down to оформление */}
-        <line x1="450" y1="788" x2="450" y2="900" markerEnd="url(#arrow)" />
-        <line x1="450" y1="988" x2="450" y2="1016" markerEnd="url(#arrow)" />
-        {/* fail branch right */}
-        <line x1="640" y1="610" x2="730" y2="610" />
-        <line x1="730" y1="610" x2="730" y2="700" markerEnd="url(#arrow)" />
-        {/* attempt decision */}
-        <line x1="730" y1="788" x2="730" y2="830" markerEnd="url(#arrow)" />
-        {/* retry yes -> back to test */}
-        <line x1="820" y1="745" x2="860" y2="745" />
-        <line x1="860" y1="745" x2="860" y2="240" />
-        <line x1="860" y1="240" x2="560" y2="240" markerEnd="url(#arrow)" />
-        {/* blacklist no */}
-        <line x1="730" y1="918" x2="730" y2="946" markerEnd="url(#arrow)" />
+        <line x1="450" y1="798" x2="450" y2="898" markerEnd="url(#arrow)" />
+        <line x1="450" y1="988" x2="450" y2="1014" markerEnd="url(#arrow)" />
+        {/* НЕТ: ромб -> не прошёл (вправо) */}
+        <line x1="554" y1="670" x2="730" y2="670" />
+        <line x1="730" y1="670" x2="730" y2="740" markerEnd="url(#arrow)" />
+        {/* не прошёл -> попытка №1 */}
+        <line x1="730" y1="798" x2="730" y2="858" markerEnd="url(#arrow)" />
+        {/* retry ДА -> обратно к "Кандидат пришёл" */}
+        <line x1="822" y1="880" x2="868" y2="880" />
+        <line x1="868" y1="880" x2="868" y2="66" />
+        <line x1="868" y1="66" x2="582" y2="66" markerEnd="url(#arrow)" />
+        {/* blacklist НЕТ */}
+        <line x1="730" y1="926" x2="730" y2="954" markerEnd="url(#arrow)" />
       </g>
 
       {/* 1 START */}
@@ -79,41 +82,41 @@ const FlowchartSVG = forwardRef<SVGSVGElement>((_, ref) => {
       <Box x={300} y={560} w={300} label="6. Подсчёт результатов" sub="из 10 ответов" />
 
       {/* DECISION 7+ */}
-      <Decision x={450} y={610} label="Верных ≥ 7?" />
+      <Decision x={450} y={670} label="Верных ≥ 7?" />
 
       {/* labels yes/no */}
-      <text x="430" y="685" textAnchor="end" fill={C.pass} fontSize="14" fontWeight="600">ДА</text>
-      <text x="668" y="600" textAnchor="middle" fill={C.fail} fontSize="14" fontWeight="600">НЕТ</text>
+      <text x="462" y="734" textAnchor="start" fill={C.pass} fontSize="13" fontWeight="600">ДА</text>
+      <text x="620" y="662" textAnchor="middle" fill={C.fail} fontSize="13" fontWeight="600">НЕТ</text>
 
       {/* PASS node */}
       <g filter="url(#shadow)">
-        <rect x="320" y="700" width="260" height="56" rx="10" fill={C.pass} />
+        <rect x="320" y="740" width="260" height="58" rx="10" fill={C.pass} />
       </g>
-      <text x="450" y="725" textAnchor="middle" fill="#fff" fontSize="16" fontWeight="600">Кандидат прошёл</text>
-      <text x="450" y="744" textAnchor="middle" fill="#fff" fontSize="12" opacity="0.85">следующий этап оформления</text>
+      <text x="450" y="766" textAnchor="middle" fill="#fff" fontSize="16" fontWeight="600">Кандидат прошёл</text>
+      <text x="450" y="785" textAnchor="middle" fill="#fff" fontSize="12" opacity="0.85">следующий этап оформления</text>
 
       {/* FAIL node */}
       <g filter="url(#shadow)">
-        <rect x="610" y="700" width="240" height="56" rx="10" fill="#fef2f2" stroke={C.fail} strokeWidth="2" />
+        <rect x="610" y="740" width="240" height="58" rx="10" fill="#fef2f2" stroke={C.fail} strokeWidth="2" />
       </g>
-      <text x="730" y="725" textAnchor="middle" fill={C.fail} fontSize="15" fontWeight="600">Кандидат не прошёл</text>
-      <text x="730" y="744" textAnchor="middle" fill={C.fail} fontSize="12">верных &lt; 7</text>
+      <text x="730" y="766" textAnchor="middle" fill={C.fail} fontSize="15" fontWeight="600">Кандидат не прошёл</text>
+      <text x="730" y="785" textAnchor="middle" fill={C.fail} fontSize="12">верных &lt; 7</text>
 
       {/* DECISION попытка */}
-      <Decision x={730} y={830} label="Попытка №1?" small />
-      <text x={815} y={822} textAnchor="middle" fill={C.pass} fontSize="13" fontWeight="600">ДА</text>
-      <text x={710} y={935} textAnchor="end" fill={C.fail} fontSize="13" fontWeight="600">НЕТ</text>
-      <text x={870} y={232} textAnchor="middle" fill={C.line} fontSize="12" fontStyle="italic">повтор 1 раз</text>
+      <Decision x={730} y={880} label="Попытка №1?" small />
+      <text x={822} y={870} textAnchor="middle" fill={C.pass} fontSize="13" fontWeight="600">ДА</text>
+      <text x={710} y={944} textAnchor="end" fill={C.fail} fontSize="13" fontWeight="600">НЕТ</text>
+      <text x={760} y={58} textAnchor="middle" fill={C.line} fontSize="12" fontStyle="italic">повтор 1 раз</text>
 
       {/* BLACKLIST */}
       <g filter="url(#shadow)">
-        <rect x="610" y="946" width="240" height="56" rx="10" fill={C.fail} />
+        <rect x="610" y="954" width="240" height="58" rx="10" fill={C.fail} />
       </g>
-      <text x="730" y="971" textAnchor="middle" fill="#fff" fontSize="15" fontWeight="600">Чёрный список</text>
-      <text x="730" y="990" textAnchor="middle" fill="#fff" fontSize="12" opacity="0.85">отказ в приёме</text>
+      <text x="730" y="980" textAnchor="middle" fill="#fff" fontSize="15" fontWeight="600">Чёрный список</text>
+      <text x="730" y="999" textAnchor="middle" fill="#fff" fontSize="12" opacity="0.85">отказ в приёме</text>
 
       {/* 7. Оформление */}
-      <Box x={300} y={900} w={300} label="7. Оформление на работу" sub="результаты → в личное дело" h={88} />
+      <Box x={300} y={898} w={300} label="7. Оформление на работу" sub="результаты → в личное дело" h={90} />
 
       {/* connector оформление -> ведомость */}
       {/* 8. Ведомость (document shape) */}
@@ -166,8 +169,8 @@ function Box({ x, y, w, label, sub, h = 60 }: { x: number; y: number; w: number;
 }
 
 function Decision({ x, y, label, small }: { x: number; y: number; label: string; small?: boolean }) {
-  const w = small ? 90 : 100;
-  const h = small ? 58 : 64;
+  const w = small ? 92 : 104;
+  const h = small ? 46 : 48;
   return (
     <g filter="url(#shadow)">
       <polygon
