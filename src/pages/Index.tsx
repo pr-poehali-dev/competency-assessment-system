@@ -84,7 +84,7 @@ export default function Index() {
     const src = new XMLSerializer().serializeToString(svgEl);
     const scale = 2;
     const w = 900 * scale;
-    const h = 1620 * scale;
+    const h = 1796 * scale;
     const canvas = document.createElement('canvas');
     canvas.width = w;
     canvas.height = h;
