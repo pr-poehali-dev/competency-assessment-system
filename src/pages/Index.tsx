@@ -17,6 +17,22 @@ const STEPS = [
 export default function Index() {
   const svgRef = useRef<SVGSVGElement>(null);
 
+  const printChart = () => {
+    const svgEl = svgRef.current;
+    if (!svgEl) return;
+    const src = new XMLSerializer().serializeToString(svgEl);
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head><title>Блок-схема оценки компетенций</title>
+      <style>
+        @page { size: A4 landscape; margin: 10mm; }
+        body { margin: 0; display: flex; justify-content: center; align-items: flex-start; background: #fff; }
+        svg { width: 100%; height: auto; max-height: 100vh; }
+        @media print { body { padding: 0; } }
+      </style></head><body>${src}<script>window.onload=function(){window.print();window.close();}</` + `script></body></html>`);
+    win.document.close();
+  };
+
   const downloadSVG = () => {
     if (!svgRef.current) return;
     const src = new XMLSerializer().serializeToString(svgRef.current);
@@ -43,10 +59,16 @@ export default function Index() {
               <h1 className="text-lg font-bold leading-tight">Оценка компетенций при найме</h1>
             </div>
           </div>
-          <Button onClick={downloadSVG} className="bg-[#1a1a2e] hover:bg-[#33334d] gap-2">
-            <Icon name="Download" size={16} />
-            Скачать SVG
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={printChart} variant="outline" className="gap-2 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-white">
+              <Icon name="Printer" size={16} />
+              Печать
+            </Button>
+            <Button onClick={downloadSVG} className="bg-[#1a1a2e] hover:bg-[#33334d] gap-2">
+              <Icon name="Download" size={16} />
+              Скачать SVG
+            </Button>
+          </div>
         </div>
       </header>
 
