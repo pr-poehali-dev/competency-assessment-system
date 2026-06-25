@@ -33,6 +33,34 @@ export default function Index() {
     win.document.close();
   };
 
+  const downloadPNG = () => {
+    const svgEl = svgRef.current;
+    if (!svgEl) return;
+    const src = new XMLSerializer().serializeToString(svgEl);
+    const scale = 2;
+    const w = 900 * scale;
+    const h = 1620 * scale;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const img = new Image();
+    const blob = new Blob([src], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    img.onload = () => {
+      ctx.fillStyle = '#fafafa';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.download = 'biznes-process-ocenki-kompetenciy.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    };
+    img.src = url;
+  };
+
   const downloadSVG = () => {
     if (!svgRef.current) return;
     const src = new XMLSerializer().serializeToString(svgRef.current);
@@ -60,6 +88,10 @@ export default function Index() {
             </div>
           </div>
           <div className="flex gap-2">
+            <Button onClick={downloadPNG} variant="outline" className="gap-2 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-white">
+              <Icon name="Image" size={16} />
+              Скачать PNG
+            </Button>
             <Button onClick={printChart} variant="outline" className="gap-2 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-white">
               <Icon name="Printer" size={16} />
               Печать
