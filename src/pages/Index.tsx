@@ -40,15 +40,37 @@ export default function Index() {
       const scale = 3;
       const svgW = 900 * scale;
       const svgH = 1796 * scale;
-      const canvas = document.createElement('canvas');
-      canvas.width = svgW;
-      canvas.height = svgH;
-      const ctx = canvas.getContext('2d')!;
-      ctx.fillStyle = '#fafafa';
-      ctx.fillRect(0, 0, svgW, svgH);
-      ctx.drawImage(img, 0, 0, svgW, svgH);
+      const halfH = Math.ceil(svgH / 2);
+
+      // Рисуем полную схему на canvas
+      const fullCanvas = document.createElement('canvas');
+      fullCanvas.width = svgW;
+      fullCanvas.height = svgH;
+      const fullCtx = fullCanvas.getContext('2d')!;
+      fullCtx.fillStyle = '#fafafa';
+      fullCtx.fillRect(0, 0, svgW, svgH);
+      fullCtx.drawImage(img, 0, 0, svgW, svgH);
       URL.revokeObjectURL(svgUrl);
-      const pngData = canvas.toDataURL('image/png');
+
+      // Верхняя половина
+      const topCanvas = document.createElement('canvas');
+      topCanvas.width = svgW;
+      topCanvas.height = halfH;
+      const topCtx = topCanvas.getContext('2d')!;
+      topCtx.fillStyle = '#fafafa';
+      topCtx.fillRect(0, 0, svgW, halfH);
+      topCtx.drawImage(fullCanvas, 0, 0, svgW, halfH, 0, 0, svgW, halfH);
+      const png1 = topCanvas.toDataURL('image/png');
+
+      // Нижняя половина
+      const botCanvas = document.createElement('canvas');
+      botCanvas.width = svgW;
+      botCanvas.height = svgH - halfH;
+      const botCtx = botCanvas.getContext('2d')!;
+      botCtx.fillStyle = '#fafafa';
+      botCtx.fillRect(0, 0, svgW, svgH - halfH);
+      botCtx.drawImage(fullCanvas, 0, halfH, svgW, svgH - halfH, 0, 0, svgW, svgH - halfH);
+      const png2 = botCanvas.toDataURL('image/png');
 
       const pageCss = pageSize === 'A3' ? 'A3 portrait' : 'A4 portrait';
       win!.document.write(`<!DOCTYPE html><html><head><title>Оценка компетенций при найме</title>
@@ -76,12 +98,14 @@ export default function Index() {
           .rule.fail .rule-title { color: #991b1b; }
           .rule-desc { font-size: 10px; color: #475569; }
           .page-break { page-break-before: always; padding-top: 4px; }
-          .footer { margin-top: 14px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+          .footer { margin-top: 10px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 6px; }
         </style></head><body>
-        <h1>Оценка компетенций при найме рабочих</h1>
-        <div class="subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
-        <img class="schema-img" src="${pngData}" />
-        <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · Лист 1 — Блок-схема</div>
+        <img class="schema-img" src="${png1}" />
+        <div class="footer">Блок-схема оценки компетенций при найме рабочих · Лист 1 из 2</div>
+        <div class="page-break">
+          <img class="schema-img" src="${png2}" />
+          <div class="footer">Блок-схема оценки компетенций при найме рабочих · Лист 2 из 2</div>
+        </div>
         <div class="page-break">
           <h1>Оценка компетенций при найме рабочих</h1>
           <div class="subtitle">40–170 кандидатов в день · 15 профессий · 10 вопросов (5+5) · проходной балл ≥ 7</div>
@@ -92,7 +116,7 @@ export default function Index() {
             <div class="rule retry"><div class="rule-title">Повтор</div><div class="rule-desc">Менее 7 — одна повторная попытка пройти конкурс.</div></div>
             <div class="rule fail"><div class="rule-title">Чёрный список</div><div class="rule-desc">Провал повторной попытки — отказ в приёме.</div></div>
           </div>
-          <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · Лист 2 — Этапы процесса</div>
+          <div class="footer">Бизнес-процесс оценки компетенций при найме рабочих · Этапы процесса</div>
         </div>
         <script>window.onload=function(){window.print();window.close();}</` + `script></body></html>`);
       win!.document.close();
