@@ -111,15 +111,15 @@ const FlowchartSVG = forwardRef<SVGSVGElement>((_, ref) => {
       {/* ── 3: Заполнение ФИО ── */}
       <Box x={300} y={296} w={300} label="3. Заполнение ФИО" />
 
-      {/* ── 4: Открытие теста ── */}
-      <Box x={300} y={384} w={300} label="4. Открытие теста" />
-
-      {/* ── NEW 2: Рандомное формирование вопросов ── */}
+      {/* ── 4: Рандомное формирование вопросов ── */}
       <g filter="url(#shadow)">
-        <rect x={300} y={472} width={300} height={60} rx="10" fill={C.rand} stroke="#0ea5e9" strokeWidth="2" strokeDasharray="6 3" />
-        <text x={450} y={496} textAnchor="middle" fill="#0c4a6e" fontSize="15" fontWeight="600">5. Формирование вопросов</text>
-        <text x={450} y={516} textAnchor="middle" fill="#0369a1" fontSize="12">рандомный порядок из базы</text>
+        <rect x={300} y={384} width={300} height={60} rx="10" fill={C.rand} stroke="#0ea5e9" strokeWidth="2" strokeDasharray="6 3" />
+        <text x={450} y={408} textAnchor="middle" fill="#0c4a6e" fontSize="15" fontWeight="600">4. Формирование вопросов</text>
+        <text x={450} y={428} textAnchor="middle" fill="#0369a1" fontSize="12">рандомный порядок из базы</text>
       </g>
+
+      {/* ── 5: Открытие теста ── */}
+      <Box x={300} y={472} w={300} label="5. Открытие теста" />
 
       {/* ── 6: Тест компетенций ── */}
       <Box x={300} y={560} w={300} label="6. Тест компетенций" sub="5 вопросов" />
