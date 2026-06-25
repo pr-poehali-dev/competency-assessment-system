@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import FlowchartSVG from '@/components/FlowchartSVG';
@@ -18,8 +18,10 @@ const STEPS = [
 
 export default function Index() {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
 
-  const printChart = () => {
+  const printChart = (pageSize: 'A4' | 'A3') => {
+    setShowPrintDialog(false);
     const svgEl = svgRef.current;
     if (!svgEl) return;
     const svgSrc = new XMLSerializer().serializeToString(svgEl);
@@ -48,9 +50,10 @@ export default function Index() {
       URL.revokeObjectURL(svgUrl);
       const pngData = canvas.toDataURL('image/png');
 
+      const pageCss = pageSize === 'A3' ? 'A3 portrait' : 'A4 portrait';
       win!.document.write(`<!DOCTYPE html><html><head><title>Оценка компетенций при найме</title>
         <style>
-          @page { size: A4 portrait; margin: 8mm; }
+          @page { size: ${pageCss}; margin: 8mm; }
           * { box-sizing: border-box; margin: 0; padding: 0; }
           body { font-family: Arial, sans-serif; color: #1a1a2e; background: #fff; }
           h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
@@ -139,6 +142,42 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-[#1a1a2e]">
+      {/* Print format dialog */}
+      {showPrintDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowPrintDialog(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-7 w-80 flex flex-col gap-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold">Формат страницы</h2>
+              <button onClick={() => setShowPrintDialog(false)} className="text-[#94a3b8] hover:text-[#1a1a2e]">
+                <Icon name="X" size={18} />
+              </button>
+            </div>
+            <p className="text-sm text-[#64748b]">Выберите размер бумаги для печати</p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => printChart('A4')}
+                className="flex items-center gap-4 border-2 border-[#e2e8f0] hover:border-[#1a1a2e] rounded-xl p-4 text-left transition-colors group"
+              >
+                <div className="w-10 h-14 border-2 border-current rounded flex items-center justify-center text-[#1a1a2e] text-xs font-mono font-bold shrink-0">A4</div>
+                <div>
+                  <p className="font-semibold text-[#1a1a2e]">A4 — стандартный</p>
+                  <p className="text-xs text-[#64748b] mt-0.5">210 × 297 мм · обычный офисный принтер</p>
+                </div>
+              </button>
+              <button
+                onClick={() => printChart('A3')}
+                className="flex items-center gap-4 border-2 border-[#e2e8f0] hover:border-[#1a1a2e] rounded-xl p-4 text-left transition-colors group"
+              >
+                <div className="w-10 h-14 border-2 border-current rounded flex items-center justify-center text-[#1a1a2e] text-xs font-mono font-bold shrink-0">A3</div>
+                <div>
+                  <p className="font-semibold text-[#1a1a2e]">A3 — увеличенный</p>
+                  <p className="text-xs text-[#64748b] mt-0.5">297 × 420 мм · крупный плакат, наглядно</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <header className="border-b border-[#e2e8f0] bg-white">
         <div className="container py-5 flex items-center justify-between gap-4 flex-wrap">
@@ -156,7 +195,7 @@ export default function Index() {
               <Icon name="Image" size={16} />
               Скачать PNG
             </Button>
-            <Button onClick={printChart} variant="outline" className="gap-2 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-white">
+            <Button onClick={() => setShowPrintDialog(true)} variant="outline" className="gap-2 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-white">
               <Icon name="Printer" size={16} />
               Печать
             </Button>
