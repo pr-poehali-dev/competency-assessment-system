@@ -319,7 +319,7 @@ export default function Index() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
           {[
             { v: '40–170', l: 'кандидатов в день', i: 'Users' },
-            { v: '15', l: 'профессий', i: 'Briefcase' },
+            { v: '37', l: 'профессий', i: 'Briefcase' },
             { v: '10', l: 'вопросов (5+5)', i: 'ListChecks' },
             { v: '≥ 7', l: 'проходной балл', i: 'Target' },
           ].map((m) => (
