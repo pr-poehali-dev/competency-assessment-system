@@ -207,6 +207,28 @@ export default function Agencies() {
 
         <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block">
           <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center shrink-0">
+              <Icon name="FileCheck" size={18} className="text-sky-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-2">Гарантия замены уже действует</h3>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                В договорах с кадровыми агентствами закреплена гарантия бесплатной замены кандидата. Это значит, что
+                прямые расходы на повторный подбор по {AG_FIRED_2026} случаям 2026 года компания в основном не несёт —
+                финансовый риск закрыт.
+              </p>
+              <p className="text-sm text-slate-700 leading-relaxed mt-2">
+                Но гарантия не компенсирует главное: время. Пока агентство ищет замену, вакансия на объекте остаётся
+                открытой, а руководитель снова тратит часы на собеседования. При среднем сроке ухода менее трёх месяцев
+                позиция может простаивать значительную часть года. Поэтому усилия стоит направить не на условия
+                договора, а на снижение самой доли быстрых уходов.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block">
+          <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
               <Icon name="ClipboardCheck" size={18} className="text-emerald-600" />
             </div>
@@ -215,8 +237,8 @@ export default function Agencies() {
               <ol className="space-y-2 text-sm text-slate-700">
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">1.</span>
-                  Закрепить в договоре с КА ЭФИР гарантийный срок бесплатной замены кандидата — минимум 6 месяцев:
-                  именно в этот период происходят все потери.
+                  Проверить, покрывает ли действующая гарантия замены все {AG_FIRED_2026} случаев 2026 года, и
+                  фиксировать каждое обращение — гарантия работает только при заявленной претензии.
                 </li>
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">2.</span>
@@ -231,6 +253,11 @@ export default function Agencies() {
                   <span className="font-bold text-emerald-600 shrink-0">4.</span>
                   Часть объёма перевести на реферальную программу: по общему дашборду это самый дешёвый и устойчивый
                   канал.
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-bold text-emerald-600 shrink-0">5.</span>
+                  Вести учёт замен по гарантии: сколько ушедших агентство заменило бесплатно, а сколько подборов
+                  пришлось оплатить повторно. Это покажет реальную стоимость текучести.
                 </li>
               </ol>
             </div>
