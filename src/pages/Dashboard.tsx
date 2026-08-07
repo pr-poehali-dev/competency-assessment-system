@@ -17,6 +17,7 @@ import TenureChart from '@/components/dashboard/TenureChart';
 import HireVsFire from '@/components/dashboard/HireVsFire';
 import EarlyTurnover from '@/components/dashboard/EarlyTurnover';
 import UnstableChannels from '@/components/dashboard/UnstableChannels';
+import ExecutiveSummary from '@/components/dashboard/ExecutiveSummary';
 import {
   SOURCES,
   TOTAL_2025,
@@ -189,12 +190,11 @@ export default function Dashboard() {
             {(TOTAL_2025 + TOTAL_2026).toLocaleString('ru-RU')} наймов и{' '}
             {(DISM_2025 + DISM_2026).toLocaleString('ru-RU')} увольнений.
           </p>
-          <p className="print-only text-xs text-slate-400 mt-3 pt-3 border-t border-slate-200">
-            Отчёт сформирован {new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-            {' · '}Отдел подбора персонала
-          </p>
         </div>
 
+        <ExecutiveSummary />
+
+        <div className="print-page-break" />
         <SectionTitle icon="UserPlus" title="Подбор персонала" sub="Откуда приходят сотрудники" />
         <KpiCards />
 
