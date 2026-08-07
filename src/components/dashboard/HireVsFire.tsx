@@ -19,7 +19,25 @@ export default function HireVsFire() {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block">
       <h3 className="font-semibold text-slate-900 mb-1">Найм и увольнения по каналам, 2026</h3>
-      <p className="text-sm text-slate-500 mb-5">Сколько человек пришло, ушло и осталось работать</p>
+      <p className="text-sm text-slate-500 mb-3">Сколько человек пришло, ушло и осталось работать</p>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mb-4">
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-sm bg-[#1a1a2e] shrink-0" />
+          <span className="text-xs text-slate-600">Принято</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-sm bg-[#dc2626] shrink-0" />
+          <span className="text-xs text-slate-600">Уволено</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="relative w-5 shrink-0 border-t-2 border-[#16a34a]">
+            <span className="absolute left-1/2 -translate-x-1/2 -top-[3px] w-1.5 h-1.5 rounded-full bg-[#16a34a]" />
+          </span>
+          <span className="text-xs text-slate-600">Осталось работать</span>
+        </div>
+      </div>
+
       <ResponsiveContainer width="100%" height={290}>
         <ComposedChart data={data} margin={{ top: 22, right: 8 }} barGap={3}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
