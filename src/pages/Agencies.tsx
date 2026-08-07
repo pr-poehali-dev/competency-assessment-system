@@ -12,6 +12,7 @@ import AgencyKpi from '@/components/agencies/AgencyKpi';
 import AgencyShare from '@/components/agencies/AgencyShare';
 import MonthlyChart from '@/components/agencies/MonthlyChart';
 import AgencyQuality from '@/components/agencies/AgencyQuality';
+import TimeLoss from '@/components/agencies/TimeLoss';
 import CandidateProfile from '@/components/agencies/CandidateProfile';
 import DeptTable from '@/components/agencies/DeptTable';
 import AgencySummary from '@/components/agencies/AgencySummary';
@@ -24,6 +25,7 @@ import {
   AG_TURNOVER_2026,
   FAST_FIRED_2026,
   FIRED_TENURE,
+  LOST_DAYS_2026,
   EFIR,
   EFIR_SHARE_2026,
   RECRUITERS_2026,
@@ -189,6 +191,10 @@ export default function Agencies() {
         <AgencyQuality />
 
         <div className="print-page-break" />
+        <SectionTitle icon="Hourglass" title="Цена быстрых уходов" sub="Сколько времени теряет компания" />
+        <TimeLoss />
+
+        <div className="print-page-break" />
         <SectionTitle icon="UserSearch" title="Кого приводят агентства" sub="Портрет кандидата и закрытые позиции" />
         <CandidateProfile />
         <DeptTable />
@@ -218,10 +224,10 @@ export default function Agencies() {
                 финансовый риск закрыт.
               </p>
               <p className="text-sm text-slate-700 leading-relaxed mt-2">
-                Но гарантия не компенсирует главное: время. Пока агентство ищет замену, вакансия на объекте остаётся
-                открытой, а руководитель снова тратит часы на собеседования. При среднем сроке ухода менее трёх месяцев
-                позиция может простаивать значительную часть года. Поэтому усилия стоит направить не на условия
-                договора, а на снижение самой доли быстрых уходов.
+                Но гарантия не компенсирует главное: время. По расчёту выше быстрые уходы стоили компании около{' '}
+                {(LOST_DAYS_2026 / 21).toFixed(0)} человеко-месяцев рабочего времени в 2026 году — вакансия простаивает,
+                пока идёт поиск замены, а новый сотрудник ещё месяц входит в работу. Поэтому усилия стоит направить не
+                на условия договора, а на снижение самой доли быстрых уходов.
               </p>
             </div>
           </div>

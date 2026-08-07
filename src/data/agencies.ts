@@ -149,6 +149,20 @@ export const EFIR_TURNOVER_2026 = agPct(EFIR.fired2026, EFIR.hired2026);
 export const EFIR_SHARE_2025 = agPct(EFIR.hired2025, AG_TOTAL_2025);
 export const EFIR_SHARE_2026 = agPct(EFIR.hired2026, AG_TOTAL_2026);
 
+export const AVG_TENURE_2025 = 2.9;
+export const AVG_TENURE_2026 = 2.0;
+
+export const SEARCH_DAYS = 30;
+export const ONBOARDING_DAYS = 30;
+export const MANAGER_HOURS = 8;
+export const WORK_DAYS_MONTH = 21;
+
+export const lostDays = (cases: number) => cases * (SEARCH_DAYS + ONBOARDING_DAYS);
+export const LOST_DAYS_2025 = lostDays(58);
+export const LOST_DAYS_2026 = lostDays(20);
+export const LOST_MONTHS_2026 = LOST_DAYS_2026 / WORK_DAYS_MONTH;
+export const MANAGER_HOURS_2026 = 20 * MANAGER_HOURS;
+
 export const FAST_FIRED_2025 = FIRED_TENURE[0].y2025 + FIRED_TENURE[1].y2025;
 export const FAST_FIRED_2026 = FIRED_TENURE[0].y2026 + FIRED_TENURE[1].y2026;
 export const EARLY_FIRED = AG_FIRED_2025;

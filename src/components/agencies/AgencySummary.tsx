@@ -11,8 +11,11 @@ import {
   EFIR_TURNOVER_2026,
   FAST_FIRED_2026,
   FIRED_TENURE,
-  AGENCIES,
   MONTHLY,
+  LOST_DAYS_2025,
+  LOST_DAYS_2026,
+  WORK_DAYS_MONTH,
+  AVG_TENURE_2026,
   agPct,
 } from '@/data/agencies';
 
@@ -45,10 +48,10 @@ export default function AgencySummary() {
       good: true,
     },
     {
-      label: 'Активных агентств',
-      value: AGENCIES.filter((a) => a.hired2026 > 0).length.toString(),
-      prev: `${AGENCIES.length} в 2025`,
-      delta: 'зависимость от одного',
+      label: 'Потеряно рабочего времени',
+      value: `${(LOST_DAYS_2026 / WORK_DAYS_MONTH).toFixed(0)} мес.`,
+      prev: `${(LOST_DAYS_2025 / WORK_DAYS_MONTH).toFixed(0)} мес. в 2025`,
+      delta: 'простой и адаптация',
       good: false,
     },
   ];
@@ -65,9 +68,9 @@ export default function AgencySummary() {
       text: `В 2026 году уволилось ${AG_FIRED_2026} из ${AG_TOTAL_2026} нанятых — ${AG_TURNOVER_2026.toFixed(1)}% против ${AG_TURNOVER_2025.toFixed(1)}% годом ранее. У КА ЭФИР показатель улучшился до ${EFIR_TURNOVER_2026.toFixed(1)}%.`,
     },
     {
-      icon: 'Clock',
-      title: 'Все потери — в первые полгода',
-      text: `Ни один уволившийся не проработал года. ${agPct(FIRED_TENURE[0].y2026, AG_FIRED_2026).toFixed(0)}% ушли в первые три месяца, ${FAST_FIRED_2026} из ${AG_FIRED_2026} — за полгода. Проблема не в квалификации, а в ожиданиях при найме.`,
+      icon: 'Hourglass',
+      title: `Потеряно ${(LOST_DAYS_2026 / WORK_DAYS_MONTH).toFixed(0)} человеко-месяцев`,
+      text: `Средний срок до ухода — ${AVG_TENURE_2026} месяца: человек уходит раньше, чем входит в работу. ${agPct(FIRED_TENURE[0].y2026, AG_FIRED_2026).toFixed(0)}% ушли в первые три месяца, ${FAST_FIRED_2026} из ${AG_FIRED_2026} — за полгода.`,
     },
     {
       icon: 'Target',
