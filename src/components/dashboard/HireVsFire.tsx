@@ -1,4 +1,5 @@
-import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import Icon from '@/components/ui/icon';
 import { SOURCES, DISMISSALS } from '@/data/recruitment';
 
 const data = [...SOURCES]
@@ -29,7 +30,6 @@ export default function HireVsFire() {
             contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }}
             formatter={(v: number) => [`${v} чел.`, '']}
           />
-          <Legend wrapperStyle={{ fontSize: 13 }} />
           <Bar dataKey="Принято" fill="#1a1a2e" radius={[4, 4, 0, 0]}>
             <LabelList dataKey="Принято" position="top" fontSize={11} fontWeight={600} fill="#1a1a2e" />
           </Bar>
@@ -39,6 +39,62 @@ export default function HireVsFire() {
           <Line type="monotone" dataKey="Осталось" stroke="#16a34a" strokeWidth={2.5} dot={{ r: 4, fill: '#16a34a' }} />
         </ComposedChart>
       </ResponsiveContainer>
+
+      <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3.5 space-y-3">
+        <div className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+          <Icon name="Info" size={13} className="text-slate-400" />
+          Как читать график
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-start gap-2.5">
+            <span className="w-3.5 h-3.5 rounded-sm bg-[#1a1a2e] shrink-0 mt-0.5" />
+            <div>
+              <div className="text-[11px] font-semibold text-slate-700">Тёмный столбик — принято</div>
+              <div className="text-[11px] text-slate-500 leading-snug">
+                Сколько человек нанято через канал за 2026 год
+              </div>
+            </div>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <span className="w-3.5 h-3.5 rounded-sm bg-[#dc2626] shrink-0 mt-0.5" />
+            <div>
+              <div className="text-[11px] font-semibold text-slate-700">Красный столбик — уволено</div>
+              <div className="text-[11px] text-slate-500 leading-snug">
+                Сколько из нанятых уже покинули компанию
+              </div>
+            </div>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <span className="w-3.5 shrink-0 mt-2 border-t-2 border-[#16a34a]" />
+            <div>
+              <div className="text-[11px] font-semibold text-slate-700">Зелёная линия — осталось работать</div>
+              <div className="text-[11px] text-slate-500 leading-snug">Реальный результат канала: принято минус уволено</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 pt-3 space-y-2">
+          <div className="flex items-start gap-2">
+            <Icon name="CircleCheck" size={14} className="text-emerald-600 mt-0.5 shrink-0" />
+            <div className="text-[11px] text-slate-600 leading-snug">
+              <strong className="text-emerald-700">Зелёная линия близко к тёмному столбику</strong> — канал работает
+              хорошо, почти все нанятые остались
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <Icon name="CircleAlert" size={14} className="text-rose-600 mt-0.5 shrink-0" />
+            <div className="text-[11px] text-slate-600 leading-snug">
+              <strong className="text-rose-700">Высокий красный столбик</strong> — канал приводит людей, которые быстро
+              уходят: подбор приходится повторять
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 pt-3 text-[11px] text-slate-500 leading-snug">
+          В график включены каналы с наймом от 10 человек. Наведите курсор на столбик, чтобы увидеть точные цифры.
+        </div>
+      </div>
     </div>
   );
 }
