@@ -134,7 +134,7 @@ export const channelRisk = SOURCES.map((s) => {
   .sort((a, b) => b.turnover - a.turnover);
 
 export const RISK_META = {
-  high: { label: 'Высокий риск', color: '#dc2626', bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700' },
-  mid: { label: 'Средний риск', color: '#f59e0b', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
-  low: { label: 'Низкий риск', color: '#16a34a', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700' },
+  high: { label: 'Высокий риск', range: 'текучесть от 20%', color: '#dc2626', bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700' },
+  mid: { label: 'Средний риск', range: 'от 12 до 20%', color: '#f59e0b', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
+  low: { label: 'Низкий риск', range: 'до 12%', color: '#16a34a', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700' },
 } as const;

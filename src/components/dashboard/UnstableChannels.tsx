@@ -7,6 +7,29 @@ const realChannels = significant.filter((c) => c.group !== 'unknown');
 const unknownChannels = significant.filter((c) => c.group === 'unknown');
 const avgTurnover = pct(DISM_2026, TOTAL_2026);
 
+const levelOrder = ['low', 'mid', 'high'] as const;
+const legendLevels = levelOrder.filter((l) => realChannels.some((c) => c.level === l));
+
+const maxHired = Math.max(...realChannels.map((c) => c.hired));
+
+function DotLabel({ x, y, index }: any) {
+  const c = realChannels[index];
+  if (!c) return null;
+  const nearRight = c.hired > maxHired * 0.8;
+  return (
+    <text
+      x={nearRight ? x - 12 : x}
+      y={y - 15}
+      textAnchor={nearRight ? 'end' : 'middle'}
+      fontSize={10}
+      fontWeight={600}
+      fill="#475569"
+    >
+      {c.short}
+    </text>
+  );
+}
+
 function RiskTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as (typeof channelRisk)[number];
@@ -124,8 +147,8 @@ export default function UnstableChannels() {
         <p className="text-xs text-slate-500 mb-3">
           Идеальная зона — правый нижний угол: много наймов при низкой текучести
         </p>
-        <ResponsiveContainer width="100%" height={280}>
-          <ScatterChart margin={{ top: 10, right: 20, bottom: 30, left: 0 }}>
+        <ResponsiveContainer width="100%" height={300}>
+          <ScatterChart margin={{ top: 30, right: 46, bottom: 30, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               type="number"
@@ -150,20 +173,93 @@ export default function UnstableChannels() {
               stroke="#94a3b8"
               strokeDasharray="4 4"
               label={{
-                value: `среднее ${avgTurnover.toFixed(1)}%`,
+                value: `среднее по компании ${avgTurnover.toFixed(1)}%`,
                 fontSize: 10,
                 fill: '#64748b',
-                position: 'insideTopRight',
+                position: 'insideBottomLeft',
               }}
             />
             <Tooltip content={<RiskTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-            <Scatter data={realChannels} fillOpacity={0.75}>
+            <Scatter data={realChannels} fillOpacity={0.75} label={<DotLabel />}>
               {realChannels.map((c) => (
                 <Cell key={c.source} fill={RISK_META[c.level].color} />
               ))}
             </Scatter>
           </ScatterChart>
         </ResponsiveContainer>
+
+        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3.5 space-y-3">
+          <div className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+            <Icon name="Info" size={13} className="text-slate-400" />
+            Как читать график
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div className="flex items-start gap-2">
+              <Icon name="MoveRight" size={14} className="text-slate-400 mt-0.5 shrink-0" />
+              <div>
+                <div className="text-[11px] font-semibold text-slate-700">Правее — больше найма</div>
+                <div className="text-[11px] text-slate-500 leading-snug">Горизонталь: сколько человек пришло</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <Icon name="MoveUp" size={14} className="text-slate-400 mt-0.5 shrink-0" />
+              <div>
+                <div className="text-[11px] font-semibold text-slate-700">Выше — хуже удержание</div>
+                <div className="text-[11px] text-slate-500 leading-snug">Вертикаль: процент увольнений</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <Icon name="Circle" size={14} className="text-slate-400 mt-0.5 shrink-0" />
+              <div>
+                <div className="text-[11px] font-semibold text-slate-700">Крупнее — больше потерь</div>
+                <div className="text-[11px] text-slate-500 leading-snug">Размер круга: число уволившихся</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-200 pt-3">
+            <div className="text-[11px] font-semibold text-slate-700 mb-2">Цвет круга — уровень риска</div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              {legendLevels.map((lvl) => (
+                <div key={lvl} className="flex items-center gap-2">
+                  <span
+                    className="w-3.5 h-3.5 rounded-full shrink-0"
+                    style={{ background: RISK_META[lvl].color, opacity: 0.75 }}
+                  />
+                  <span className="text-[11px] text-slate-600">
+                    {RISK_META[lvl].label}
+                    <span className="text-slate-400"> · {RISK_META[lvl].range}</span>
+                  </span>
+                </div>
+              ))}
+              <div className="flex items-center gap-2">
+                <span className="w-5 border-t-2 border-dashed border-slate-400 shrink-0" />
+                <span className="text-[11px] text-slate-600">
+                  Среднее по компании
+                  <span className="text-slate-400"> · {avgTurnover.toFixed(1)}%</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-200 pt-3 grid sm:grid-cols-2 gap-2">
+            <div className="flex items-start gap-2">
+              <Icon name="CircleCheck" size={14} className="text-emerald-600 mt-0.5 shrink-0" />
+              <div className="text-[11px] text-slate-600 leading-snug">
+                <strong className="text-emerald-700">Правый нижний угол — цель.</strong> Канал даёт много людей, и они
+                остаются работать
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <Icon name="CircleAlert" size={14} className="text-rose-600 mt-0.5 shrink-0" />
+              <div className="text-[11px] text-slate-600 leading-snug">
+                <strong className="text-rose-700">Верхняя часть — зона риска.</strong> Деньги на подбор уходят, а люди
+                не задерживаются
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="bg-slate-50 border-t border-slate-200 px-5 py-4">
