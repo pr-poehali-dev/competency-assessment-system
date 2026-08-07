@@ -30,7 +30,7 @@ export default function UnstableChannels() {
   const unknownFired = unknownChannels.reduce((s, c) => s + c.fired, 0);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden print-block">
       <div className="p-5 pb-0 flex items-start gap-3">
         <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
           <Icon name="Radar" size={18} className="text-amber-600" />

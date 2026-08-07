@@ -8,7 +8,7 @@ export default function TenureChart() {
   const early2026 = pct(TENURE[0].y2026, TENURE_2026);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block">
       <h3 className="font-semibold text-slate-900 mb-1">Увольнения по стажу работы</h3>
       <p className="text-sm text-slate-500 mb-5">Сколько сотрудник проработал до увольнения</p>
       <ResponsiveContainer width="100%" height={250}>

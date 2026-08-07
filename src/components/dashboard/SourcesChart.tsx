@@ -8,7 +8,7 @@ const data = [...SOURCES]
 
 export default function SourcesChart() {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block">
       <h3 className="font-semibold text-slate-900 mb-1">Источники подбора: 2025 vs 2026</h3>
       <p className="text-sm text-slate-500 mb-5">Количество нанятых сотрудников по каждому каналу</p>
       <ResponsiveContainer width="100%" height={430}>

@@ -42,6 +42,15 @@ export default function Dashboard() {
   const agency = SOURCES.find((s) => s.source === 'Кадровое агентство')!;
   const best = retentionBySource[0];
 
+  const handlePrint = () => {
+    const prev = document.title;
+    const d = new Date();
+    const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    document.title = `Отчёт по подбору и текучести персонала ${stamp}`;
+    window.addEventListener('afterprint', () => (document.title = prev), { once: true });
+    window.print();
+  };
+
   const insights = [
     {
       icon: 'Award',
@@ -102,13 +111,23 @@ export default function Dashboard() {
               <div className="font-semibold text-slate-900 leading-tight">Подбор и текучесть персонала</div>
             </div>
           </div>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 transition-colors"
-          >
-            <Icon name="GitBranch" size={16} />
-            <span className="hidden sm:inline">Блок-схема найма</span>
-          </Link>
+          <div className="flex items-center gap-2 no-print">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 transition-colors"
+            >
+              <Icon name="GitBranch" size={16} />
+              <span className="hidden sm:inline">Блок-схема найма</span>
+            </Link>
+            <button
+              onClick={handlePrint}
+              title="Откроется окно печати — выберите «Сохранить как PDF»"
+              className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#1a1a2e] rounded-lg px-4 py-2 hover:bg-[#2d2d4a] transition-colors"
+            >
+              <Icon name="FileDown" size={16} />
+              <span className="hidden sm:inline">Скачать PDF</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -119,6 +138,10 @@ export default function Dashboard() {
             Эффективность каналов найма и удержание сотрудников за 2025–2026 годы. Всего{' '}
             {(TOTAL_2025 + TOTAL_2026).toLocaleString('ru-RU')} наймов и{' '}
             {(DISM_2025 + DISM_2026).toLocaleString('ru-RU')} увольнений.
+          </p>
+          <p className="print-only text-xs text-slate-400 mt-3 pt-3 border-t border-slate-200">
+            Отчёт сформирован {new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+            {' · '}Отдел подбора персонала
           </p>
         </div>
 
@@ -136,6 +159,7 @@ export default function Dashboard() {
 
         <SourcesTable />
 
+        <div className="print-page-break" />
         <SectionTitle
           icon="UserMinus"
           title="Текучесть кадров"

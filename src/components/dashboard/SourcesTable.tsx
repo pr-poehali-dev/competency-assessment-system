@@ -5,7 +5,7 @@ const rows = [...SOURCES].sort((a, b) => b.y2026 - a.y2026 || b.y2025 - a.y2025)
 
 export default function SourcesTable() {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden print-block">
       <div className="p-5 pb-3">
         <h3 className="font-semibold text-slate-900">Детализация по источникам</h3>
         <p className="text-sm text-slate-500 mt-1">Динамика найма по каждому каналу</p>

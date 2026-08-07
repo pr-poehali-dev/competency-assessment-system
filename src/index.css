@@ -99,3 +99,57 @@
     @apply bg-background text-foreground;
   }
 }
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  header {
+    position: static !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .print-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .recharts-wrapper,
+  .recharts-surface {
+    overflow: visible !important;
+  }
+
+  a[href]::after {
+    content: none !important;
+  }
+}
+
+.print-only {
+  display: none;
+}

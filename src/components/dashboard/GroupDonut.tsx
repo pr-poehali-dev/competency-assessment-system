@@ -83,7 +83,7 @@ function Donut({ year, total }: { year: 'y2025' | 'y2026'; total: number }) {
 
 export default function GroupDonut() {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block">
       <h3 className="font-semibold text-slate-900 mb-1">Структура каналов подбора</h3>
       <p className="text-sm text-slate-500 mb-4">Распределение по типам источников</p>
       <div className="flex gap-2">

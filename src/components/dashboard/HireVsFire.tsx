@@ -16,7 +16,7 @@ const data = [...SOURCES]
 
 export default function HireVsFire() {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block">
       <h3 className="font-semibold text-slate-900 mb-1">Найм и увольнения по каналам, 2026</h3>
       <p className="text-sm text-slate-500 mb-5">Сколько человек пришло, ушло и осталось работать</p>
       <ResponsiveContainer width="100%" height={290}>
