@@ -4,7 +4,13 @@ import { SOURCES, TOTAL_2025, TOTAL_2026, pct } from '@/data/recruitment';
 export default function KpiCards() {
   const top2026 = [...SOURCES].sort((a, b) => b.y2026 - a.y2026)[0];
   const freeShare2026 =
-    pct(SOURCES.filter((s) => s.group === 'referral' || s.group === 'internal').reduce((s, r) => s + r.y2026, 0), TOTAL_2026);
+    pct(
+      SOURCES.filter((s) => s.group === 'referral' || s.group === 'internal' || s.group === 'opp').reduce(
+        (s, r) => s + r.y2026,
+        0,
+      ),
+      TOTAL_2026,
+    );
   const paidShare2026 =
     pct(SOURCES.filter((s) => s.group === 'agency' || s.group === 'jobboard').reduce((s, r) => s + r.y2026, 0), TOTAL_2026);
 

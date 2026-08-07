@@ -3,13 +3,13 @@ export type SourceRow = {
   short: string;
   y2025: number;
   y2026: number;
-  group: 'jobboard' | 'referral' | 'internal' | 'agency' | 'unknown' | 'other';
+  group: 'jobboard' | 'referral' | 'opp' | 'internal' | 'agency' | 'unknown' | 'other';
 };
 
 export const SOURCES: SourceRow[] = [
   { source: 'По рекомендации', short: 'Рекомендации', y2025: 414, y2026: 301, group: 'referral' },
   { source: 'HeadHunter.ru', short: 'HeadHunter', y2025: 290, y2026: 182, group: 'jobboard' },
-  { source: 'ОПП (Отдел подбора персонала)', short: 'ОПП', y2025: 228, y2026: 106, group: 'internal' },
+  { source: 'ОПП (Отдел подбора персонала)', short: 'ОПП', y2025: 228, y2026: 106, group: 'opp' },
   { source: 'Кадровое агентство', short: 'Кадр. агентство', y2025: 189, y2026: 112, group: 'agency' },
   { source: 'Работал ранее', short: 'Работал ранее', y2025: 57, y2026: 50, group: 'referral' },
   { source: 'НЕ УКАЗАН', short: 'Не указан', y2025: 16, y2026: 15, group: 'unknown' },
@@ -27,7 +27,8 @@ export const SOURCES: SourceRow[] = [
 export const GROUP_META: Record<SourceRow['group'], { label: string; color: string }> = {
   referral: { label: 'Рекомендации и связи', color: '#16a34a' },
   jobboard: { label: 'Job-сайты', color: '#0ea5e9' },
-  internal: { label: 'Внутренние ресурсы', color: '#8b5cf6' },
+  opp: { label: 'ОПП — собственный подбор', color: '#7c3aed' },
+  internal: { label: 'Другие внутренние ресурсы', color: '#c4b5fd' },
   agency: { label: 'Кадровые агентства', color: '#f59e0b' },
   unknown: { label: 'Источник не указан', color: '#94a3b8' },
   other: { label: 'Прочее', color: '#ec4899' },

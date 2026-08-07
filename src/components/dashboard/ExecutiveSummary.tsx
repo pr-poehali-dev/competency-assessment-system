@@ -22,6 +22,9 @@ export default function ExecutiveSummary() {
   const referral = GROUPED.find((g) => g.group === 'referral')!;
   const agency = GROUPED.find((g) => g.group === 'agency')!;
   const earlyShare = pct(TENURE[0].y2026, TENURE_2026);
+  const freeGroups = GROUPED.filter((g) => ['referral', 'internal', 'opp'].includes(g.group));
+  const free2026 = freeGroups.reduce((s, g) => s + g.y2026, 0);
+  const free2025 = freeGroups.reduce((s, g) => s + g.y2025, 0);
 
   const metrics = [
     {
@@ -47,8 +50,8 @@ export default function ExecutiveSummary() {
     },
     {
       label: 'Доля бесплатных каналов',
-      value: `${pct(referral.y2026 + (GROUPED.find((g) => g.group === 'internal')?.y2026 ?? 0), TOTAL_2026).toFixed(0)}%`,
-      prev: `${pct(referral.y2025 + (GROUPED.find((g) => g.group === 'internal')?.y2025 ?? 0), TOTAL_2025).toFixed(0)}% в 2025`,
+      value: `${pct(free2026, TOTAL_2026).toFixed(0)}%`,
+      prev: `${pct(free2025, TOTAL_2025).toFixed(0)}% в 2025`,
       delta: 'без затрат на подбор',
       good: true,
     },
