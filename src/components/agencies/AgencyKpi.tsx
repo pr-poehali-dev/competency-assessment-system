@@ -2,8 +2,9 @@ import Icon from '@/components/ui/icon';
 import {
   AG_TOTAL_2025,
   AG_TOTAL_2026,
-  AG_FIRED_2025,
+  AG_FIRED_2026,
   AG_TURNOVER_2025,
+  AG_TURNOVER_2026,
   EFIR,
   EFIR_SHARE_2026,
   AGENCIES,
@@ -32,10 +33,10 @@ export default function AgencyKpi() {
     {
       icon: 'UserMinus',
       tone: 'text-rose-700 bg-rose-100',
-      value: `${AG_TURNOVER_2025.toFixed(1)}%`,
-      label: 'текучесть найма 2025',
-      sub: `уволилось ${AG_FIRED_2025} из ${AG_TOTAL_2025}`,
-      subTone: 'text-rose-600',
+      value: `${AG_TURNOVER_2026.toFixed(1)}%`,
+      label: 'текучесть найма 2026',
+      sub: `${AG_FIRED_2026} чел. · было ${AG_TURNOVER_2025.toFixed(1)}%`,
+      subTone: 'text-emerald-600',
     },
     {
       icon: 'Building2',

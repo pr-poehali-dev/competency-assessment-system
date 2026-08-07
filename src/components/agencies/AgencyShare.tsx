@@ -68,6 +68,35 @@ export default function AgencyShare() {
           найма через агентства в 2026 году. Остальные агентства закрыли единичные вакансии.
         </p>
       </div>
+
+      <div className="mt-3 pt-3 border-t border-slate-100">
+        <div className="text-xs font-semibold text-slate-700 mb-2">
+          Текучесть найма по агентствам за два года
+        </div>
+        <div className="space-y-1.5">
+          {AGENCIES.filter((a) => a.hired2025 + a.hired2026 >= 3).map((a) => {
+            const turn = agPct(a.fired2025 + a.fired2026, a.hired2025 + a.hired2026);
+            return (
+              <div key={a.name} className="flex items-center gap-2 text-xs">
+                <span className="text-slate-600 flex-1 truncate">{a.short}</span>
+                <span className="text-slate-400 tabular-nums">
+                  {a.fired2025 + a.fired2026} из {a.hired2025 + a.hired2026}
+                </span>
+                <span
+                  className={`font-semibold tabular-nums w-12 text-right ${
+                    turn >= 30 ? 'text-rose-600' : turn >= 15 ? 'text-amber-600' : 'text-emerald-600'
+                  }`}
+                >
+                  {turn.toFixed(0)}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-[11px] text-slate-400 mt-2 leading-snug">
+          Показаны агентства с наймом от 3 человек. У мелких подрядчиков выборка слишком мала для оценки.
+        </p>
+      </div>
     </div>
   );
 }

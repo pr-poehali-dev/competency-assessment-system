@@ -19,13 +19,14 @@ import {
   AG_TOTAL_2025,
   AG_TOTAL_2026,
   AG_FIRED_2025,
+  AG_FIRED_2026,
   AG_TURNOVER_2025,
+  AG_TURNOVER_2026,
+  FAST_FIRED_2026,
+  FIRED_TENURE,
   EFIR,
   EFIR_SHARE_2026,
-  EFIR_TURNOVER,
-  EARLY_FIRED,
   RECRUITERS_2026,
-  agPct,
 } from '@/data/agencies';
 
 function SectionTitle({ icon, title, sub }: { icon: string; title: string; sub: string }) {
@@ -79,16 +80,16 @@ export default function Agencies() {
       text: `${EFIR_SHARE_2026.toFixed(0)}% найма через агентства в 2026 году: ${EFIR.hired2026} из ${AG_TOTAL_2026} человек. Остальные агентства закрыли по 1–2 вакансии.`,
     },
     {
-      icon: 'UserMinus',
-      tone: 'rose',
-      title: 'Текучесть найма 2025 — каждый шестой',
-      text: `Из ${AG_TOTAL_2025} нанятых уволилось ${AG_FIRED_2025} человек, это ${AG_TURNOVER_2025.toFixed(1)}%. У КА ЭФИР — ${EFIR_TURNOVER.toFixed(1)}%.`,
+      icon: 'TrendingDown',
+      tone: 'emerald',
+      title: 'Текучесть найма снизилась вдвое',
+      text: `В 2026 году уволилось ${AG_FIRED_2026} из ${AG_TOTAL_2026} нанятых — ${AG_TURNOVER_2026.toFixed(1)}% против ${AG_TURNOVER_2025.toFixed(1)}% в 2025 году.`,
     },
     {
       icon: 'Clock',
-      tone: 'sky',
-      title: 'Основные потери — первый год',
-      text: `${agPct(EARLY_FIRED, AG_FIRED_2025).toFixed(0)}% уволившихся не отработали года. Больше всего уходят на 6–12 месяце работы.`,
+      tone: 'rose',
+      title: 'Все потери — в первые полгода',
+      text: `Ни один уволившийся не проработал года. ${FAST_FIRED_2026} из ${AG_FIRED_2026} ушли за первые шесть месяцев, ${FIRED_TENURE[0].y2026} — не отработав и трёх.`,
     },
     {
       icon: 'UsersRound',
@@ -168,7 +169,7 @@ export default function Agencies() {
           <h1 className="text-3xl font-bold text-slate-900">Дашборд подбора через кадровые агентства</h1>
           <p className="text-slate-500 mt-2">
             Эффективность агентств-подрядчиков за 2025–2026 годы. Всего {AG_TOTAL_2025 + AG_TOTAL_2026} наймов, из них{' '}
-            {AG_FIRED_2025} сотрудников уже уволились.
+            {AG_FIRED_2025 + AG_FIRED_2026} сотрудников уволились в год приёма.
           </p>
         </div>
 
@@ -214,8 +215,8 @@ export default function Agencies() {
               <ol className="space-y-2 text-sm text-slate-700">
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">1.</span>
-                  Закрепить в договоре с КА ЭФИР гарантийный срок бесплатной замены кандидата — минимум 6 месяцев, так
-                  как основные потери приходятся на первый год.
+                  Закрепить в договоре с КА ЭФИР гарантийный срок бесплатной замены кандидата — минимум 6 месяцев:
+                  именно в этот период происходят все потери.
                 </li>
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">2.</span>
@@ -223,8 +224,8 @@ export default function Agencies() {
                 </li>
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">3.</span>
-                  Пересмотреть требования по проблемным позициям — ГИП, помощник ГИП и помощник руководителя дают
-                  наибольшие потери.
+                  Пересмотреть требования по проблемным позициям — помощник руководителя, ГИП и производитель работ
+                  дают наибольшие потери оба года.
                 </li>
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">4.</span>
@@ -237,8 +238,9 @@ export default function Agencies() {
         </div>
 
         <div className="text-xs text-slate-400 pt-2 pb-4 leading-relaxed">
-          Источник данных: отчёты «Принятые сотрудники» Концерна КРОСТ за 2025 и 2026 годы. Все источники с упоминанием
-          ЭФИР учтены как одна компания. Данные за 2026 год приведены на дату формирования отчёта.
+          Источник данных: отчёты «Принятые сотрудники» и «Уволенные сотрудники» Концерна КРОСТ за 2025 и 2026 годы.
+          Все источники с упоминанием ЭФИР учтены как одна компания. Увольнения считаются по сотрудникам, принятым и
+          уволенным в течение одного года. Данные за 2026 год приведены на дату формирования отчёта.
         </div>
       </main>
     </div>
