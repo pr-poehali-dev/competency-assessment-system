@@ -38,10 +38,19 @@ export default function HireVsFire() {
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={290}>
-        <ComposedChart data={data} margin={{ top: 22, right: 8 }} barGap={3}>
+      <ResponsiveContainer width="100%" height={330}>
+        <ComposedChart data={data} margin={{ top: 22, right: 8, bottom: 46 }} barGap={3}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-          <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
+          <XAxis
+            dataKey="name"
+            stroke="#64748b"
+            fontSize={11}
+            interval={0}
+            angle={-30}
+            textAnchor="end"
+            height={60}
+            tickMargin={6}
+          />
           <YAxis stroke="#94a3b8" fontSize={12} />
           <Tooltip
             cursor={{ fill: '#f1f5f9' }}
