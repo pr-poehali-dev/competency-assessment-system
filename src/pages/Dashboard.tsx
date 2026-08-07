@@ -140,7 +140,14 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-2 no-print">
             <Link
-              to="/"
+              to="/agencies"
+              className="inline-flex items-center gap-2 text-sm font-medium text-amber-700 border border-amber-200 bg-amber-50 rounded-lg px-3 py-2 hover:bg-amber-100 transition-colors"
+            >
+              <Icon name="Handshake" size={16} />
+              <span className="hidden sm:inline">Кадровые агентства</span>
+            </Link>
+            <Link
+              to="/flowchart"
               className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 transition-colors"
             >
               <Icon name="GitBranch" size={16} />
