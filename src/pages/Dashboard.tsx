@@ -1,5 +1,13 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import KpiCards from '@/components/dashboard/KpiCards';
 import SourcesChart from '@/components/dashboard/SourcesChart';
 import GroupDonut from '@/components/dashboard/GroupDonut';
@@ -42,12 +50,30 @@ export default function Dashboard() {
   const agency = SOURCES.find((s) => s.source === 'Кадровое агентство')!;
   const best = retentionBySource[0];
 
-  const handlePrint = () => {
+  const handlePrint = (format: 'A4' | 'A3') => {
     const prev = document.title;
     const d = new Date();
     const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    document.title = `Отчёт по подбору и текучести персонала ${stamp}`;
-    window.addEventListener('afterprint', () => (document.title = prev), { once: true });
+
+    const style = document.createElement('style');
+    style.id = 'page-format';
+    style.textContent =
+      format === 'A3'
+        ? '@page { size: A3 portrait; margin: 14mm 12mm; }'
+        : '@page { size: A4 portrait; margin: 12mm 10mm; }';
+    document.head.appendChild(style);
+    document.documentElement.classList.add(`print-format-${format.toLowerCase()}`);
+
+    document.title = `Отчёт по подбору и текучести персонала ${format} ${stamp}`;
+    window.addEventListener(
+      'afterprint',
+      () => {
+        document.title = prev;
+        style.remove();
+        document.documentElement.classList.remove('print-format-a4', 'print-format-a3');
+      },
+      { once: true },
+    );
     window.print();
   };
 
@@ -119,14 +145,38 @@ export default function Dashboard() {
               <Icon name="GitBranch" size={16} />
               <span className="hidden sm:inline">Блок-схема найма</span>
             </Link>
-            <button
-              onClick={handlePrint}
-              title="Откроется окно печати — выберите «Сохранить как PDF»"
-              className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#1a1a2e] rounded-lg px-4 py-2 hover:bg-[#2d2d4a] transition-colors"
-            >
-              <Icon name="FileDown" size={16} />
-              <span className="hidden sm:inline">Скачать PDF</span>
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#1a1a2e] rounded-lg px-4 py-2 hover:bg-[#2d2d4a] transition-colors">
+                  <Icon name="FileDown" size={16} />
+                  <span className="hidden sm:inline">Скачать PDF</span>
+                  <Icon name="ChevronDown" size={14} className="opacity-70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72">
+                <DropdownMenuLabel>Формат страницы</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handlePrint('A4')} className="gap-3 py-2.5 cursor-pointer">
+                  <Icon name="FileText" size={18} className="text-slate-500 shrink-0" />
+                  <div>
+                    <div className="font-medium">Формат A4</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Обычный лист — для рассылки и чтения с экрана</div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePrint('A3')} className="gap-3 py-2.5 cursor-pointer">
+                  <Icon name="Files" size={18} className="text-slate-500 shrink-0" />
+                  <div>
+                    <div className="font-medium">Формат A3</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Крупный лист — для распечатки и презентаций</div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <div className="px-2 py-2 text-[11px] text-slate-400 leading-relaxed">
+                  Откроется окно печати. Выберите «Сохранить как PDF» и убедитесь, что размер бумаги совпадает с
+                  выбранным форматом.
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -148,7 +198,7 @@ export default function Dashboard() {
         <SectionTitle icon="UserPlus" title="Подбор персонала" sub="Откуда приходят сотрудники" />
         <KpiCards />
 
-        <div className="grid lg:grid-cols-5 gap-6">
+        <div className="grid lg:grid-cols-5 gap-6 print-wide">
           <div className="lg:col-span-3">
             <SourcesChart />
           </div>
@@ -167,7 +217,7 @@ export default function Dashboard() {
         />
         <TurnoverKpi />
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-6 print-pair">
           <TenureChart />
           <HireVsFire />
         </div>
@@ -181,7 +231,7 @@ export default function Dashboard() {
             <Icon name="Lightbulb" size={18} className="text-amber-500" />
             Ключевые выводы
           </h2>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-4 print-trio">
             {insights.map((i) => (
               <div key={i.title} className={`rounded-xl border p-5 ${toneMap[i.tone]}`}>
                 <Icon name={i.icon} size={20} className="mb-3" />

@@ -148,6 +148,40 @@
   a[href]::after {
     content: none !important;
   }
+
+  .print-format-a4 .print-only-a3 {
+    display: none !important;
+  }
+
+  .print-format-a3 .print-only-a4 {
+    display: none !important;
+  }
+
+  .print-format-a3 main {
+    font-size: 1.05rem;
+  }
+
+  .print-format-a3 .print-pair {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .print-format-a3 .print-wide {
+    display: grid !important;
+    grid-template-columns: 3fr 2fr;
+    gap: 1.25rem;
+  }
+
+  .print-format-a3 .print-wide > * {
+    grid-column: auto !important;
+  }
+
+  .print-format-a3 .print-trio {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
 }
 
 .print-only {
