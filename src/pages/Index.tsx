@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import FlowchartSVG from '@/components/FlowchartSVG';
@@ -293,6 +294,12 @@ export default function Index() {
             </div>
           </div>
           <div className="flex gap-2">
+            <Button asChild variant="outline" className="gap-2 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-white">
+              <Link to="/">
+                <Icon name="ChartColumnBig" size={16} />
+                Дашборд
+              </Link>
+            </Button>
             <Button onClick={downloadPNG} variant="outline" className="gap-2 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-white">
               <Icon name="Image" size={16} />
               Скачать PNG
