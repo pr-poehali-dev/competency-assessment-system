@@ -108,3 +108,32 @@ export const retentionBySource = SOURCES.map((s) => {
 })
   .filter((r) => r.hired >= 10)
   .sort((a, b) => a.turnover - b.turnover);
+
+export const EARLY_SHARE = TENURE[0].y2026 / TENURE.reduce((s, r) => s + r.y2026, 0);
+
+export const channelRisk = SOURCES.map((s) => {
+  const fired = DISMISSALS.find((x) => x.source === s.source)?.y2026 ?? 0;
+  const hired = s.y2026;
+  const turnover = hired > 0 ? (fired / hired) * 100 : 0;
+  const earlyFired = Math.round(fired * EARLY_SHARE);
+  return {
+    source: s.source,
+    short: s.short,
+    group: s.group,
+    hired,
+    fired,
+    earlyFired,
+    turnover,
+    retained: hired - fired,
+    lostRate: turnover,
+    level: (turnover >= 20 ? 'high' : turnover >= 12 ? 'mid' : 'low') as 'high' | 'mid' | 'low',
+  };
+})
+  .filter((r) => r.hired > 0)
+  .sort((a, b) => b.turnover - a.turnover);
+
+export const RISK_META = {
+  high: { label: 'Высокий риск', color: '#dc2626', bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700' },
+  mid: { label: 'Средний риск', color: '#f59e0b', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
+  low: { label: 'Низкий риск', color: '#16a34a', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700' },
+} as const;

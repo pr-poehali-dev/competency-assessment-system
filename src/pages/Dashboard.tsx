@@ -6,9 +6,9 @@ import GroupDonut from '@/components/dashboard/GroupDonut';
 import SourcesTable from '@/components/dashboard/SourcesTable';
 import TurnoverKpi from '@/components/dashboard/TurnoverKpi';
 import TenureChart from '@/components/dashboard/TenureChart';
-import SourceQuality from '@/components/dashboard/SourceQuality';
 import HireVsFire from '@/components/dashboard/HireVsFire';
 import EarlyTurnover from '@/components/dashboard/EarlyTurnover';
+import UnstableChannels from '@/components/dashboard/UnstableChannels';
 import {
   SOURCES,
   TOTAL_2025,
@@ -145,12 +145,12 @@ export default function Dashboard() {
 
         <div className="grid lg:grid-cols-2 gap-6">
           <TenureChart />
-          <SourceQuality />
+          <HireVsFire />
         </div>
 
-        <HireVsFire />
-
         <EarlyTurnover />
+
+        <UnstableChannels />
 
         <div>
           <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
