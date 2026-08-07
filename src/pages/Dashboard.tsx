@@ -4,12 +4,42 @@ import KpiCards from '@/components/dashboard/KpiCards';
 import SourcesChart from '@/components/dashboard/SourcesChart';
 import GroupDonut from '@/components/dashboard/GroupDonut';
 import SourcesTable from '@/components/dashboard/SourcesTable';
-import { SOURCES, TOTAL_2025, TOTAL_2026, pct } from '@/data/recruitment';
+import TurnoverKpi from '@/components/dashboard/TurnoverKpi';
+import TenureChart from '@/components/dashboard/TenureChart';
+import SourceQuality from '@/components/dashboard/SourceQuality';
+import HireVsFire from '@/components/dashboard/HireVsFire';
+import {
+  SOURCES,
+  TOTAL_2025,
+  TOTAL_2026,
+  DISM_2025,
+  DISM_2026,
+  TENURE,
+  TENURE_2026,
+  retentionBySource,
+  pct,
+} from '@/data/recruitment';
+
+function SectionTitle({ icon, title, sub }: { icon: string; title: string; sub: string }) {
+  return (
+    <div className="flex items-center gap-3 pt-4">
+      <div className="w-9 h-9 rounded-lg bg-[#1a1a2e] flex items-center justify-center shrink-0">
+        <Icon name={icon} size={18} className="text-white" />
+      </div>
+      <div>
+        <h2 className="text-xl font-bold text-slate-900 leading-tight">{title}</h2>
+        <p className="text-sm text-slate-500">{sub}</p>
+      </div>
+      <div className="flex-1 h-px bg-slate-200 ml-2" />
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const referral = SOURCES.find((s) => s.source === 'По рекомендации')!;
   const hh = SOURCES.find((s) => s.source === 'HeadHunter.ru')!;
   const agency = SOURCES.find((s) => s.source === 'Кадровое агентство')!;
+  const best = retentionBySource[0];
 
   const insights = [
     {
@@ -30,12 +60,32 @@ export default function Dashboard() {
       title: 'Кадровые агентства — зона экономии',
       text: `Агентства закрывают ${pct(agency.y2026, TOTAL_2026).toFixed(0)}% вакансий. Усиление реферальной программы позволит сократить эти расходы.`,
     },
+    {
+      icon: 'TriangleAlert',
+      tone: 'rose',
+      title: 'Первый год — критическая зона',
+      text: `${pct(TENURE[0].y2026, TENURE_2026).toFixed(0)}% всех увольнений приходится на сотрудников со стажем менее года. Программа адаптации новичков даст максимальный эффект.`,
+    },
+    {
+      icon: 'ShieldCheck',
+      tone: 'violet',
+      title: `Самый устойчивый канал — ${best.short}`,
+      text: `Текучесть ${best.turnover.toFixed(1)}%: ушло ${best.fired} из ${best.hired} нанятых. Стоит наращивать объём найма через этот источник.`,
+    },
+    {
+      icon: 'TrendingDown',
+      tone: 'sky',
+      title: 'Текучесть снижается',
+      text: `В 2026 году уволилось ${DISM_2026} человек — это ${pct(DISM_2026, TOTAL_2026).toFixed(1)}% от нанятых против ${pct(DISM_2025, TOTAL_2025).toFixed(1)}% годом ранее.`,
+    },
   ];
 
   const toneMap: Record<string, string> = {
     emerald: 'bg-emerald-50 border-emerald-200 text-emerald-700',
     sky: 'bg-sky-50 border-sky-200 text-sky-700',
     amber: 'bg-amber-50 border-amber-200 text-amber-700',
+    rose: 'bg-rose-50 border-rose-200 text-rose-700',
+    violet: 'bg-violet-50 border-violet-200 text-violet-700',
   };
 
   return (
@@ -48,7 +98,7 @@ export default function Dashboard() {
             </div>
             <div>
               <div className="text-[11px] uppercase tracking-[0.15em] text-slate-400 font-medium">Аналитика HR</div>
-              <div className="font-semibold text-slate-900 leading-tight">Источники подбора персонала</div>
+              <div className="font-semibold text-slate-900 leading-tight">Подбор и текучесть персонала</div>
             </div>
           </div>
           <Link
@@ -63,13 +113,15 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Дашборд подбора персонала</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Дашборд подбора и текучести персонала</h1>
           <p className="text-slate-500 mt-2">
-            Сравнение эффективности каналов найма за 2025 и 2026 годы. Всего обработано{' '}
-            {(TOTAL_2025 + TOTAL_2026).toLocaleString('ru-RU')} наймов.
+            Эффективность каналов найма и удержание сотрудников за 2025–2026 годы. Всего{' '}
+            {(TOTAL_2025 + TOTAL_2026).toLocaleString('ru-RU')} наймов и{' '}
+            {(DISM_2025 + DISM_2026).toLocaleString('ru-RU')} увольнений.
           </p>
         </div>
 
+        <SectionTitle icon="UserPlus" title="Подбор персонала" sub="Откуда приходят сотрудники" />
         <KpiCards />
 
         <div className="grid lg:grid-cols-5 gap-6">
@@ -82,6 +134,20 @@ export default function Dashboard() {
         </div>
 
         <SourcesTable />
+
+        <SectionTitle
+          icon="UserMinus"
+          title="Текучесть кадров"
+          sub="Кто и когда увольняется, какие каналы дают устойчивый персонал"
+        />
+        <TurnoverKpi />
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          <TenureChart />
+          <SourceQuality />
+        </div>
+
+        <HireVsFire />
 
         <div>
           <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">

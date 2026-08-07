@@ -51,3 +51,60 @@ export const GROUPED = (Object.keys(GROUP_META) as SourceRow['group'][])
   })
   .filter((g) => g.y2025 + g.y2026 > 0)
   .sort((a, b) => b.y2026 - a.y2026);
+
+/* ─────────── УВОЛЬНЕНИЯ ─────────── */
+
+export type DismissalRow = {
+  source: string;
+  short: string;
+  y2025: number;
+  y2026: number;
+};
+
+export const DISMISSALS: DismissalRow[] = [
+  { source: 'По рекомендации', short: 'Рекомендации', y2025: 61, y2026: 24 },
+  { source: 'HeadHunter.ru', short: 'HeadHunter', y2025: 69, y2026: 21 },
+  { source: 'Кадровое агентство', short: 'Кадр. агентство', y2025: 58, y2026: 20 },
+  { source: 'ОПП (Отдел подбора персонала)', short: 'ОПП', y2025: 72, y2026: 9 },
+  { source: 'НЕ УКАЗАН', short: 'Не указан', y2025: 59, y2026: 5 },
+  { source: 'Нет информации', short: 'Нет информации', y2025: 5, y2026: 4 },
+  { source: 'Работал ранее', short: 'Работал ранее', y2025: 5, y2026: 4 },
+  { source: 'Отдел кадров ОБУ Гагарин', short: 'ОК Гагарин', y2025: 3, y2026: 1 },
+  { source: 'Перевод (из др. подразделения)', short: 'Перевод (др. подр.)', y2025: 33, y2026: 0 },
+  { source: 'Перевод (из рабочих)', short: 'Перевод (рабочие)', y2025: 1, y2026: 0 },
+  { source: 'Кастинг', short: 'Кастинг', y2025: 1, y2026: 0 },
+  { source: 'Наружная реклама', short: 'Наружная реклама', y2025: 1, y2026: 0 },
+];
+
+export const DISM_2025 = DISMISSALS.reduce((s, r) => s + r.y2025, 0);
+export const DISM_2026 = DISMISSALS.reduce((s, r) => s + r.y2026, 0);
+
+export type TenureRow = { label: string; full: string; y2025: number; y2026: number };
+
+export const TENURE: TenureRow[] = [
+  { label: 'до 1 года', full: 'Менее 1 года', y2025: 314, y2026: 84 },
+  { label: '1–3 года', full: 'От 1 до 3 лет', y2025: 29, y2026: 1 },
+  { label: '3–5 лет', full: 'От 3 до 5 лет', y2025: 7, y2026: 1 },
+  { label: '5–10 лет', full: 'От 5 до 10 лет', y2025: 16, y2026: 1 },
+  { label: '10–20 лет', full: 'От 10 до 20 лет', y2025: 2, y2026: 1 },
+  { label: '20+ лет', full: 'Более 20 лет', y2025: 0, y2026: 0 },
+];
+
+export const TENURE_2025 = TENURE.reduce((s, r) => s + r.y2025, 0);
+export const TENURE_2026 = TENURE.reduce((s, r) => s + r.y2026, 0);
+
+export const retentionBySource = SOURCES.map((s) => {
+  const d = DISMISSALS.find((x) => x.source === s.source);
+  const hired = s.y2026;
+  const fired = d?.y2026 ?? 0;
+  return {
+    source: s.source,
+    short: s.short,
+    hired,
+    fired,
+    turnover: hired > 0 ? (fired / hired) * 100 : 0,
+    group: s.group,
+  };
+})
+  .filter((r) => r.hired >= 10)
+  .sort((a, b) => a.turnover - b.turnover);
