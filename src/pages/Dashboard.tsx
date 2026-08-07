@@ -8,6 +8,7 @@ import TurnoverKpi from '@/components/dashboard/TurnoverKpi';
 import TenureChart from '@/components/dashboard/TenureChart';
 import SourceQuality from '@/components/dashboard/SourceQuality';
 import HireVsFire from '@/components/dashboard/HireVsFire';
+import EarlyTurnover from '@/components/dashboard/EarlyTurnover';
 import {
   SOURCES,
   TOTAL_2025,
@@ -148,6 +149,8 @@ export default function Dashboard() {
         </div>
 
         <HireVsFire />
+
+        <EarlyTurnover />
 
         <div>
           <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
