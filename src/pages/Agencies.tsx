@@ -15,6 +15,7 @@ import AgencyQuality from '@/components/agencies/AgencyQuality';
 import TimeLoss from '@/components/agencies/TimeLoss';
 import AgencyTerms from '@/components/agencies/AgencyTerms';
 import GuaranteeVolume from '@/components/agencies/GuaranteeVolume';
+import ClaimsSummary from '@/components/agencies/ClaimsSummary';
 import { COVERED_SUM, money } from '@/data/agencyTerms';
 import CandidateProfile from '@/components/agencies/CandidateProfile';
 import DeptTable from '@/components/agencies/DeptTable';
@@ -133,6 +134,13 @@ export default function Agencies() {
               <Icon name="ChartColumnBig" size={16} />
               <span className="hidden sm:inline">Общий дашборд</span>
             </Link>
+            <Link
+              to="/claims"
+              className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700 border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-2 hover:bg-emerald-100 transition-colors"
+            >
+              <Icon name="ClipboardList" size={16} />
+              <span className="hidden sm:inline">Журнал претензий</span>
+            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#1a1a2e] rounded-lg px-4 py-2 hover:bg-[#2d2d4a] transition-colors">
@@ -212,6 +220,7 @@ export default function Agencies() {
           sub="Сколько стоили уволившиеся и что покрыто заменой"
         />
         <GuaranteeVolume />
+        <ClaimsSummary />
 
         <div className="print-page-break" />
         <SectionTitle icon="UserSearch" title="Кого приводят агентства" sub="Портрет кандидата и закрытые позиции" />
