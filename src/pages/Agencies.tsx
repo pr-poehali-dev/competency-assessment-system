@@ -4,6 +4,7 @@ import { printReport, type PageFormat } from '@/lib/print';
 import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
 import ReportToc from '@/components/print/ReportToc';
 import OpenVacancies from '@/components/agencies/OpenVacancies';
+import AgencyPayments from '@/components/agencies/AgencyPayments';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -45,6 +46,7 @@ const SECTIONS: CoverSection[] = [
   { id: 'timeloss', title: 'Цена быстрых уходов', sub: 'Сколько времени теряет компания' },
   { id: 'terms', title: 'Условия работы с агентствами', sub: 'Стоимость, гарантии и порядок оплаты' },
   { id: 'cost', title: 'Стоимость подбора и гарантии', sub: 'Что покрыто бесплатной заменой' },
+  { id: 'payments', title: 'Сколько заплатили агентствам', sub: 'Фактические оплаты за 2025–2026 годы' },
   { id: 'profile', title: 'Кого приводят агентства', sub: 'Портрет кандидата и закрытые позиции' },
   { id: 'vacancies', title: 'Вакансии в работе у КА ЭФИР', sub: 'Что агентство ищет прямо сейчас' },
   { id: 'insights', title: 'Ключевые выводы', sub: 'Что делать дальше' },
@@ -238,6 +240,15 @@ export default function Agencies() {
         />
         <GuaranteeVolume />
         <ClaimsSummary />
+
+        <div className="print-page-break" />
+        <SectionTitle
+          id="payments"
+          icon="Banknote"
+          title="Сколько заплатили агентствам"
+          sub="Фактические оплаты за 2025–2026 годы"
+        />
+        <AgencyPayments />
 
         <div className="print-page-break" />
         <SectionTitle
