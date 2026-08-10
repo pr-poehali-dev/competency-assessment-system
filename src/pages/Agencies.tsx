@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import { printReport, type PageFormat } from '@/lib/print';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -50,31 +51,8 @@ function SectionTitle({ icon, title, sub }: { icon: string; title: string; sub: 
 }
 
 export default function Agencies() {
-  const handlePrint = (format: 'A4' | 'A3') => {
-    const prev = document.title;
-    const d = new Date();
-    const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
-    const style = document.createElement('style');
-    style.id = 'page-format';
-    style.textContent =
-      format === 'A3'
-        ? '@page { size: A3 portrait; margin: 14mm 12mm; }'
-        : '@page { size: A4 portrait; margin: 12mm 10mm; }';
-    document.head.appendChild(style);
-    document.documentElement.classList.add(`print-format-${format.toLowerCase()}`);
-
-    document.title = `Отчёт по подбору через кадровые агентства ${format} ${stamp}`;
-    window.addEventListener(
-      'afterprint',
-      () => {
-        document.title = prev;
-        style.remove();
-        document.documentElement.classList.remove('print-format-a4', 'print-format-a3');
-      },
-      { once: true },
-    );
-    window.print();
+  const handlePrint = (format: PageFormat) => {
+    printReport(format, 'Отчёт по подбору через кадровые агентства');
   };
 
   const insights = [
