@@ -3,6 +3,7 @@ import Icon from '@/components/ui/icon';
 import { printReport, type PageFormat } from '@/lib/print';
 import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
 import ReportToc from '@/components/print/ReportToc';
+import OpenVacancies from '@/components/agencies/OpenVacancies';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -45,6 +46,7 @@ const SECTIONS: CoverSection[] = [
   { id: 'terms', title: 'Условия работы с агентствами', sub: 'Стоимость, гарантии и порядок оплаты' },
   { id: 'cost', title: 'Стоимость подбора и гарантии', sub: 'Что покрыто бесплатной заменой' },
   { id: 'profile', title: 'Кого приводят агентства', sub: 'Портрет кандидата и закрытые позиции' },
+  { id: 'vacancies', title: 'Вакансии в работе у КА ЭФИР', sub: 'Что агентство ищет прямо сейчас' },
   { id: 'insights', title: 'Ключевые выводы', sub: 'Что делать дальше' },
 ];
 
@@ -246,6 +248,15 @@ export default function Agencies() {
         />
         <CandidateProfile />
         <DeptTable />
+
+        <div className="print-page-break" />
+        <SectionTitle
+          id="vacancies"
+          icon="ClipboardList"
+          title="Вакансии в работе у КА ЭФИР"
+          sub="Что агентство ищет прямо сейчас"
+        />
+        <OpenVacancies />
 
         <div className="print-page-break" />
         <SectionTitle id="insights" icon="Lightbulb" title="Ключевые выводы" sub="Что делать дальше" />
