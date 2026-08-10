@@ -13,6 +13,7 @@ import AgencyShare from '@/components/agencies/AgencyShare';
 import MonthlyChart from '@/components/agencies/MonthlyChart';
 import AgencyQuality from '@/components/agencies/AgencyQuality';
 import TimeLoss from '@/components/agencies/TimeLoss';
+import AgencyTerms from '@/components/agencies/AgencyTerms';
 import CandidateProfile from '@/components/agencies/CandidateProfile';
 import DeptTable from '@/components/agencies/DeptTable';
 import AgencySummary from '@/components/agencies/AgencySummary';
@@ -195,6 +196,14 @@ export default function Agencies() {
         <TimeLoss />
 
         <div className="print-page-break" />
+        <SectionTitle
+          icon="FileSignature"
+          title="Условия работы с агентствами"
+          sub="Стоимость, гарантии и порядок оплаты"
+        />
+        <AgencyTerms />
+
+        <div className="print-page-break" />
         <SectionTitle icon="UserSearch" title="Кого приводят агентства" sub="Портрет кандидата и закрытые позиции" />
         <CandidateProfile />
         <DeptTable />
@@ -219,9 +228,10 @@ export default function Agencies() {
             <div>
               <h3 className="font-semibold text-slate-900 mb-2">Гарантия замены уже действует</h3>
               <p className="text-sm text-slate-700 leading-relaxed">
-                В договорах с кадровыми агентствами закреплена гарантия бесплатной замены кандидата. Это значит, что
-                прямые расходы на повторный подбор по {AG_FIRED_2026} случаям 2026 года компания в основном не несёт —
-                финансовый риск закрыт.
+                Во всех семи договорах закреплена гарантия бесплатной замены кандидата — от 3 до 8 месяцев в
+                зависимости от подрядчика. Средний срок работы уволившихся в 2026 году составил 2 месяца, то есть
+                практически все {AG_FIRED_2026} случаев попадают в гарантийный период и подбор должен закрываться
+                бесплатно.
               </p>
               <p className="text-sm text-slate-700 leading-relaxed mt-2">
                 Но гарантия не компенсирует главное: время. По расчёту выше быстрые уходы стоили компании около{' '}
@@ -248,7 +258,8 @@ export default function Agencies() {
                 </li>
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">2.</span>
-                  Подключить второе агентство на 20–30% объёма, чтобы снизить зависимость от единственного поставщика.
+                  Обсудить с КА ЭФИР схему оплаты частями, как в договоре с Визави Консалт: 70% после выхода и 30%
+                  после испытательного срока. Это связывает выплату с тем, задержался сотрудник или нет.
                 </li>
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">3.</span>
@@ -258,20 +269,17 @@ export default function Agencies() {
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">4.</span>
                   Часть объёма перевести на реферальную программу: по общему дашборду это самый дешёвый и устойчивый
-                  канал.
+                  канал. Дополнительно задействовать подрядчиков с длинной гарантией — у ИП Мухина она 8 месяцев.
                 </li>
-                <li className="flex gap-2">
-                  <span className="font-bold text-emerald-600 shrink-0">5.</span>
-                  Вести учёт замен по гарантии: сколько ушедших агентство заменило бесплатно, а сколько подборов
-                  пришлось оплатить повторно. Это покажет реальную стоимость текучести.
-                </li>
+
               </ol>
             </div>
           </div>
         </div>
 
         <div className="text-xs text-slate-400 pt-2 pb-4 leading-relaxed">
-          Источник данных: отчёты «Принятые сотрудники» и «Уволенные сотрудники» Концерна КРОСТ за 2025 и 2026 годы.
+          Источник данных: отчёты «Принятые сотрудники» и «Уволенные сотрудники» Концерна КРОСТ за 2025 и 2026 годы,
+          список кадровых агентств с условиями сотрудничества на 10.08.2026.
           Все источники с упоминанием ЭФИР учтены как одна компания. Увольнения считаются по сотрудникам, принятым и
           уволенным в течение одного года. Данные за 2026 год приведены на дату формирования отчёта.
         </div>
