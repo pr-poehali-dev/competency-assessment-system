@@ -16,7 +16,6 @@ import TimeLoss from '@/components/agencies/TimeLoss';
 import AgencyTerms from '@/components/agencies/AgencyTerms';
 import GuaranteeVolume from '@/components/agencies/GuaranteeVolume';
 import ClaimsSummary from '@/components/agencies/ClaimsSummary';
-import { COVERED_SUM, money } from '@/data/agencyTerms';
 import CandidateProfile from '@/components/agencies/CandidateProfile';
 import DeptTable from '@/components/agencies/DeptTable';
 import AgencySummary from '@/components/agencies/AgencySummary';
@@ -272,21 +271,11 @@ export default function Agencies() {
               <ol className="space-y-2 text-sm text-slate-700">
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">1.</span>
-                  Проверить, по скольким из 78 уходов за два года были заявлены гарантийные претензии. Речь о{' '}
-                  {money(COVERED_SUM)} работ, которые агентства обязаны выполнить повторно бесплатно.
-                </li>
-                <li className="flex gap-2">
-                  <span className="font-bold text-emerald-600 shrink-0">2.</span>
-                  Обсудить с КА ЭФИР схему оплаты частями, как в договоре с Визави Консалт: 70% после выхода и 30%
-                  после испытательного срока. Это связывает выплату с тем, задержался сотрудник или нет.
-                </li>
-                <li className="flex gap-2">
-                  <span className="font-bold text-emerald-600 shrink-0">3.</span>
                   Пересмотреть требования по проблемным позициям — помощник руководителя, ГИП и производитель работ
                   дают наибольшие потери оба года.
                 </li>
                 <li className="flex gap-2">
-                  <span className="font-bold text-emerald-600 shrink-0">4.</span>
+                  <span className="font-bold text-emerald-600 shrink-0">2.</span>
                   Часть объёма перевести на реферальную программу: по общему дашборду это самый дешёвый и устойчивый
                   канал. Дополнительно задействовать подрядчиков с длинной гарантией — у ИП Мухина она 8 месяцев.
                 </li>
