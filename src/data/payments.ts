@@ -51,8 +51,8 @@ export const PAYMENTS: PaymentRow[] = [
     short: 'Визави',
     paid2025: 810000,
     paid2026: 659080,
-    hired2025: 0,
-    hired2026: 0,
+    hired2025: 1,
+    hired2026: 1,
     color: '#64748b',
   },
   {
@@ -60,7 +60,7 @@ export const PAYMENTS: PaymentRow[] = [
     short: 'ПрофиСтафф',
     paid2025: 422069,
     paid2026: null,
-    hired2025: 0,
+    hired2025: 1,
     hired2026: 0,
     color: '#0ea5e9',
   },
@@ -93,10 +93,12 @@ export const EFIR_LOSS_2025 = EFIR_COST_2025 * EFIR_FIRED_2025;
 export const EFIR_LOSS_2026 = EFIR_COST_2026 * EFIR_FIRED_2026;
 export const EFIR_LOSS_TOTAL = EFIR_LOSS_2025 + EFIR_LOSS_2026;
 
-export const NO_HIRE_PAID = PAYMENTS.filter((p) => p.hired2025 + p.hired2026 === 0).reduce(
-  (s, p) => s + (p.paid2025 ?? 0) + (p.paid2026 ?? 0),
-  0,
-);
+export const HIRED_TOTAL = PAYMENTS.reduce((s, p) => s + p.hired2025 + p.hired2026, 0);
+
+export const SMALL_AGENCIES = PAYMENTS.filter((p) => p.short !== 'КА ЭФИР' && (p.paid2025 ?? 0) + (p.paid2026 ?? 0) > 0);
+export const SMALL_PAID = SMALL_AGENCIES.reduce((s, p) => s + (p.paid2025 ?? 0) + (p.paid2026 ?? 0), 0);
+export const SMALL_HIRED = SMALL_AGENCIES.reduce((s, p) => s + p.hired2025 + p.hired2026, 0);
+export const SMALL_COST = Math.round(SMALL_PAID / SMALL_HIRED);
 
 export const money = (v: number) => v.toLocaleString('ru-RU');
 export const mln = (v: number) => (v / 1000000).toFixed(1);

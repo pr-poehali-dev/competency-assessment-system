@@ -74,7 +74,7 @@ export const TERMS: Term[] = [
     payment: '70% после выхода, 30% после испытательного срока',
     paymentSplit: true,
     vat: 'без НДС',
-    hired: 0,
+    hired: 2,
     fired: 1,
   },
   {
@@ -142,7 +142,7 @@ export const TERMS: Term[] = [
     payment: '100% после выхода на работу в течение 20 банковских дней',
     paymentSplit: false,
     vat: 'без НДС',
-    hired: 0,
+    hired: 1,
     fired: 0,
   },
 ];

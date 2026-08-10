@@ -10,7 +10,10 @@ import {
   EFIR_LOSS_2025,
   EFIR_LOSS_2026,
   EFIR_LOSS_TOTAL,
-  NO_HIRE_PAID,
+  HIRED_TOTAL,
+  SMALL_PAID,
+  SMALL_HIRED,
+  SMALL_COST,
   money,
   mln,
 } from "@/data/payments";
@@ -186,7 +189,7 @@ export default function AgencyPayments() {
                 <td className="px-3 py-3 text-right tabular-nums whitespace-nowrap">
                   {money(PAID_TOTAL)}
                 </td>
-                <td className="px-3 py-3 text-right tabular-nums">300</td>
+                <td className="px-3 py-3 text-right tabular-nums">{HIRED_TOTAL}</td>
                 <td className="px-5 py-3" />
               </tr>
             </tbody>
@@ -306,10 +309,10 @@ export default function AgencyPayments() {
 
           <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
             <p className="text-xs text-amber-900 leading-relaxed">
-              Отдельно: {money(NO_HIRE_PAID)} ₽ оплачено агентствам Визави
-              Консалт и ПрофиСтафф, у которых в отчёте по найму нет ни одного
-              оформленного сотрудника. Эти оплаты стоит сверить с закрывающими
-              документами.
+              Отдельно: остальные агентства получили {money(SMALL_PAID)} ₽ за{' '}
+              {SMALL_HIRED} человек — это {money(SMALL_COST)} ₽ за найм, почти
+              втрое дороже среднего по КА ЭФИР. Небольшой разовый подбор
+              обходится компании заметно дороже.
             </p>
           </div>
         </div>
