@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Claim, fmtMoney } from '@/lib/claims';
+import { downloadClaimDoc } from '@/lib/claimDoc';
 
 const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString('ru-RU') : '__.__.____');
 
@@ -98,8 +99,15 @@ _______________________ / __________________
               </select>
             )}
             <button
-              onClick={copy}
+              onClick={() => downloadClaimDoc(text, c.employee_name)}
               className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-slate-900 rounded-lg px-3 py-1.5 hover:bg-slate-700 transition-colors"
+            >
+              <Icon name="Download" size={14} />
+              Скачать в Word
+            </button>
+            <button
+              onClick={copy}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 border border-slate-200 bg-white rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors"
             >
               <Icon name={copied ? 'Check' : 'Copy'} size={14} />
               {copied ? 'Скопировано' : 'Скопировать текст'}
@@ -111,8 +119,9 @@ _______________________ / __________________
           </pre>
 
           <p className="text-[11px] text-slate-400 mt-2 leading-snug">
-            Перед отправкой сверьте номер договора, реквизиты и срок гарантии — они отличаются у разных агентств.
-            Претензию лучше направлять письмом с подтверждением получения.
+            Файл открывается в Word и готов к печати на бланке. Перед отправкой сверьте номер договора, реквизиты и
+            срок гарантии — они отличаются у разных агентств. Претензию лучше направлять письмом с подтверждением
+            получения.
           </p>
         </div>
       )}
