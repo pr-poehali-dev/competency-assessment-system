@@ -17,6 +17,12 @@ function pageRule(format: PageFormat, title: string, date: string) {
     @bottom-left { content: "${esc(title)}"; ${footer} }
     @bottom-center { content: "Стр. " counter(page) " из " counter(pages); ${footer} }
     @bottom-right { content: "Концерн КРОСТ · ${date}"; ${footer} }
+  }
+
+  @page :first {
+    @bottom-left { content: ""; }
+    @bottom-center { content: ""; }
+    @bottom-right { content: ""; }
   }`;
 }
 

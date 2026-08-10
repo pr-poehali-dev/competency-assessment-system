@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { printReport, type PageFormat } from '@/lib/print';
+import PrintCover from '@/components/print/PrintCover';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -155,6 +156,30 @@ export default function Agencies() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        <PrintCover
+          eyebrow="Аналитика HR"
+          title="Подбор через кадровые агентства"
+          subtitle="Эффективность агентств-подрядчиков, качество найма и стоимость быстрых уходов за 2025–2026 годы"
+          icon="Handshake"
+          accent="#f59e0b"
+          facts={[
+            { value: String(AG_TOTAL_2025 + AG_TOTAL_2026), label: 'наймов через агентства за два года' },
+            { value: String(AG_FIRED_2025 + AG_FIRED_2026), label: 'уволились в год приёма' },
+            { value: `${AG_TURNOVER_2026.toFixed(1)}%`, label: 'текучесть найма в 2026 году' },
+          ]}
+          sections={[
+            { title: 'Главное за два года', sub: 'Краткая сводка для руководителя' },
+            { title: 'Объём и структура найма', sub: 'Какие агентства работают и сколько дают' },
+            { title: 'Качество найма', sub: 'Сколько нанятых остаются работать' },
+            { title: 'Цена быстрых уходов', sub: 'Сколько времени теряет компания' },
+            { title: 'Условия работы с агентствами', sub: 'Стоимость, гарантии и порядок оплаты' },
+            { title: 'Стоимость подбора и гарантии', sub: 'Что покрыто бесплатной заменой' },
+            { title: 'Кого приводят агентства', sub: 'Портрет кандидата и закрытые позиции' },
+            { title: 'Ключевые выводы', sub: 'Что делать дальше' },
+          ]}
+          note="Источник данных: отчёты «Принятые сотрудники» и «Уволенные сотрудники» Концерна КРОСТ за 2025 и 2026 годы, список кадровых агентств с условиями сотрудничества. Данные за 2026 год приведены на дату формирования отчёта."
+        />
+
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Дашборд подбора через кадровые агентства</h1>
           <p className="text-slate-500 mt-2">

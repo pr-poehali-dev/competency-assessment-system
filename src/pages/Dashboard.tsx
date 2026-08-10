@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { printReport, type PageFormat } from '@/lib/print';
+import PrintCover from '@/components/print/PrintCover';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -168,6 +169,26 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        <PrintCover
+          eyebrow="Аналитика HR"
+          title="Подбор и текучесть персонала"
+          subtitle="Эффективность каналов найма и удержание сотрудников за 2025–2026 годы"
+          icon="ChartColumnBig"
+          accent="#1a1a2e"
+          facts={[
+            { value: (TOTAL_2025 + TOTAL_2026).toLocaleString('ru-RU'), label: 'наймов за два года' },
+            { value: (DISM_2025 + DISM_2026).toLocaleString('ru-RU'), label: 'увольнений за два года' },
+            { value: TOTAL_2026.toLocaleString('ru-RU'), label: 'наймов в 2026 году' },
+          ]}
+          sections={[
+            { title: 'Главное за два года', sub: 'Краткая сводка для руководителя' },
+            { title: 'Подбор персонала', sub: 'Откуда приходят сотрудники' },
+            { title: 'Текучесть кадров', sub: 'Кто и когда увольняется' },
+            { title: 'Ключевые выводы', sub: 'Что делать дальше' },
+          ]}
+          note="Источник данных: внутренняя отчётность отдела подбора персонала Концерна КРОСТ за 2025–2026 годы. Данные за 2026 год приведены на дату формирования отчёта."
+        />
+
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Дашборд подбора и текучести персонала</h1>
           <p className="text-slate-500 mt-2">

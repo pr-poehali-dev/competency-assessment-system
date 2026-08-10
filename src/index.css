@@ -120,8 +120,7 @@
   }
 
   header {
-    position: static !important;
-    border-bottom: 1px solid #e2e8f0 !important;
+    display: none !important;
   }
 
   main {
@@ -141,6 +140,22 @@
 
   .print-only {
     display: block !important;
+  }
+
+  .print-cover {
+    display: flex !important;
+    flex-direction: column;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+  }
+
+  .print-format-a4 .print-cover {
+    min-height: 265mm;
+  }
+
+  .print-format-a3 .print-cover {
+    min-height: 384mm;
   }
 
   .recharts-wrapper,
@@ -188,5 +203,9 @@
 }
 
 .print-only {
+  display: none;
+}
+
+.print-cover {
   display: none;
 }
