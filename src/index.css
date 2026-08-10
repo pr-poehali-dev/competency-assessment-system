@@ -111,6 +111,14 @@
     display: none !important;
   }
 
+  [data-radix-popper-content-wrapper],
+  [data-radix-portal],
+  [role="menu"],
+  [role="tooltip"],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
   header {
     position: static !important;
     border-bottom: 1px solid #e2e8f0 !important;

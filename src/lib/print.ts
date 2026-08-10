@@ -47,7 +47,9 @@ export function printReport(format: PageFormat, reportTitle: string) {
 
   window.addEventListener('afterprint', cleanup, { once: true });
 
-  requestAnimationFrame(() => {
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+  setTimeout(() => {
     requestAnimationFrame(() => window.print());
-  });
+  }, 150);
 }
