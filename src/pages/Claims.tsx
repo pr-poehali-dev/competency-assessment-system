@@ -142,6 +142,14 @@ export default function Claims() {
           </div>
         )}
 
+        <div className="bg-sky-50 border border-sky-200 rounded-xl px-4 py-3 flex items-start gap-2.5">
+          <Icon name="Info" size={16} className="text-sky-600 shrink-0 mt-0.5" />
+          <p className="text-xs text-sky-900 leading-snug">
+            Сейчас в журнале образцы записей, чтобы показать все статусы. Удалите их и заведите реальные случаи —
+            фамилии, даты и суммы возьмите из отчётов по уволившимся.
+          </p>
+        </div>
+
         <div className="flex flex-wrap gap-2">
           {chips.map((c) => {
             const count = c.key === 'all' ? items.length : (stats[c.key as ClaimStatus]?.count ?? 0);
