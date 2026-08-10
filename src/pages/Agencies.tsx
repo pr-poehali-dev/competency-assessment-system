@@ -14,6 +14,8 @@ import MonthlyChart from '@/components/agencies/MonthlyChart';
 import AgencyQuality from '@/components/agencies/AgencyQuality';
 import TimeLoss from '@/components/agencies/TimeLoss';
 import AgencyTerms from '@/components/agencies/AgencyTerms';
+import GuaranteeVolume from '@/components/agencies/GuaranteeVolume';
+import { COVERED_SUM, money } from '@/data/agencyTerms';
 import CandidateProfile from '@/components/agencies/CandidateProfile';
 import DeptTable from '@/components/agencies/DeptTable';
 import AgencySummary from '@/components/agencies/AgencySummary';
@@ -204,6 +206,14 @@ export default function Agencies() {
         <AgencyTerms />
 
         <div className="print-page-break" />
+        <SectionTitle
+          icon="Receipt"
+          title="Стоимость подбора и гарантии"
+          sub="Сколько стоили уволившиеся и что покрыто заменой"
+        />
+        <GuaranteeVolume />
+
+        <div className="print-page-break" />
         <SectionTitle icon="UserSearch" title="Кого приводят агентства" sub="Портрет кандидата и закрытые позиции" />
         <CandidateProfile />
         <DeptTable />
@@ -253,8 +263,8 @@ export default function Agencies() {
               <ol className="space-y-2 text-sm text-slate-700">
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">1.</span>
-                  Проверить, покрывает ли действующая гарантия замены все {AG_FIRED_2026} случаев 2026 года, и
-                  фиксировать каждое обращение — гарантия работает только при заявленной претензии.
+                  Проверить, по скольким из 78 уходов за два года были заявлены гарантийные претензии. Речь о{' '}
+                  {money(COVERED_SUM)} работ, которые агентства обязаны выполнить повторно бесплатно.
                 </li>
                 <li className="flex gap-2">
                   <span className="font-bold text-emerald-600 shrink-0">2.</span>

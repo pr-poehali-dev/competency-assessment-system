@@ -18,6 +18,7 @@ import {
   AVG_TENURE_2026,
   agPct,
 } from '@/data/agencies';
+import { COST_TOTAL, COVERED_SUM, money } from '@/data/agencyTerms';
 
 export default function AgencySummary() {
   const done = MONTHLY.filter((m) => m.y2026 !== null).length;
@@ -66,6 +67,11 @@ export default function AgencySummary() {
       icon: 'TrendingDown',
       title: 'Текучесть найма снизилась вдвое',
       text: `В 2026 году уволилось ${AG_FIRED_2026} из ${AG_TOTAL_2026} нанятых — ${AG_TURNOVER_2026.toFixed(1)}% против ${AG_TURNOVER_2025.toFixed(1)}% годом ранее. У КА ЭФИР показатель улучшился до ${EFIR_TURNOVER_2026.toFixed(1)}%.`,
+    },
+    {
+      icon: 'Receipt',
+      title: `Подбор уволившихся стоил ${money(COST_TOTAL)}`,
+      text: `За два года ушли 78 человек, нанятых в тот же год. Около ${money(COVERED_SUM)} из этой суммы покрыто гарантией бесплатной замены — при условии, что претензии были оформлены в срок.`,
     },
     {
       icon: 'Hourglass',
