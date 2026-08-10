@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { printReport, type PageFormat } from '@/lib/print';
-import PrintCover from '@/components/print/PrintCover';
+import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
+import ReportToc from '@/components/print/ReportToc';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -36,9 +37,20 @@ import {
   RECRUITERS_2026,
 } from '@/data/agencies';
 
-function SectionTitle({ icon, title, sub }: { icon: string; title: string; sub: string }) {
+const SECTIONS: CoverSection[] = [
+  { id: 'summary', title: 'Главное за два года', sub: 'Краткая сводка для руководителя' },
+  { id: 'volume', title: 'Объём и структура найма', sub: 'Какие агентства работают и сколько дают' },
+  { id: 'quality', title: 'Качество найма', sub: 'Сколько нанятых остаются работать' },
+  { id: 'timeloss', title: 'Цена быстрых уходов', sub: 'Сколько времени теряет компания' },
+  { id: 'terms', title: 'Условия работы с агентствами', sub: 'Стоимость, гарантии и порядок оплаты' },
+  { id: 'cost', title: 'Стоимость подбора и гарантии', sub: 'Что покрыто бесплатной заменой' },
+  { id: 'profile', title: 'Кого приводят агентства', sub: 'Портрет кандидата и закрытые позиции' },
+  { id: 'insights', title: 'Ключевые выводы', sub: 'Что делать дальше' },
+];
+
+function SectionTitle({ id, icon, title, sub }: { id: string; icon: string; title: string; sub: string }) {
   return (
-    <div className="flex items-center gap-3 pt-4">
+    <div id={id} className="flex items-center gap-3 pt-4 scroll-mt-24">
       <div className="w-9 h-9 rounded-lg bg-[#1a1a2e] flex items-center justify-center shrink-0">
         <Icon name={icon} size={18} className="text-white" />
       </div>
@@ -167,16 +179,7 @@ export default function Agencies() {
             { value: String(AG_FIRED_2025 + AG_FIRED_2026), label: 'уволились в год приёма' },
             { value: `${AG_TURNOVER_2026.toFixed(1)}%`, label: 'текучесть найма в 2026 году' },
           ]}
-          sections={[
-            { title: 'Главное за два года', sub: 'Краткая сводка для руководителя' },
-            { title: 'Объём и структура найма', sub: 'Какие агентства работают и сколько дают' },
-            { title: 'Качество найма', sub: 'Сколько нанятых остаются работать' },
-            { title: 'Цена быстрых уходов', sub: 'Сколько времени теряет компания' },
-            { title: 'Условия работы с агентствами', sub: 'Стоимость, гарантии и порядок оплаты' },
-            { title: 'Стоимость подбора и гарантии', sub: 'Что покрыто бесплатной заменой' },
-            { title: 'Кого приводят агентства', sub: 'Портрет кандидата и закрытые позиции' },
-            { title: 'Ключевые выводы', sub: 'Что делать дальше' },
-          ]}
+          sections={SECTIONS}
           note="Источник данных: отчёты «Принятые сотрудники» и «Уволенные сотрудники» Концерна КРОСТ за 2025 и 2026 годы, список кадровых агентств с условиями сотрудничества. Данные за 2026 год приведены на дату формирования отчёта."
         />
 
@@ -188,10 +191,18 @@ export default function Agencies() {
           </p>
         </div>
 
+        <ReportToc sections={SECTIONS} accent="#f59e0b" />
+
+        <div id="summary" className="scroll-mt-24" />
         <AgencySummary />
 
         <div className="print-page-break" />
-        <SectionTitle icon="Handshake" title="Объём и структура найма" sub="Какие агентства работают и сколько дают" />
+        <SectionTitle
+          id="volume"
+          icon="Handshake"
+          title="Объём и структура найма"
+          sub="Какие агентства работают и сколько дают"
+        />
         <AgencyKpi />
 
         <div className="grid lg:grid-cols-2 gap-6 print-wide">
@@ -200,15 +211,16 @@ export default function Agencies() {
         </div>
 
         <div className="print-page-break" />
-        <SectionTitle icon="ShieldAlert" title="Качество найма" sub="Сколько нанятых остаются работать" />
+        <SectionTitle id="quality" icon="ShieldAlert" title="Качество найма" sub="Сколько нанятых остаются работать" />
         <AgencyQuality />
 
         <div className="print-page-break" />
-        <SectionTitle icon="Hourglass" title="Цена быстрых уходов" sub="Сколько времени теряет компания" />
+        <SectionTitle id="timeloss" icon="Hourglass" title="Цена быстрых уходов" sub="Сколько времени теряет компания" />
         <TimeLoss />
 
         <div className="print-page-break" />
         <SectionTitle
+          id="terms"
           icon="FileSignature"
           title="Условия работы с агентствами"
           sub="Стоимость, гарантии и порядок оплаты"
@@ -217,6 +229,7 @@ export default function Agencies() {
 
         <div className="print-page-break" />
         <SectionTitle
+          id="cost"
           icon="Receipt"
           title="Стоимость подбора и гарантии"
           sub="Сколько стоили уволившиеся и что покрыто заменой"
@@ -225,12 +238,17 @@ export default function Agencies() {
         <ClaimsSummary />
 
         <div className="print-page-break" />
-        <SectionTitle icon="UserSearch" title="Кого приводят агентства" sub="Портрет кандидата и закрытые позиции" />
+        <SectionTitle
+          id="profile"
+          icon="UserSearch"
+          title="Кого приводят агентства"
+          sub="Портрет кандидата и закрытые позиции"
+        />
         <CandidateProfile />
         <DeptTable />
 
         <div className="print-page-break" />
-        <SectionTitle icon="Lightbulb" title="Ключевые выводы" sub="Что делать дальше" />
+        <SectionTitle id="insights" icon="Lightbulb" title="Ключевые выводы" sub="Что делать дальше" />
         <div className="grid md:grid-cols-2 gap-4 print-wide">
           {insights.map((c) => (
             <div key={c.title} className={`rounded-xl border p-5 print-block ${toneMap[c.tone]}`}>

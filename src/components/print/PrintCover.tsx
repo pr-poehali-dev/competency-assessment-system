@@ -1,6 +1,7 @@
 import Icon from '@/components/ui/icon';
 
 export type CoverSection = {
+  id: string;
   title: string;
   sub: string;
 };
@@ -51,15 +52,20 @@ export default function PrintCover({ eyebrow, title, subtitle, icon, accent, sec
           <h2 className="text-sm uppercase tracking-[0.15em] font-semibold text-slate-400">Содержание</h2>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
-        <ol className="space-y-2.5">
+        <ol className="space-y-1">
           {sections.map((s, i) => (
-            <li key={s.title} className="flex items-baseline gap-3">
-              <span className="text-sm font-bold tabular-nums w-6 shrink-0" style={{ color: accent }}>
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <span className="font-semibold text-slate-900 shrink-0">{s.title}</span>
-              <span className="flex-1 border-b border-dotted border-slate-300 translate-y-[-3px]" />
-              <span className="text-xs text-slate-500 shrink-0 max-w-[45%] text-right">{s.sub}</span>
+            <li key={s.id}>
+              <a
+                href={`#${s.id}`}
+                className="flex items-baseline gap-3 rounded-md px-2 py-1.5 -mx-2 no-underline hover:bg-slate-50 transition-colors group"
+              >
+                <span className="text-sm font-bold tabular-nums w-6 shrink-0" style={{ color: accent }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="font-semibold text-slate-900 shrink-0 group-hover:underline">{s.title}</span>
+                <span className="flex-1 border-b border-dotted border-slate-300 translate-y-[-3px]" />
+                <span className="text-xs text-slate-500 shrink-0 max-w-[45%] text-right">{s.sub}</span>
+              </a>
             </li>
           ))}
         </ol>

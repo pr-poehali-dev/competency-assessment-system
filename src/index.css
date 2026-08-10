@@ -167,6 +167,11 @@
     content: none !important;
   }
 
+  .print-cover a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
   .print-format-a4 .print-only-a3 {
     display: none !important;
   }

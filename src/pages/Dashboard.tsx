@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { printReport, type PageFormat } from '@/lib/print';
-import PrintCover from '@/components/print/PrintCover';
+import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
+import ReportToc from '@/components/print/ReportToc';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -32,9 +33,16 @@ import {
   pct,
 } from '@/data/recruitment';
 
-function SectionTitle({ icon, title, sub }: { icon: string; title: string; sub: string }) {
+const SECTIONS: CoverSection[] = [
+  { id: 'summary', title: 'Главное за два года', sub: 'Краткая сводка для руководителя' },
+  { id: 'hiring', title: 'Подбор персонала', sub: 'Откуда приходят сотрудники' },
+  { id: 'turnover', title: 'Текучесть кадров', sub: 'Кто и когда увольняется' },
+  { id: 'insights', title: 'Ключевые выводы', sub: 'Что делать дальше' },
+];
+
+function SectionTitle({ id, icon, title, sub }: { id: string; icon: string; title: string; sub: string }) {
   return (
-    <div className="flex items-center gap-3 pt-4">
+    <div id={id} className="flex items-center gap-3 pt-4 scroll-mt-24">
       <div className="w-9 h-9 rounded-lg bg-[#1a1a2e] flex items-center justify-center shrink-0">
         <Icon name={icon} size={18} className="text-white" />
       </div>
@@ -180,12 +188,7 @@ export default function Dashboard() {
             { value: (DISM_2025 + DISM_2026).toLocaleString('ru-RU'), label: 'увольнений за два года' },
             { value: TOTAL_2026.toLocaleString('ru-RU'), label: 'наймов в 2026 году' },
           ]}
-          sections={[
-            { title: 'Главное за два года', sub: 'Краткая сводка для руководителя' },
-            { title: 'Подбор персонала', sub: 'Откуда приходят сотрудники' },
-            { title: 'Текучесть кадров', sub: 'Кто и когда увольняется' },
-            { title: 'Ключевые выводы', sub: 'Что делать дальше' },
-          ]}
+          sections={SECTIONS}
           note="Источник данных: внутренняя отчётность отдела подбора персонала Концерна КРОСТ за 2025–2026 годы. Данные за 2026 год приведены на дату формирования отчёта."
         />
 
@@ -198,10 +201,13 @@ export default function Dashboard() {
           </p>
         </div>
 
+        <ReportToc sections={SECTIONS} accent="#1a1a2e" />
+
+        <div id="summary" className="scroll-mt-24" />
         <ExecutiveSummary />
 
         <div className="print-page-break" />
-        <SectionTitle icon="UserPlus" title="Подбор персонала" sub="Откуда приходят сотрудники" />
+        <SectionTitle id="hiring" icon="UserPlus" title="Подбор персонала" sub="Откуда приходят сотрудники" />
         <KpiCards />
 
         <div className="grid lg:grid-cols-5 gap-6 print-wide">
@@ -217,6 +223,7 @@ export default function Dashboard() {
 
         <div className="print-page-break" />
         <SectionTitle
+          id="turnover"
           icon="UserMinus"
           title="Текучесть кадров"
           sub="Кто и когда увольняется, какие каналы дают устойчивый персонал"
@@ -232,7 +239,7 @@ export default function Dashboard() {
 
         <UnstableChannels />
 
-        <div>
+        <div id="insights" className="scroll-mt-24">
           <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Icon name="Lightbulb" size={18} className="text-amber-500" />
             Ключевые выводы
