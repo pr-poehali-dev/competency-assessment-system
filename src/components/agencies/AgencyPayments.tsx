@@ -14,6 +14,10 @@ import {
   SMALL_PAID,
   SMALL_HIRED,
   SMALL_COST,
+  COST_PER_HIRE,
+  COST_MAX,
+  COST_MIN,
+  COST_AVG,
   money,
   mln,
 } from "@/data/payments";
@@ -189,7 +193,9 @@ export default function AgencyPayments() {
                 <td className="px-3 py-3 text-right tabular-nums whitespace-nowrap">
                   {money(PAID_TOTAL)}
                 </td>
-                <td className="px-3 py-3 text-right tabular-nums">{HIRED_TOTAL}</td>
+                <td className="px-3 py-3 text-right tabular-nums">
+                  {HIRED_TOTAL}
+                </td>
                 <td className="px-5 py-3" />
               </tr>
             </tbody>
@@ -199,6 +205,85 @@ export default function AgencyPayments() {
         <div className="bg-slate-50 border-t border-slate-200 px-5 py-3 text-xs text-slate-500 leading-relaxed">
           По ИП Мухин / КА «Команда мечты ИТ» суммы оплат не предоставлены, хотя
           через агентство нанято 10 человек. Данные 2026 года — за неполный год.
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 print-block">
+        <div className="flex items-start gap-3 mb-5">
+          <div className="w-9 h-9 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+            <Icon name="BarChart3" size={18} className="text-violet-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">
+              Кто дороже: цена одного найма
+            </h3>
+            <p className="text-sm text-slate-500">
+              Всего оплачено ÷ количество нанятых, за 2025–2026 годы
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3.5">
+          {COST_PER_HIRE.map((c) => {
+            const ratio = c.cost / COST_AVG;
+            return (
+              <div key={c.name}>
+                <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                  <span className="text-sm text-slate-700 truncate">
+                    {c.full}
+                    <span className="text-xs text-slate-400 ml-2 whitespace-nowrap">
+                      {c.hired} чел.
+                    </span>
+                  </span>
+                  <span className="text-sm font-semibold text-slate-900 tabular-nums whitespace-nowrap">
+                    {money(c.cost)} ₽
+                  </span>
+                </div>
+                <div className="relative h-6 rounded-md bg-slate-50 overflow-hidden">
+                  <div
+                    className="h-full rounded-md flex items-center justify-end pr-2"
+                    style={{
+                      width: `${(c.cost / COST_MAX) * 100}%`,
+                      background: c.color,
+                      minWidth: "15%",
+                    }}
+                  >
+                    <span className="text-[10px] font-semibold text-white/90 whitespace-nowrap">
+                      {ratio >= 1
+                        ? `×${ratio.toFixed(1)} к среднему`
+                        : `${Math.round((1 - ratio) * 100)}% ниже среднего`}
+                    </span>
+                  </div>
+                  <div
+                    className="absolute top-0 bottom-0 border-l-2 border-dashed border-slate-400"
+                    style={{ left: `${(COST_AVG / COST_MAX) * 100}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-4 border-t-2 border-dashed border-slate-400" />
+            средняя цена найма {money(COST_AVG)} ₽
+          </span>
+          <span>
+            Разрыв между самым дорогим и самым дешёвым агентством —{" "}
+            <strong className="text-slate-700">
+              в {(COST_MAX / COST_MIN).toFixed(1)} раза
+            </strong>
+          </span>
+        </div>
+
+        <div className="mt-3 rounded-lg bg-slate-50 border border-slate-200 px-3 py-2.5">
+          <p className="text-xs text-slate-600 leading-relaxed">
+            КА ЭФИР — самый дешёвый подбор при том, что через него прошло 285 из
+            294 наймов. У агентств с единичными закрытиями цена доходит до 2,4
+            млн ₽ за человека: там работают проценты от годового дохода на
+            дорогих позициях.
+          </p>
         </div>
       </div>
 
@@ -309,7 +394,7 @@ export default function AgencyPayments() {
 
           <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
             <p className="text-xs text-amber-900 leading-relaxed">
-              Отдельно: остальные агентства получили {money(SMALL_PAID)} ₽ за{' '}
+              Отдельно: остальные агентства получили {money(SMALL_PAID)} ₽ за{" "}
               {SMALL_HIRED} человек — это {money(SMALL_COST)} ₽ за найм, почти
               втрое дороже среднего по КА ЭФИР. Небольшой разовый подбор
               обходится компании заметно дороже.
