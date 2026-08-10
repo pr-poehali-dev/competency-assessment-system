@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Claim, fetchClaims, fmtMoney, daysLeft } from '@/lib/claims';
 import { COVERED_SUM, money } from '@/data/agencyTerms';
+import ClaimTemplate from '@/components/agencies/ClaimTemplate';
 
 export default function ClaimsSummary() {
   const [items, setItems] = useState<Claim[] | null>(null);
@@ -54,6 +55,7 @@ export default function ClaimsSummary() {
                 По расчёту выше около {money(COVERED_SUM)} подбора подпадает под гарантию бесплатной замены. Пока
                 обращения не зафиксированы, невозможно подтвердить, что эти деньги отработаны агентствами.
               </p>
+              <ClaimTemplate items={[]} />
             </div>
           ) : (
             <>
@@ -88,6 +90,8 @@ export default function ClaimsSummary() {
                   </span>
                 </div>
               )}
+
+              <ClaimTemplate items={items} />
             </>
           )}
         </div>
