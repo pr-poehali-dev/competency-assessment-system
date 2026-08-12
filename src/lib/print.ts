@@ -41,6 +41,31 @@ function nextFrames(count: number) {
   });
 }
 
+export function applyPrintFormat(format: PageFormat, reportTitle: string) {
+  const humanDate = new Date().toLocaleDateString('ru-RU');
+
+  document.getElementById('page-format')?.remove();
+
+  const style = document.createElement('style');
+  style.id = 'page-format';
+  style.media = 'print';
+  style.textContent = pageRule(format, reportTitle, humanDate);
+  document.head.appendChild(style);
+
+  const root = document.documentElement;
+  root.classList.remove('print-format-a4', 'print-format-a3');
+  root.classList.add(`print-format-${format.toLowerCase()}`);
+
+  const main = document.querySelector('main') as HTMLElement | null;
+  if (main) {
+    main.style.width = `${Math.round(PAGE_SIZE[format].contentMm * MM_TO_PX)}px`;
+    main.style.maxWidth = 'none';
+    main.style.marginLeft = 'auto';
+    main.style.marginRight = 'auto';
+  }
+  window.dispatchEvent(new Event('resize'));
+}
+
 export async function printReport(format: PageFormat, reportTitle: string) {
   const prevTitle = document.title;
   const d = new Date();

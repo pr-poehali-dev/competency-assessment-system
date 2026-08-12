@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
-import { printReport, type PageFormat } from '@/lib/print';
+import { printReport, applyPrintFormat, type PageFormat } from '@/lib/print';
 import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
 import ReportToc from '@/components/print/ReportToc';
 import {
@@ -72,6 +73,13 @@ export default function Dashboard() {
   const handlePrint = (format: PageFormat) => {
     printReport(format, 'Отчёт по подбору и текучести персонала');
   };
+
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get('print');
+    if (p === 'A3' || p === 'A4') {
+      applyPrintFormat(p, 'Отчёт по подбору и текучести персонала');
+    }
+  }, []);
 
   const insights = [
     {

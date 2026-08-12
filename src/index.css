@@ -133,6 +133,21 @@
     page-break-inside: avoid;
   }
 
+  .print-flow {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .print-flow tr,
+  .print-flow .print-keep {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
   .print-page-break {
     break-before: page;
     page-break-before: always;
@@ -184,6 +199,14 @@
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
+  }
+
+  .print-format-a3 .print-pair-top {
+    align-items: start;
+  }
+
+  .print-format-a3 .print-pair-top > * {
+    margin-top: 0 !important;
   }
 
   .print-format-a3 .print-wide {

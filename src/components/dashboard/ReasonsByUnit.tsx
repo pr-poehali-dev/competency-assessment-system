@@ -25,12 +25,21 @@ const label = (k: string) => REASON_GROUPS.find((g) => g.key === k)?.short ?? k;
 
 const barColor = (m: number) => (m <= 6 ? '#dc2626' : m <= 11 ? '#f97316' : '#0ea5e9');
 
-function UnitTable({ rows, unitTitle }: { rows: UnitRow[]; unitTitle: string }) {
+function UnitTable({
+  rows,
+  unitTitle,
+  showChart = true,
+}: {
+  rows: UnitRow[];
+  unitTitle: string;
+  showChart?: boolean;
+}) {
   const sorted = [...rows].sort((a, b) => a.median - b.median);
   const chart = sorted.map((r) => ({ name: r.name, median: r.median, n: r.n }));
 
   return (
     <>
+      {showChart && (
       <ResponsiveContainer width="100%" height={Math.max(260, sorted.length * 22)}>
         <BarChart data={chart} layout="vertical" margin={{ left: 8, right: 56, top: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
@@ -62,6 +71,7 @@ function UnitTable({ rows, unitTitle }: { rows: UnitRow[]; unitTitle: string }) 
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      )}
 
       <div className="overflow-x-auto -mx-5 px-5 mt-5">
         <table className="w-full text-sm border-collapse">
@@ -121,7 +131,7 @@ export default function ReasonsByUnit() {
   const smt = DEPARTMENTS.find((d) => d.name === '1 СМТ')!;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block">
+    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm print-block print-flow">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-1">
         <div>
           <h3 className="font-semibold text-slate-900">Кто теряет людей быстрее остальных</h3>
@@ -167,9 +177,9 @@ export default function ReasonsByUnit() {
       </div>
 
       <div className="print-only">
-        <UnitTable rows={DEPARTMENTS} unitTitle="Подразделение" />
+        <UnitTable rows={DEPARTMENTS} unitTitle="Подразделение" showChart={false} />
         <div className="mt-6">
-          <UnitTable rows={POSITIONS} unitTitle="Должность" />
+          <UnitTable rows={POSITIONS} unitTitle="Должность" showChart={false} />
         </div>
       </div>
 
