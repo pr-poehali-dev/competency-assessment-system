@@ -223,6 +223,130 @@ export const INITIATOR: InitiatorRow[] = [
   { name: 'Инициатива работодателя', value: REASONS_BY_EMPLOYER, color: '#0ea5e9' },
 ];
 
+export type TenureBand = {
+  key: string;
+  label: string;
+  full: string;
+  total: number;
+  emp: number;
+  empr: number;
+  reasons: Record<string, number>;
+};
+
+export const TENURE_REASONS_TOTAL = 405;
+
+export const TENURE_BANDS: TenureBand[] = [
+  {
+    key: 'b0',
+    label: 'до 3 мес.',
+    full: 'Первые 3 месяца',
+    total: 74,
+    emp: 67,
+    empr: 7,
+    reasons: {
+      nospec: 20,
+      life: 13,
+      other_job: 11,
+      conditions: 9,
+      perf: 8,
+      commute: 6,
+      mgmt: 4,
+      org: 2,
+      growth: 1,
+      money: 0,
+      discipline: 0,
+    },
+  },
+  {
+    key: 'b1',
+    label: '3–6 мес.',
+    full: 'От 3 до 6 месяцев',
+    total: 49,
+    emp: 43,
+    empr: 6,
+    reasons: {
+      nospec: 17,
+      life: 8,
+      other_job: 7,
+      conditions: 6,
+      perf: 4,
+      discipline: 2,
+      growth: 2,
+      mgmt: 2,
+      commute: 1,
+      money: 0,
+      org: 0,
+    },
+  },
+  {
+    key: 'b2',
+    label: '6–12 мес.',
+    full: 'От 6 до 12 месяцев',
+    total: 88,
+    emp: 78,
+    empr: 10,
+    reasons: {
+      other_job: 33,
+      nospec: 16,
+      life: 14,
+      conditions: 6,
+      perf: 5,
+      mgmt: 4,
+      money: 4,
+      commute: 3,
+      growth: 3,
+      discipline: 0,
+      org: 0,
+    },
+  },
+  {
+    key: 'b3',
+    label: '1–3 года',
+    full: 'От 1 до 3 лет',
+    total: 138,
+    emp: 121,
+    empr: 17,
+    reasons: {
+      other_job: 47,
+      nospec: 32,
+      life: 23,
+      conditions: 10,
+      mgmt: 7,
+      discipline: 6,
+      money: 5,
+      perf: 4,
+      commute: 2,
+      growth: 2,
+      org: 0,
+    },
+  },
+  {
+    key: 'b4',
+    label: 'более 3 лет',
+    full: 'Более 3 лет',
+    total: 56,
+    emp: 52,
+    empr: 4,
+    reasons: {
+      nospec: 18,
+      other_job: 13,
+      life: 12,
+      conditions: 4,
+      commute: 3,
+      discipline: 2,
+      growth: 2,
+      mgmt: 2,
+      money: 0,
+      org: 0,
+      perf: 0,
+    },
+  },
+];
+
+export const TENURE_MEDIAN_MONTHS = 11;
+
+export const bandPct = (band: TenureBand, key: string) => ((band.reasons[key] ?? 0) / band.total) * 100;
+
 export const CONTROLLABLE = [
   { name: 'Компания может влиять', value: MANAGEABLE_TOTAL, color: '#dc2626' },
   { name: 'Вне контроля компании', value: UNMANAGEABLE_TOTAL, color: '#94a3b8' },
