@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { printReport, type PageFormat } from '@/lib/print';
 import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
+import PdfProgress, { type PdfState } from '@/components/print/PdfProgress';
 import ReportToc from '@/components/print/ReportToc';
 import OpenVacancies from '@/components/agencies/OpenVacancies';
 import AgencyPayments from '@/components/agencies/AgencyPayments';
@@ -68,8 +70,17 @@ function SectionTitle({ id, icon, title, sub }: { id: string; icon: string; titl
 }
 
 export default function Agencies() {
-  const handlePrint = (format: PageFormat) => {
-    printReport(format, 'Отчёт по подбору через кадровые агентства');
+  const [pdf, setPdf] = useState<PdfState>(null);
+
+  const handlePrint = async (format: PageFormat) => {
+    setPdf({ percent: 0, label: 'Готовлю отчёт', format });
+    try {
+      await printReport(format, 'Отчёт по подбору через кадровые агентства', (percent, label) =>
+        setPdf({ percent, label, format }),
+      );
+    } finally {
+      setTimeout(() => setPdf(null), 600);
+    }
   };
 
   const insights = [
@@ -109,6 +120,7 @@ export default function Agencies() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <PdfProgress state={pdf} />
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -162,8 +174,7 @@ export default function Agencies() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <div className="px-2 py-2 text-[11px] text-slate-400 leading-relaxed">
-                  Откроется окно печати. Выберите «Сохранить как PDF» и убедитесь, что размер бумаги совпадает с
-                  выбранным форматом.
+                  Файл скачается сразу, с уже заданным размером листа. Ничего настраивать в окне печати не нужно.
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>

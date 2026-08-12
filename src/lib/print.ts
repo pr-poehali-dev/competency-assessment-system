@@ -1,32 +1,14 @@
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+
 export type PageFormat = 'A4' | 'A3';
 
-const PAGE_SIZE: Record<PageFormat, { size: string; margin: string; contentMm: number }> = {
-  A4: { size: 'A4 portrait', margin: '12mm 10mm 16mm', contentMm: 190 },
-  A3: { size: 'A3 portrait', margin: '14mm 12mm 18mm', contentMm: 273 },
+const PAGE_SIZE: Record<PageFormat, { widthMm: number; heightMm: number; marginMm: number; contentMm: number }> = {
+  A4: { widthMm: 210, heightMm: 297, marginMm: 10, contentMm: 190 },
+  A3: { widthMm: 297, heightMm: 420, marginMm: 12, contentMm: 273 },
 };
 
 const MM_TO_PX = 96 / 25.4;
-
-const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-
-function pageRule(format: PageFormat, title: string, date: string) {
-  const { size, margin } = PAGE_SIZE[format];
-  const footer = 'font-size: 8pt; color: #94a3b8; font-family: system-ui, sans-serif;';
-
-  return `@page {
-    size: ${size};
-    margin: ${margin};
-    @bottom-left { content: "${esc(title)}"; ${footer} }
-    @bottom-center { content: "Стр. " counter(page) " из " counter(pages); ${footer} }
-    @bottom-right { content: "Концерн КРОСТ · ${date}"; ${footer} }
-  }
-
-  @page :first {
-    @bottom-left { content: ""; }
-    @bottom-center { content: ""; }
-    @bottom-right { content: ""; }
-  }`;
-}
 
 function nextFrames(count: number) {
   return new Promise<void>((resolve) => {
@@ -41,17 +23,7 @@ function nextFrames(count: number) {
   });
 }
 
-export function applyPrintFormat(format: PageFormat, reportTitle: string) {
-  const humanDate = new Date().toLocaleDateString('ru-RU');
-
-  document.getElementById('page-format')?.remove();
-
-  const style = document.createElement('style');
-  style.id = 'page-format';
-  style.media = 'print';
-  style.textContent = pageRule(format, reportTitle, humanDate);
-  document.head.appendChild(style);
-
+export function applyPrintFormat(format: PageFormat) {
   const root = document.documentElement;
   root.classList.remove('print-format-a4', 'print-format-a3');
   root.classList.add(`print-format-${format.toLowerCase()}`);
@@ -66,62 +38,124 @@ export function applyPrintFormat(format: PageFormat, reportTitle: string) {
   window.dispatchEvent(new Event('resize'));
 }
 
-export async function printReport(format: PageFormat, reportTitle: string) {
-  const prevTitle = document.title;
+type Progress = (percent: number, label: string) => void;
+
+export async function printReport(format: PageFormat, reportTitle: string, onProgress?: Progress) {
+  const page = PAGE_SIZE[format];
   const d = new Date();
   const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const humanDate = d.toLocaleDateString('ru-RU');
 
-  document.getElementById('page-format')?.remove();
-
-  const style = document.createElement('style');
-  style.id = 'page-format';
-  style.media = 'print';
-  style.textContent = pageRule(format, reportTitle, humanDate);
-  document.head.appendChild(style);
-
-  const root = document.documentElement;
-  root.classList.remove('print-format-a4', 'print-format-a3');
-  root.classList.add(`print-format-${format.toLowerCase()}`);
-
-  document.title = `${reportTitle} ${stamp}`;
-
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  await nextFrames(2);
 
-  const main = document.querySelector('main') as HTMLElement | null;
-  const widthPx = Math.round(PAGE_SIZE[format].contentMm * MM_TO_PX);
-  const prevInline = main?.getAttribute('style') ?? null;
+  const source = document.querySelector('main') as HTMLElement | null;
+  if (!source) return;
 
-  if (main) {
-    main.style.width = `${widthPx}px`;
-    main.style.maxWidth = 'none';
-    main.style.marginLeft = 'auto';
-    main.style.marginRight = 'auto';
-  }
-  root.classList.add('print-measuring');
+  onProgress?.(5, 'Готовлю отчёт');
+
+  const widthPx = Math.round(page.contentMm * MM_TO_PX);
+  const formatClass = `print-format-${format.toLowerCase()}`;
+  const root = document.documentElement;
+  const prevInline = source.getAttribute('style');
+
+  root.classList.add(formatClass, 'print-measuring');
+  source.style.width = `${widthPx}px`;
+  source.style.maxWidth = 'none';
+  source.style.marginLeft = 'auto';
+  source.style.marginRight = 'auto';
 
   window.dispatchEvent(new Event('resize'));
   await nextFrames(3);
-  await new Promise((r) => setTimeout(r, 320));
+  await new Promise((r) => setTimeout(r, 600));
   window.dispatchEvent(new Event('resize'));
-  await nextFrames(2);
+  await nextFrames(3);
+  await new Promise((r) => setTimeout(r, 400));
 
-  const cleanup = () => {
-    document.title = prevTitle;
-    style.remove();
-    root.classList.remove('print-format-a4', 'print-format-a3', 'print-measuring');
-    if (main) {
-      if (prevInline === null) main.removeAttribute('style');
-      else main.setAttribute('style', prevInline);
-    }
+  const restore = () => {
+    root.classList.remove(formatClass, 'print-measuring');
+    if (prevInline === null) source.removeAttribute('style');
+    else source.setAttribute('style', prevInline);
     setTimeout(() => window.dispatchEvent(new Event('resize')), 60);
   };
 
-  window.addEventListener('afterprint', cleanup, { once: true });
+  try {
+    onProgress?.(20, 'Отрисовываю страницы');
 
-  window.print();
+    const canvas = await html2canvas(source, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false,
+      windowWidth: widthPx,
+      onclone: (doc) => {
+        doc.documentElement.classList.add(formatClass);
+        doc.querySelectorAll('.no-print').forEach((n) => n.remove());
+        const m = doc.querySelector('main') as HTMLElement | null;
+        if (m) {
+          m.style.width = `${widthPx}px`;
+          m.style.maxWidth = 'none';
+          m.style.padding = '0';
+          m.style.margin = '0 auto';
+        }
+      },
+    });
 
-  setTimeout(() => {
-    if (root.classList.contains('print-measuring')) cleanup();
-  }, 60000);
+    restore();
+    onProgress?.(65, 'Собираю PDF');
+
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: format.toLowerCase() as 'a3' | 'a4' });
+
+    const imgWidthMm = page.contentMm;
+    const pxPerMm = canvas.width / imgWidthMm;
+    const footerMm = 8;
+    const usableMm = page.heightMm - page.marginMm * 2 - footerMm;
+    const sliceHeightPx = Math.floor(usableMm * pxPerMm);
+    const totalPages = Math.max(1, Math.ceil(canvas.height / sliceHeightPx));
+
+    const slice = document.createElement('canvas');
+    const ctx = slice.getContext('2d')!;
+
+    for (let i = 0; i < totalPages; i += 1) {
+      const startY = i * sliceHeightPx;
+      const height = Math.min(sliceHeightPx, canvas.height - startY);
+
+      slice.width = canvas.width;
+      slice.height = height;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, slice.width, slice.height);
+      ctx.drawImage(canvas, 0, startY, canvas.width, height, 0, 0, canvas.width, height);
+
+      if (i > 0) pdf.addPage();
+      pdf.addImage(
+        slice.toDataURL('image/jpeg', 0.92),
+        'JPEG',
+        page.marginMm,
+        page.marginMm,
+        imgWidthMm,
+        height / pxPerMm,
+        undefined,
+        'FAST',
+      );
+
+      if (i > 0) {
+        const y = page.heightMm - page.marginMm + 2;
+        pdf.setFontSize(8);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text(reportTitle, page.marginMm, y);
+        pdf.text(`Стр. ${i + 1} из ${totalPages}`, page.widthMm / 2, y, { align: 'center' });
+        pdf.text(`Концерн КРОСТ · ${humanDate}`, page.widthMm - page.marginMm, y, { align: 'right' });
+      }
+
+      onProgress?.(65 + Math.round(((i + 1) / totalPages) * 30), `Страница ${i + 1} из ${totalPages}`);
+      await nextFrames(1);
+    }
+
+    onProgress?.(98, 'Сохраняю файл');
+    pdf.save(`${reportTitle} ${format} ${stamp}.pdf`);
+    onProgress?.(100, 'Готово');
+  } catch (e) {
+    restore();
+    throw e;
+  }
 }
