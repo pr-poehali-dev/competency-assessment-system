@@ -347,6 +347,62 @@ export const TENURE_MEDIAN_MONTHS = 11;
 
 export const bandPct = (band: TenureBand, key: string) => ((band.reasons[key] ?? 0) / band.total) * 100;
 
+export type UnitRow = {
+  name: string;
+  n: number;
+  median: number;
+  lt3: number;
+  lt12: number;
+  top: string[];
+};
+
+export const DEPT_AVG_MEDIAN = TENURE_MEDIAN_MONTHS;
+export const DEPT_TOTAL = 405;
+export const DEPT_LT3 = 74;
+export const DEPT_LT12 = 211;
+
+export const DEPARTMENTS: UnitRow[] = [
+  { name: 'УМК ДП', n: 7, median: 3, lt3: 2, lt12: 6, top: ['perf', 'life'] },
+  { name: 'ЭО', n: 11, median: 4, lt3: 5, lt12: 9, top: ['other_job', 'life'] },
+  { name: 'Гагарин', n: 9, median: 4, lt3: 3, lt12: 6, top: ['life', 'perf'] },
+  { name: 'ДС', n: 9, median: 5, lt3: 3, lt12: 8, top: ['conditions', 'life'] },
+  { name: 'ГП', n: 27, median: 6, lt3: 8, lt12: 20, top: ['other_job', 'mgmt'] },
+  { name: 'УОР', n: 9, median: 6, lt3: 3, lt12: 6, top: ['life', 'conditions'] },
+  { name: 'УПТК', n: 21, median: 6, lt3: 4, lt12: 13, top: ['other_job', 'conditions'] },
+  { name: 'ДС ФР', n: 11, median: 7, lt3: 3, lt12: 8, top: ['conditions', 'growth'] },
+  { name: 'ПУ МКЗ', n: 10, median: 8, lt3: 2, lt12: 7, top: ['conditions', 'discipline'] },
+  { name: 'ПЭУ', n: 12, median: 8, lt3: 2, lt12: 7, top: ['other_job', 'conditions'] },
+  { name: 'ТАФ', n: 11, median: 10, lt3: 0, lt12: 6, top: ['other_job', 'commute'] },
+  { name: 'МАЖИНО', n: 13, median: 11, lt3: 3, lt12: 7, top: ['life', 'other_job'] },
+  { name: 'ПТИ', n: 58, median: 12, lt3: 7, lt12: 28, top: ['other_job', 'life'] },
+  { name: 'ВНС', n: 11, median: 12, lt3: 2, lt12: 5, top: ['other_job', 'life'] },
+  { name: 'ДпИ', n: 8, median: 12, lt3: 1, lt12: 3, top: ['other_job', 'conditions'] },
+  { name: 'УМиАТ', n: 10, median: 13, lt3: 2, lt12: 5, top: ['other_job', 'life'] },
+  { name: 'ДТЗ', n: 22, median: 13, lt3: 5, lt12: 9, top: ['other_job', 'life'] },
+  { name: 'Бухгалтерия', n: 10, median: 15, lt3: 3, lt12: 4, top: ['commute', 'other_job'] },
+  { name: '1 ИТ', n: 8, median: 17, lt3: 0, lt12: 1, top: ['life', 'mgmt'] },
+  { name: 'ДП', n: 9, median: 20, lt3: 0, lt12: 3, top: ['other_job', 'life'] },
+  { name: '1 СМТ', n: 21, median: 21, lt3: 3, lt12: 8, top: ['life', 'other_job'] },
+];
+
+export const POSITIONS: UnitRow[] = [
+  { name: 'Помощник руководителя', n: 13, median: 4, lt3: 4, lt12: 11, top: ['life', 'other_job'] },
+  { name: 'Администратор', n: 9, median: 4, lt3: 4, lt12: 7, top: ['life', 'other_job'] },
+  { name: 'Специалист', n: 14, median: 7, lt3: 3, lt12: 8, top: ['other_job', 'commute'] },
+  { name: 'Прораб', n: 17, median: 7, lt3: 6, lt12: 10, top: ['life', 'conditions'] },
+  { name: 'Мастер', n: 16, median: 9, lt3: 3, lt12: 11, top: ['other_job', 'discipline'] },
+  { name: 'Ведущий специалист', n: 14, median: 10, lt3: 3, lt12: 9, top: ['life', 'other_job'] },
+  { name: 'Инженер ПТО', n: 12, median: 10, lt3: 3, lt12: 7, top: ['life', 'other_job'] },
+  { name: 'Ведущий инженер', n: 8, median: 10, lt3: 2, lt12: 4, top: ['conditions', 'mgmt'] },
+  { name: 'Начальник участка', n: 13, median: 13, lt3: 4, lt12: 6, top: ['other_job', 'life'] },
+  { name: 'Руководитель проектов', n: 7, median: 13, lt3: 1, lt12: 2, top: ['other_job', 'life'] },
+  { name: 'Геодезист', n: 7, median: 13, lt3: 1, lt12: 2, top: ['other_job', 'life'] },
+  { name: 'ГИП', n: 16, median: 14, lt3: 3, lt12: 6, top: ['other_job', 'conditions'] },
+  { name: 'Инженер', n: 8, median: 15, lt3: 2, lt12: 4, top: ['other_job', 'life'] },
+  { name: 'Ст. производитель работ', n: 14, median: 16, lt3: 3, lt12: 6, top: ['commute', 'life'] },
+  { name: 'Руководитель проекта', n: 6, median: 17, lt3: 1, lt12: 1, top: ['other_job', 'mgmt'] },
+];
+
 export const CONTROLLABLE = [
   { name: 'Компания может влиять', value: MANAGEABLE_TOTAL, color: '#dc2626' },
   { name: 'Вне контроля компании', value: UNMANAGEABLE_TOTAL, color: '#94a3b8' },

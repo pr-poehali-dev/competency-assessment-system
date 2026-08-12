@@ -25,6 +25,7 @@ import ReasonsKpi from '@/components/dashboard/ReasonsKpi';
 import ReasonsChart from '@/components/dashboard/ReasonsChart';
 import ReasonsControllable from '@/components/dashboard/ReasonsControllable';
 import ReasonsByTenure from '@/components/dashboard/ReasonsByTenure';
+import ReasonsByUnit from '@/components/dashboard/ReasonsByUnit';
 import ReasonsDetail from '@/components/dashboard/ReasonsDetail';
 import ReasonsActions from '@/components/dashboard/ReasonsActions';
 import {
@@ -260,6 +261,8 @@ export default function Dashboard() {
         <ReasonsControllable />
 
         <ReasonsByTenure />
+
+        <ReasonsByUnit />
 
         <ReasonsDetail />
 
