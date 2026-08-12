@@ -89,7 +89,7 @@ export async function printReport(format: PageFormat, reportTitle: string, onPro
       logging: false,
       windowWidth: widthPx,
       onclone: (doc) => {
-        doc.documentElement.classList.add(formatClass);
+        doc.documentElement.classList.add(formatClass, 'print-measuring');
         doc.querySelectorAll('.no-print').forEach((n) => n.remove());
         const m = doc.querySelector('main') as HTMLElement | null;
         if (m) {
@@ -101,6 +101,16 @@ export async function printReport(format: PageFormat, reportTitle: string, onPro
       },
     });
 
+    const scaleY = canvas.height / source.scrollHeight;
+    const baseTop = source.getBoundingClientRect().top + window.scrollY;
+    const breaks: number[] = [];
+    source.querySelectorAll('.print-block, .print-page-break, .print-cover').forEach((el) => {
+      const r = (el as HTMLElement).getBoundingClientRect();
+      breaks.push(Math.round((r.top + window.scrollY - baseTop) * scaleY));
+      breaks.push(Math.round((r.bottom + window.scrollY - baseTop) * scaleY));
+    });
+    const stops = Array.from(new Set(breaks.filter((v) => v > 0))).sort((a, b) => a - b);
+
     restore();
     onProgress?.(65, 'Собираю PDF');
 
@@ -108,17 +118,30 @@ export async function printReport(format: PageFormat, reportTitle: string, onPro
 
     const imgWidthMm = page.contentMm;
     const pxPerMm = canvas.width / imgWidthMm;
-    const footerMm = 8;
+    const footerMm = 10;
     const usableMm = page.heightMm - page.marginMm * 2 - footerMm;
     const sliceHeightPx = Math.floor(usableMm * pxPerMm);
-    const totalPages = Math.max(1, Math.ceil(canvas.height / sliceHeightPx));
 
+    const cuts: { start: number; height: number }[] = [];
+    let y = 0;
+    while (y < canvas.height) {
+      const limit = Math.min(y + sliceHeightPx, canvas.height);
+      let end = limit;
+      if (limit < canvas.height) {
+        const minEnd = y + sliceHeightPx * 0.55;
+        const candidate = stops.filter((s) => s > minEnd && s <= limit).pop();
+        if (candidate) end = candidate;
+      }
+      cuts.push({ start: y, height: end - y });
+      y = end;
+    }
+
+    const totalPages = cuts.length;
     const slice = document.createElement('canvas');
     const ctx = slice.getContext('2d')!;
 
     for (let i = 0; i < totalPages; i += 1) {
-      const startY = i * sliceHeightPx;
-      const height = Math.min(sliceHeightPx, canvas.height - startY);
+      const { start: startY, height } = cuts[i];
 
       slice.width = canvas.width;
       slice.height = height;

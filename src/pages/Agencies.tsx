@@ -124,9 +124,8 @@ export default function Agencies() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#f59e0b] flex items-center justify-center">
-              <Icon name="Handshake" size={20} className="text-white" />
-            </div>
+            <img src="/krost-logo.png" alt="Концерн КРОСТ" className="h-8 w-auto shrink-0 object-contain" />
+            <div className="w-px h-8 bg-slate-200" />
             <div>
               <div className="text-[11px] uppercase tracking-[0.15em] text-slate-400 font-medium">Аналитика HR</div>
               <div className="font-semibold text-slate-900 leading-tight">Подбор через кадровые агентства</div>

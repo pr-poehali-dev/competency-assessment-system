@@ -245,10 +245,72 @@ html.print-measuring {
 
 html.print-measuring body {
   overflow: hidden;
+  background: #fff !important;
 }
 
 html.print-measuring main {
   pointer-events: none;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+html.print-measuring .no-print,
+html.print-measuring header,
+html.print-measuring [data-radix-popper-content-wrapper],
+html.print-measuring [data-radix-portal],
+html.print-measuring [role="menu"],
+html.print-measuring [role="tooltip"],
+html.print-measuring [data-sonner-toaster] {
+  display: none !important;
+}
+
+html.print-measuring .print-only {
+  display: block !important;
+}
+
+html.print-measuring .print-cover {
+  display: flex !important;
+  flex-direction: column;
+}
+
+html.print-measuring.print-format-a4 .print-cover {
+  min-height: 258mm;
+}
+
+html.print-measuring.print-format-a3 .print-cover {
+  min-height: 376mm;
+}
+
+html.print-measuring.print-format-a4 .print-only-a3,
+html.print-measuring.print-format-a3 .print-only-a4 {
+  display: none !important;
+}
+
+html.print-measuring.print-format-a3 .print-pair {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+html.print-measuring.print-format-a3 .print-wide {
+  display: grid !important;
+  grid-template-columns: 3fr 2fr;
+  gap: 1.25rem;
+}
+
+html.print-measuring.print-format-a3 .print-wide > * {
+  grid-column: auto !important;
+}
+
+html.print-measuring.print-format-a3 .print-trio {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+html.print-measuring.print-format-a3 main {
+  font-size: 1.05rem;
 }
 
 .print-only {

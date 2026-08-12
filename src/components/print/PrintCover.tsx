@@ -22,14 +22,23 @@ export default function PrintCover({ eyebrow, title, subtitle, icon, accent, sec
 
   return (
     <section className="print-cover">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: accent }}>
-          <Icon name={icon} size={24} className="text-white" />
+      <div className="flex items-start justify-between gap-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: accent }}>
+            <Icon name={icon} size={24} className="text-white" />
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400 font-semibold">{eyebrow}</div>
+            <div className="text-sm font-semibold text-slate-700">Управление персоналом</div>
+          </div>
         </div>
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400 font-semibold">{eyebrow}</div>
-          <div className="text-sm font-semibold text-slate-700">Концерн КРОСТ</div>
-        </div>
+
+        <img
+          src="/krost-logo.png"
+          alt="Концерн КРОСТ"
+          className="h-12 w-auto shrink-0 object-contain"
+          crossOrigin="anonymous"
+        />
       </div>
 
       <div className="mt-16">
@@ -77,6 +86,7 @@ export default function PrintCover({ eyebrow, title, subtitle, icon, accent, sec
           <div className="text-right shrink-0">
             <div className="text-[11px] text-slate-400">Дата формирования</div>
             <div className="text-sm font-semibold text-slate-700">{date}</div>
+            <div className="text-[11px] text-slate-400 mt-1.5">Концерн КРОСТ</div>
           </div>
         </div>
       </div>
