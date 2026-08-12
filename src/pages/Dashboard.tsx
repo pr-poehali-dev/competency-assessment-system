@@ -21,6 +21,11 @@ import HireVsFire from '@/components/dashboard/HireVsFire';
 import EarlyTurnover from '@/components/dashboard/EarlyTurnover';
 import UnstableChannels from '@/components/dashboard/UnstableChannels';
 import ExecutiveSummary from '@/components/dashboard/ExecutiveSummary';
+import ReasonsKpi from '@/components/dashboard/ReasonsKpi';
+import ReasonsChart from '@/components/dashboard/ReasonsChart';
+import ReasonsControllable from '@/components/dashboard/ReasonsControllable';
+import ReasonsDetail from '@/components/dashboard/ReasonsDetail';
+import ReasonsActions from '@/components/dashboard/ReasonsActions';
 import {
   SOURCES,
   TOTAL_2025,
@@ -37,6 +42,7 @@ const SECTIONS: CoverSection[] = [
   { id: 'summary', title: 'Главное за два года', sub: 'Краткая сводка для руководителя' },
   { id: 'hiring', title: 'Подбор персонала', sub: 'Откуда приходят сотрудники' },
   { id: 'turnover', title: 'Текучесть кадров', sub: 'Кто и когда увольняется' },
+  { id: 'reasons', title: 'Причины увольнения', sub: 'Почему уходят и что можно изменить' },
   { id: 'insights', title: 'Ключевые выводы', sub: 'Что делать дальше' },
 ];
 
@@ -238,6 +244,23 @@ export default function Dashboard() {
         <EarlyTurnover />
 
         <UnstableChannels />
+
+        <div className="print-page-break" />
+        <SectionTitle
+          id="reasons"
+          icon="MessageCircleQuestion"
+          title="Причины увольнения"
+          sub="Почему люди уходят и на что компания может повлиять"
+        />
+        <ReasonsKpi />
+
+        <ReasonsChart />
+
+        <ReasonsControllable />
+
+        <ReasonsDetail />
+
+        <ReasonsActions />
 
         <div id="insights" className="scroll-mt-24">
           <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">

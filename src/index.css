@@ -180,10 +180,6 @@
     display: none !important;
   }
 
-  .print-format-a3 main {
-    font-size: 1.05rem;
-  }
-
   .print-format-a3 .print-pair {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
@@ -205,6 +201,31 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
   }
+
+  .print-format-a4 main {
+    width: 190mm !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .print-format-a3 main {
+    width: 273mm !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    font-size: 1.05rem;
+  }
+}
+
+html.print-measuring {
+  overflow: hidden;
+}
+
+html.print-measuring body {
+  overflow: hidden;
+}
+
+html.print-measuring main {
+  pointer-events: none;
 }
 
 .print-only {
