@@ -30,6 +30,8 @@ import ReasonsByTenure from '@/components/dashboard/ReasonsByTenure';
 import ReasonsByUnit from '@/components/dashboard/ReasonsByUnit';
 import ReasonsDetail from '@/components/dashboard/ReasonsDetail';
 import ReasonsActions from '@/components/dashboard/ReasonsActions';
+import ActionPlan from '@/components/dashboard/ActionPlan';
+import PlanTimeline from '@/components/dashboard/PlanTimeline';
 import {
   SOURCES,
   TOTAL_2025,
@@ -48,6 +50,7 @@ const SECTIONS: CoverSection[] = [
   { id: 'turnover', title: 'Текучесть кадров', sub: 'Кто и когда увольняется' },
   { id: 'reasons', title: 'Причины увольнения', sub: 'Почему уходят и что можно изменить' },
   { id: 'insights', title: 'Ключевые выводы', sub: 'Что делать дальше' },
+  { id: 'plan', title: 'План работы', sub: 'Задачи, ответственные и сроки' },
 ];
 
 function SectionTitle({ id, icon, title, sub }: { id: string; icon: string; title: string; sub: string }) {
@@ -298,6 +301,16 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+
+        <div className="print-page-break" />
+        <SectionTitle
+          id="plan"
+          icon="ClipboardList"
+          title="План работы"
+          sub="Что делаем, кто отвечает и к какому сроку"
+        />
+        <ActionPlan />
+        <PlanTimeline />
 
         <p className="text-xs text-slate-400 font-mono pt-4 border-t border-slate-200">
           Источник данных: внутренняя отчётность отдела подбора персонала · 2025–2026
