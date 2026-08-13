@@ -1,4 +1,6 @@
 import Icon from '@/components/ui/icon';
+import TaskNote from '@/components/dashboard/TaskNote';
+import { usePlanNotes, type PlanNote } from '@/lib/planNotes';
 import {
   PLAN_WAVES,
   PLAN_OWNERS,
@@ -55,7 +57,17 @@ function ProgressBar({ tasks }: { tasks: PlanTask[] }) {
   );
 }
 
-function TaskCard({ task, border }: { task: PlanTask; border: string }) {
+function TaskCard({
+  task,
+  border,
+  note,
+  onSave,
+}: {
+  task: PlanTask;
+  border: string;
+  note?: PlanNote;
+  onSave: (id: string, text: string) => void;
+}) {
   const s = STATUS_META[task.status];
   return (
     <div className={`rounded-xl border bg-white p-5 print-block ${border} ${task.status === 'done' ? 'opacity-90' : ''}`}>
@@ -98,12 +110,17 @@ function TaskCard({ task, border }: { task: PlanTask; border: string }) {
             {task.metric} — <span className="font-semibold text-slate-900">{task.target}</span>
           </div>
         </div>
+
+        <TaskNote taskId={task.id} note={note} onSave={onSave} />
       </div>
     </div>
   );
 }
 
 export default function ActionPlan() {
+  const { notes, save } = usePlanNotes();
+  const noteCount = PLAN_TASKS.filter((t) => notes[t.id]).length;
+
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-slate-200 bg-white p-5 print-block">
@@ -146,6 +163,15 @@ export default function ActionPlan() {
           </div>
 
           <p className="text-[11px] text-slate-400 mt-3 leading-relaxed">{PLAN_STATUS_NOTE}</p>
+
+          <div className="flex items-start gap-2 mt-3 pt-3 border-t border-slate-200">
+            <Icon name="MessageSquareText" size={14} className="text-slate-400 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Ответственный может записать ход выполнения в комментарии к задаче — отмечено{' '}
+              <span className="font-semibold text-slate-600">{noteCount}</span> из {PLAN_TOTALS.total}. Комментарии
+              сохраняются в этом браузере и попадают в скачанный PDF.
+            </p>
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
@@ -189,7 +215,7 @@ export default function ActionPlan() {
 
             <div className="grid lg:grid-cols-2 gap-4 print-pair">
               {wave.tasks.map((t) => (
-                <TaskCard key={t.id} task={t} border={tone.card} />
+                <TaskCard key={t.id} task={t} border={tone.card} note={notes[t.id]} onSave={save} />
               ))}
             </div>
           </div>
