@@ -19,6 +19,8 @@ import {
   type PlanTask,
   type PlanStatus,
   type PlanChecklistPoint,
+  type PlanSurvey,
+  type SurveyQuestion,
 } from '@/data/plan';
 
 const waveTone: Record<string, { chip: string; bar: string; card: string }> = {
@@ -115,6 +117,76 @@ function TaskChecklist({ points }: { points: PlanChecklistPoint[] }) {
   );
 }
 
+const surveyTypeTone: Record<SurveyQuestion['type'], string> = {
+  'Один вариант': 'bg-sky-50 text-sky-700 border-sky-200',
+  'Несколько вариантов': 'bg-violet-50 text-violet-700 border-violet-200',
+  Оценка: 'bg-amber-50 text-amber-700 border-amber-200',
+  'Свободный ответ': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+};
+
+function TaskSurvey({ survey }: { survey: PlanSurvey }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-lg border border-slate-200 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="no-print w-full flex items-center gap-2 px-3 py-2.5 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+      >
+        <Icon name="ClipboardList" size={15} className="text-slate-500 shrink-0" />
+        <span className="text-sm font-semibold text-slate-900 flex-1">
+          {survey.title} — {survey.questions.length} вопросов
+        </span>
+        <Icon
+          name="ChevronDown"
+          size={15}
+          className={`text-slate-400 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      <div className={`${open ? 'block' : 'hidden'} print-block`}>
+        <p className="px-3 pt-3 text-xs text-slate-500 leading-relaxed">{survey.intro}</p>
+
+        <div className="mx-3 mt-2.5 flex gap-2 text-xs bg-amber-50 border border-amber-200 rounded-md px-2.5 py-2">
+          <Icon name="Info" size={13} className="text-amber-600 shrink-0 mt-0.5" />
+          <span className="text-amber-900">{survey.rule}</span>
+        </div>
+
+        <div className="divide-y divide-slate-100 mt-2">
+          {survey.questions.map((q) => (
+            <div key={q.n} className="px-3 py-3">
+              <div className="flex items-start gap-2">
+                <span className="w-5 h-5 rounded bg-slate-800 text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                  {q.n}
+                </span>
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-slate-900 leading-snug">{q.question}</div>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded border ${surveyTypeTone[q.type]}`}>
+                      {q.type}
+                    </span>
+                    <span className="text-[11px] text-slate-500">{q.hint}</span>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="mt-2.5 space-y-1 pl-7 list-none">
+                {q.options.map((o) => (
+                  <li key={o} className="flex gap-2 text-sm text-slate-700 leading-relaxed">
+                    <span className="w-3.5 h-3.5 border border-slate-300 rounded-sm shrink-0 mt-0.5 bg-white" />
+                    <span>{o}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TaskCard({
   task,
   border,
@@ -189,6 +261,12 @@ function TaskCard({
         {task.checklist && (
           <div className="sm:col-span-2">
             <TaskChecklist points={task.checklist} />
+          </div>
+        )}
+
+        {task.survey && (
+          <div className="sm:col-span-2">
+            <TaskSurvey survey={task.survey} />
           </div>
         )}
 
