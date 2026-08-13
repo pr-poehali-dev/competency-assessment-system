@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import Icon from '@/components/ui/icon';
+import { exportPlanToExcel } from '@/lib/planExport';
 import TaskNote from '@/components/dashboard/TaskNote';
 import { usePlanState, type PlanEntry, type SyncState } from '@/lib/planNotes';
 import {
@@ -151,6 +153,17 @@ export default function ActionPlan() {
   const progress = progressPercent(allTasks);
   const noteCount = allTasks.filter((t) => entries[t.id]?.note).length;
 
+  const [busy, setBusy] = useState(false);
+
+  const download = async () => {
+    setBusy(true);
+    try {
+      await exportPlanToExcel(entries);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-slate-200 bg-white p-5 print-block">
@@ -165,6 +178,21 @@ export default function ActionPlan() {
               каждой — один ответственный, срок и показатель, по которому видно результат.
             </p>
           </div>
+        </div>
+
+        <div className="no-print flex flex-wrap items-center gap-3 mt-4">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void download()}
+            className="inline-flex items-center gap-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg px-4 py-2 transition-colors disabled:opacity-60"
+          >
+            <Icon name={busy ? 'LoaderCircle' : 'Sheet'} size={16} className={busy ? 'animate-spin' : ''} />
+            {busy ? 'Готовлю файл…' : 'Выгрузить план в Excel'}
+          </button>
+          <span className="text-xs text-slate-500">
+            Все задачи с ответственными, сроками, статусами и комментариями
+          </span>
         </div>
 
         <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
