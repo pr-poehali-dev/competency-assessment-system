@@ -1,0 +1,50 @@
+{
+  "tests": [
+    {
+      "name": "Получить состояние плана",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Сохранить статус и комментарий задачи",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "taskId": "1.1",
+        "status": "doing",
+        "note": "Анкету согласовали с юристами",
+        "author": "Проверка"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "name": "Отклонить пустой идентификатор задачи",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "taskId": "",
+        "status": "todo"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Отклонить недопустимый статус",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "taskId": "9.9",
+        "status": "unknown"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

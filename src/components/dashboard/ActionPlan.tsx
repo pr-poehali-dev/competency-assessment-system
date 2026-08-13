@@ -1,19 +1,18 @@
 import Icon from '@/components/ui/icon';
 import TaskNote from '@/components/dashboard/TaskNote';
-import { usePlanNotes, type PlanNote } from '@/lib/planNotes';
+import { usePlanState, type PlanEntry, type SyncState } from '@/lib/planNotes';
 import {
   PLAN_WAVES,
   PLAN_OWNERS,
   PLAN_CONTROL,
   PLAN_TASKS,
-  PLAN_TOTALS,
-  PLAN_PROGRESS,
   PLAN_STATUS_NOTE,
   STATUS_META,
   STATUS_ORDER,
   countByStatus,
   progressPercent,
   type PlanTask,
+  type PlanStatus,
 } from '@/data/plan';
 
 const waveTone: Record<string, { chip: string; bar: string; card: string }> = {
@@ -60,13 +59,13 @@ function ProgressBar({ tasks }: { tasks: PlanTask[] }) {
 function TaskCard({
   task,
   border,
-  note,
+  entry,
   onSave,
 }: {
   task: PlanTask;
   border: string;
-  note?: PlanNote;
-  onSave: (id: string, text: string) => void;
+  entry?: PlanEntry;
+  onSave: (id: string, patch: { status?: PlanStatus; note?: string }) => Promise<boolean>;
 }) {
   const s = STATUS_META[task.status];
   return (
@@ -111,15 +110,46 @@ function TaskCard({
           </div>
         </div>
 
-        <TaskNote taskId={task.id} note={note} onSave={onSave} />
+        <TaskNote taskId={task.id} entry={entry} status={task.status} onSave={onSave} />
       </div>
     </div>
   );
 }
 
+function SyncBadge({ state, onRetry }: { state: SyncState; onRetry: () => void }) {
+  if (state === 'ready') return null;
+
+  const map: Record<Exclude<SyncState, 'ready'>, { icon: string; text: string; cls: string }> = {
+    loading: { icon: 'LoaderCircle', text: 'Загружаю отметки', cls: 'text-slate-400' },
+    saving: { icon: 'LoaderCircle', text: 'Сохраняю', cls: 'text-slate-400' },
+    error: { icon: 'TriangleAlert', text: 'Нет связи с хранилищем', cls: 'text-rose-600' },
+  };
+  const m = map[state];
+
+  return (
+    <div className={`no-print inline-flex items-center gap-1.5 text-[11px] ${m.cls}`}>
+      <Icon name={m.icon} size={12} className={state === 'error' ? '' : 'animate-spin'} />
+      {m.text}
+      {state === 'error' && (
+        <button type="button" onClick={onRetry} className="underline hover:no-underline ml-1">
+          Повторить
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function ActionPlan() {
-  const { notes, save } = usePlanNotes();
-  const noteCount = PLAN_TASKS.filter((t) => notes[t.id]).length;
+  const { entries, sync, save, reload } = usePlanState();
+
+  const waves = PLAN_WAVES.map((w) => ({
+    ...w,
+    tasks: w.tasks.map((t) => ({ ...t, status: entries[t.id]?.status ?? t.status })),
+  }));
+  const allTasks = waves.flatMap((w) => w.tasks);
+  const totals = countByStatus(allTasks);
+  const progress = progressPercent(allTasks);
+  const noteCount = allTasks.filter((t) => entries[t.id]?.note).length;
 
   return (
     <div className="space-y-6">
@@ -142,13 +172,14 @@ export default function ActionPlan() {
             <div>
               <div className="text-[11px] uppercase tracking-wide text-slate-400">Общий прогресс плана</div>
               <div className="text-sm text-slate-600 mt-0.5">
-                Выполнено {PLAN_TOTALS.done} из {PLAN_TOTALS.total}, в работе {PLAN_TOTALS.doing}
+                Выполнено {totals.done} из {totals.total}, в работе {totals.doing}
               </div>
+              <SyncBadge state={sync} onRetry={reload} />
             </div>
-            <div className="text-3xl font-bold text-slate-900 tabular-nums leading-none">{PLAN_PROGRESS}%</div>
+            <div className="text-3xl font-bold text-slate-900 tabular-nums leading-none">{progress}%</div>
           </div>
 
-          <ProgressBar tasks={PLAN_TASKS} />
+          <ProgressBar tasks={allTasks} />
 
           <div className="flex flex-wrap gap-x-5 gap-y-2 mt-3">
             {STATUS_ORDER.map((k) => (
@@ -156,7 +187,7 @@ export default function ActionPlan() {
                 <span className={`w-2.5 h-2.5 rounded-full ${STATUS_META[k].dot}`} />
                 <span className="text-xs text-slate-600">
                   {STATUS_META[k].label}
-                  <span className="text-slate-400"> · {PLAN_TOTALS[k]}</span>
+                  <span className="text-slate-400"> · {totals[k]}</span>
                 </span>
               </div>
             ))}
@@ -168,8 +199,8 @@ export default function ActionPlan() {
             <Icon name="MessageSquareText" size={14} className="text-slate-400 mt-0.5 shrink-0" />
             <p className="text-[11px] text-slate-400 leading-relaxed">
               Ответственный может записать ход выполнения в комментарии к задаче — отмечено{' '}
-              <span className="font-semibold text-slate-600">{noteCount}</span> из {PLAN_TOTALS.total}. Комментарии
-              сохраняются в этом браузере и попадают в скачанный PDF.
+              <span className="font-semibold text-slate-600">{noteCount}</span> из {totals.total}. Отметки и
+              комментарии общие для всех: их видно с любого компьютера, и они попадают в скачанный PDF.
             </p>
           </div>
         </div>
@@ -185,7 +216,7 @@ export default function ActionPlan() {
         </div>
       </div>
 
-      {PLAN_WAVES.map((wave) => {
+      {waves.map((wave) => {
         const tone = waveTone[wave.tone];
         const c = countByStatus(wave.tasks);
         const p = progressPercent(wave.tasks);
@@ -215,7 +246,7 @@ export default function ActionPlan() {
 
             <div className="grid lg:grid-cols-2 gap-4 print-pair">
               {wave.tasks.map((t) => (
-                <TaskCard key={t.id} task={t} border={tone.card} note={notes[t.id]} onSave={save} />
+                <TaskCard key={t.id} task={t} border={tone.card} entry={entries[t.id]} onSave={save} />
               ))}
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { PLAN_WAVES, STATUS_META, STATUS_ORDER } from '@/data/plan';
+import { usePlanState } from '@/lib/planNotes';
 
 const MONTHS = [
   { key: '2026-09', label: 'сен', year: '2026' },
@@ -41,6 +42,7 @@ const barTone: Record<string, string> = {
 };
 
 export default function PlanTimeline() {
+  const { entries } = usePlanState();
   let cursor = 0;
 
   return (
@@ -61,7 +63,8 @@ export default function PlanTimeline() {
 
           <div className="space-y-1.5">
             {PLAN_WAVES.map((wave) =>
-              wave.tasks.map((t) => {
+              wave.tasks.map((task) => {
+                const t = { ...task, status: entries[task.id]?.status ?? task.status };
                 const end = deadlineIndex(t.deadline);
                 const start = Math.min(cursor, end);
                 cursor = Math.max(0, end - 1);
