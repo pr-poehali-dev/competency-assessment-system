@@ -1,4 +1,4 @@
-import { PLAN_WAVES } from '@/data/plan';
+import { PLAN_WAVES, STATUS_META, STATUS_ORDER } from '@/data/plan';
 
 const MONTHS = [
   { key: '2026-09', label: 'сен', year: '2026' },
@@ -69,9 +69,19 @@ export default function PlanTimeline() {
 
                 return (
                   <div key={t.id} className="flex items-center gap-2">
-                    <div className="w-[38%] pr-3 shrink-0 flex items-baseline gap-2">
+                    <div className="w-[38%] pr-3 shrink-0 flex items-center gap-2">
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${STATUS_META[t.status].dot}`}
+                        title={STATUS_META[t.status].label}
+                      />
                       <span className="text-[11px] tabular-nums text-slate-400 shrink-0">{t.id}</span>
-                      <span className="text-xs text-slate-700 truncate">{t.title}</span>
+                      <span
+                        className={`text-xs truncate ${
+                          t.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-700'
+                        }`}
+                      >
+                        {t.title}
+                      </span>
                     </div>
                     <div className="flex-1 flex gap-2">
                       {MONTHS.map((m, i) => (
@@ -95,15 +105,26 @@ export default function PlanTimeline() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 mt-5 pt-4 border-t border-slate-100">
-        {PLAN_WAVES.map((w) => (
-          <div key={w.key} className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${barTone[w.tone]}`} />
-            <span className="text-xs text-slate-600">
-              {w.name} · {w.period}
-            </span>
-          </div>
-        ))}
+      <div className="mt-5 pt-4 border-t border-slate-100 space-y-3">
+        <div className="flex flex-wrap gap-4">
+          {PLAN_WAVES.map((w) => (
+            <div key={w.key} className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full ${barTone[w.tone]}`} />
+              <span className="text-xs text-slate-600">
+                {w.name} · {w.period}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <span className="text-xs text-slate-400">Отметка слева — статус:</span>
+          {STATUS_ORDER.map((k) => (
+            <div key={k} className="flex items-center gap-2">
+              <span className={`w-2.5 h-2.5 rounded-full ${STATUS_META[k].dot}`} />
+              <span className="text-xs text-slate-600">{STATUS_META[k].label}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

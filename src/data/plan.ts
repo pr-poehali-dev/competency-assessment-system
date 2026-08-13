@@ -1,5 +1,42 @@
 export type PlanOwner = 'Отдел подбора' | 'HR-дирекция' | 'Руководители подразделений' | 'Отдел кадров';
 
+export type PlanStatus = 'todo' | 'doing' | 'done';
+
+export const STATUS_META: Record<
+  PlanStatus,
+  { label: string; short: string; dot: string; chip: string; bar: string; text: string; icon: string }
+> = {
+  todo: {
+    label: 'Не начата',
+    short: 'Не начата',
+    dot: 'bg-slate-300',
+    chip: 'bg-slate-100 text-slate-600 border-slate-200',
+    bar: 'bg-slate-300',
+    text: 'text-slate-400',
+    icon: 'Circle',
+  },
+  doing: {
+    label: 'В работе',
+    short: 'В работе',
+    dot: 'bg-amber-500',
+    chip: 'bg-amber-50 text-amber-700 border-amber-200',
+    bar: 'bg-amber-500',
+    text: 'text-amber-600',
+    icon: 'CircleDashed',
+  },
+  done: {
+    label: 'Выполнена',
+    short: 'Выполнена',
+    dot: 'bg-emerald-500',
+    chip: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    bar: 'bg-emerald-500',
+    text: 'text-emerald-600',
+    icon: 'CircleCheck',
+  },
+};
+
+export const STATUS_ORDER: PlanStatus[] = ['todo', 'doing', 'done'];
+
 export type PlanTask = {
   id: string;
   title: string;
@@ -11,6 +48,7 @@ export type PlanTask = {
   target: string;
   effort: 'Низкие' | 'Средние' | 'Высокие';
   priority: 1 | 2 | 3;
+  status: PlanStatus;
 };
 
 export type PlanWave = {
@@ -43,6 +81,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'с 17% до 5% за квартал',
         effort: 'Низкие',
         priority: 1,
+        status: 'doing',
       },
       {
         id: '1.2',
@@ -55,6 +94,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'снизить вдвое к концу года',
         effort: 'Низкие',
         priority: 2,
+        status: 'done',
       },
       {
         id: '1.3',
@@ -67,6 +107,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'с 14 человек за год до 5',
         effort: 'Средние',
         priority: 1,
+        status: 'doing',
       },
       {
         id: '1.4',
@@ -79,6 +120,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: '100% принятых с октября',
         effort: 'Низкие',
         priority: 1,
+        status: 'todo',
       },
     ],
   },
@@ -100,6 +142,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'с 125 случаев на треть меньше за год',
         effort: 'Средние',
         priority: 1,
+        status: 'todo',
       },
       {
         id: '2.2',
@@ -112,6 +155,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'с 95% до 80% от всех увольнений',
         effort: 'Высокие',
         priority: 1,
+        status: 'todo',
       },
       {
         id: '2.3',
@@ -124,6 +168,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'с 39% до 50% найма',
         effort: 'Средние',
         priority: 2,
+        status: 'doing',
       },
       {
         id: '2.4',
@@ -136,6 +181,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'разбор по каждому в течение месяца',
         effort: 'Низкие',
         priority: 2,
+        status: 'todo',
       },
     ],
   },
@@ -157,6 +203,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'с 78 случаев вдвое меньше',
         effort: 'Высокие',
         priority: 2,
+        status: 'todo',
       },
       {
         id: '3.2',
@@ -169,6 +216,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'не менее 30 человек за год',
         effort: 'Низкие',
         priority: 3,
+        status: 'todo',
       },
       {
         id: '3.3',
@@ -181,6 +229,7 @@ export const PLAN_WAVES: PlanWave[] = [
         target: 'с 16% до 10% найма',
         effort: 'Средние',
         priority: 3,
+        status: 'todo',
       },
     ],
   },
@@ -199,6 +248,25 @@ export const PLAN_OWNERS = OWNER_ROLES.map((o) => ({
   ...o,
   count: PLAN_TASKS.filter((t) => t.owner === o.owner).length,
 }));
+
+export const countByStatus = (tasks: PlanTask[]) => ({
+  todo: tasks.filter((t) => t.status === 'todo').length,
+  doing: tasks.filter((t) => t.status === 'doing').length,
+  done: tasks.filter((t) => t.status === 'done').length,
+  total: tasks.length,
+});
+
+export const progressPercent = (tasks: PlanTask[]) => {
+  if (!tasks.length) return 0;
+  const score = tasks.reduce((s, t) => s + (t.status === 'done' ? 1 : t.status === 'doing' ? 0.5 : 0), 0);
+  return Math.round((score / tasks.length) * 100);
+};
+
+export const PLAN_TOTALS = countByStatus(PLAN_TASKS);
+export const PLAN_PROGRESS = progressPercent(PLAN_TASKS);
+
+export const PLAN_STATUS_NOTE =
+  'Задача считается выполненной, когда работает на практике, а не когда согласован документ. Задача в работе учитывается в прогрессе наполовину.';
 
 export const PLAN_CONTROL = [
   {
