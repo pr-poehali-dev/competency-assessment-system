@@ -18,6 +18,7 @@ import {
   overdueLabel,
   type PlanTask,
   type PlanStatus,
+  type PlanChecklistPoint,
 } from '@/data/plan';
 
 const waveTone: Record<string, { chip: string; bar: string; card: string }> = {
@@ -57,6 +58,59 @@ function ProgressBar({ tasks }: { tasks: PlanTask[] }) {
           <div key={k} className={STATUS_META[k].bar} style={{ width: `${(c[k] / c.total) * 100}%` }} />
         ) : null,
       )}
+    </div>
+  );
+}
+
+function TaskChecklist({ points }: { points: PlanChecklistPoint[] }) {
+  const [open, setOpen] = useState(false);
+  const total = points.reduce((n, p) => n + p.questions.length, 0);
+
+  return (
+    <div className="rounded-lg border border-slate-200 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="no-print w-full flex items-center gap-2 px-3 py-2.5 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+      >
+        <Icon name="ListChecks" size={15} className="text-slate-500 shrink-0" />
+        <span className="text-sm font-semibold text-slate-900 flex-1">
+          Чек-лист разговора — {total} вопросов в 3 точках
+        </span>
+        <Icon
+          name="ChevronDown"
+          size={15}
+          className={`text-slate-400 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      <div className={`${open ? 'block' : 'hidden'} print-block divide-y divide-slate-100`}>
+        {points.map((p) => (
+          <div key={p.when} className="px-3 py-3">
+            <div className="flex items-baseline gap-2 flex-wrap mb-2">
+              <span className="text-xs font-bold text-white bg-slate-800 rounded px-2 py-0.5">{p.when}</span>
+              <span className="text-xs text-slate-500">{p.focus}</span>
+            </div>
+
+            <ol className="space-y-1.5 list-none">
+              {p.questions.map((q, i) => (
+                <li key={q} className="flex gap-2 text-sm text-slate-700 leading-relaxed">
+                  <span className="text-slate-400 tabular-nums shrink-0">{i + 1}.</span>
+                  <span>{q}</span>
+                </li>
+              ))}
+            </ol>
+
+            <div className="mt-2.5 flex gap-2 text-xs bg-rose-50 border border-rose-200 rounded-md px-2.5 py-2">
+              <Icon name="TriangleAlert" size={13} className="text-rose-500 shrink-0 mt-0.5" />
+              <span className="text-rose-900">
+                <span className="font-semibold">Тревожный сигнал: </span>
+                {p.redFlag}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -131,6 +185,12 @@ function TaskCard({
             {task.metric} — <span className="font-semibold text-slate-900">{task.target}</span>
           </div>
         </div>
+
+        {task.checklist && (
+          <div className="sm:col-span-2">
+            <TaskChecklist points={task.checklist} />
+          </div>
+        )}
 
         <TaskNote taskId={task.id} entry={entry} status={task.status} onSave={onSave} />
       </div>

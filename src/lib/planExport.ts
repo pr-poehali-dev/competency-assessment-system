@@ -187,6 +187,63 @@ export async function exportPlanToExcel(entries: PlanState) {
 
   ws.autoFilter = { from: { row: head.number, column: 1 }, to: { row: head.number, column: 15 } };
 
+  const withChecklist = PLAN_WAVES.flatMap((w) => w.tasks).filter((t) => t.checklist?.length);
+
+  if (withChecklist.length) {
+    const cs = wb.addWorksheet('Чек-листы', {
+      views: [{ state: 'frozen', ySplit: 2 }],
+      pageSetup: { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
+    });
+    cs.columns = [
+      { key: 'point', width: 16 },
+      { key: 'num', width: 6 },
+      { key: 'question', width: 88 },
+    ];
+
+    withChecklist.forEach((task) => {
+      const th = cs.addRow([`Задача ${task.id}. ${task.title}`]);
+      cs.mergeCells(th.number, 1, th.number, 3);
+      th.height = 26;
+      th.getCell(1).font = { bold: true, size: 13, color: { argb: 'FFFFFFFF' } };
+      th.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
+      th.getCell(1).alignment = { vertical: 'middle' };
+
+      const sh = cs.addRow(['Точка', '№', 'Вопрос']);
+      sh.eachCell((cell) => {
+        cell.font = { bold: true, size: 10, color: { argb: DARK } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = border;
+      });
+
+      task.checklist?.forEach((point) => {
+        const pr = cs.addRow([`${point.when} — ${point.focus}`]);
+        cs.mergeCells(pr.number, 1, pr.number, 3);
+        pr.getCell(1).font = { bold: true, size: 11, color: { argb: DARK } };
+        pr.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0F2FE' } };
+        for (let i = 1; i <= 3; i += 1) pr.getCell(i).border = border;
+
+        point.questions.forEach((q, i) => {
+          const qr = cs.addRow({ point: '', num: i + 1, question: q });
+          qr.eachCell((cell) => {
+            cell.alignment = { vertical: 'top', wrapText: true };
+            cell.font = { size: 10 };
+            cell.border = border;
+          });
+          qr.getCell('num').alignment = { vertical: 'top', horizontal: 'center' };
+        });
+
+        const fr = cs.addRow(['', '', `Тревожный сигнал: ${point.redFlag}`]);
+        fr.getCell(3).font = { size: 10, italic: true, color: { argb: 'FFB91C1C' } };
+        fr.getCell(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
+        fr.getCell(3).alignment = { vertical: 'top', wrapText: true };
+        for (let i = 1; i <= 3; i += 1) fr.getCell(i).border = border;
+      });
+
+      cs.addRow([]);
+    });
+  }
+
   const buffer = await wb.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
