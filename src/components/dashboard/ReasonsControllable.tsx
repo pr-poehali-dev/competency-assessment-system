@@ -109,7 +109,7 @@ export default function ReasonsControllable() {
           <Icon name="TriangleAlert" size={16} className="text-amber-600 shrink-0 mt-0.5" />
           <p className="text-sm text-amber-900">
             Только {rPct(REASONS_TOTAL - MANAGEABLE_TOTAL).toFixed(0)}% уходов действительно вне контроля компании —
-            здоровье, переезд, закрытие объекта. Остальные {rPct(MANAGEABLE_TOTAL).toFixed(0)}% — результат условий
+            здоровье, переезд, завершение проекта. Остальные {rPct(MANAGEABLE_TOTAL).toFixed(0)}% — результат условий
             труда, подбора, работы руководителей и оплаты.
           </p>
         </div>
