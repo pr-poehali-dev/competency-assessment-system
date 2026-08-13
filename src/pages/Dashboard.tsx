@@ -30,8 +30,6 @@ import ReasonsByTenure from '@/components/dashboard/ReasonsByTenure';
 import ReasonsByUnit from '@/components/dashboard/ReasonsByUnit';
 import ReasonsDetail from '@/components/dashboard/ReasonsDetail';
 import ReasonsActions from '@/components/dashboard/ReasonsActions';
-import ActionPlan from '@/components/dashboard/ActionPlan';
-import PlanTimeline from '@/components/dashboard/PlanTimeline';
 import {
   SOURCES,
   TOTAL_2025,
@@ -50,7 +48,6 @@ const SECTIONS: CoverSection[] = [
   { id: 'turnover', title: 'Текучесть кадров', sub: 'Кто и когда увольняется' },
   { id: 'reasons', title: 'Причины увольнения', sub: 'Почему уходят и что можно изменить' },
   { id: 'insights', title: 'Ключевые выводы', sub: 'Что делать дальше' },
-  { id: 'plan', title: 'План работы', sub: 'Задачи, ответственные и сроки' },
 ];
 
 function SectionTitle({ id, icon, title, sub }: { id: string; icon: string; title: string; sub: string }) {
@@ -153,6 +150,13 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2 no-print">
+            <Link
+              to="/plan"
+              className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700 border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-2 hover:bg-emerald-100 transition-colors"
+            >
+              <Icon name="ClipboardList" size={16} />
+              <span className="hidden sm:inline">План работы</span>
+            </Link>
             <Link
               to="/agencies"
               className="inline-flex items-center gap-2 text-sm font-medium text-amber-700 border border-amber-200 bg-amber-50 rounded-lg px-3 py-2 hover:bg-amber-100 transition-colors"
@@ -301,16 +305,6 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-
-        <div className="print-page-break" />
-        <SectionTitle
-          id="plan"
-          icon="ClipboardList"
-          title="План работы"
-          sub="Что делаем, кто отвечает и к какому сроку"
-        />
-        <ActionPlan />
-        <PlanTimeline />
 
         <p className="text-xs text-slate-400 font-mono pt-4 border-t border-slate-200">
           Источник данных: внутренняя отчётность отдела подбора персонала · 2025–2026
