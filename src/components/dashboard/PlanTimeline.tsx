@@ -1,4 +1,5 @@
-import { PLAN_WAVES, STATUS_META, STATUS_ORDER } from '@/data/plan';
+import Icon from '@/components/ui/icon';
+import { PLAN_WAVES, STATUS_META, STATUS_ORDER, isOverdue } from '@/data/plan';
 import { usePlanState } from '@/lib/planNotes';
 
 const MONTHS = [
@@ -65,6 +66,7 @@ export default function PlanTimeline() {
             {PLAN_WAVES.map((wave) =>
               wave.tasks.map((task) => {
                 const t = { ...task, status: entries[task.id]?.status ?? task.status };
+                const late = isOverdue(t);
                 const end = deadlineIndex(t.deadline);
                 const start = Math.min(cursor, end);
                 cursor = Math.max(0, end - 1);
@@ -80,11 +82,16 @@ export default function PlanTimeline() {
                       <span className="text-[11px] tabular-nums text-slate-400 shrink-0">{t.id}</span>
                       <span
                         className={`text-xs truncate ${
-                          t.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-700'
+                          t.status === 'done'
+                            ? 'text-slate-400 line-through'
+                            : late
+                              ? 'text-rose-700 font-medium'
+                              : 'text-slate-700'
                         }`}
                       >
                         {t.title}
                       </span>
+                      {late && <Icon name="TriangleAlert" size={12} className="text-rose-500 shrink-0" />}
                     </div>
                     <div className="flex-1 flex gap-2">
                       {MONTHS.map((m, i) => (

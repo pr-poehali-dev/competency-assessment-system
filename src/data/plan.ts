@@ -249,6 +249,51 @@ export const PLAN_OWNERS = OWNER_ROLES.map((o) => ({
   count: PLAN_TASKS.filter((t) => t.owner === o.owner).length,
 }));
 
+const MONTH_NAMES = [
+  'января',
+  'февраля',
+  'марта',
+  'апреля',
+  'мая',
+  'июня',
+  'июля',
+  'августа',
+  'сентября',
+  'октября',
+  'ноября',
+  'декабря',
+];
+
+export function parseDeadline(deadline: string): Date | null {
+  const m = deadline.match(/(\d{1,2})\s+([а-яё]+)\s+(\d{4})/i);
+  if (!m) return null;
+  const month = MONTH_NAMES.indexOf(m[2].toLowerCase());
+  if (month < 0) return null;
+  return new Date(Number(m[3]), month, Number(m[1]), 23, 59, 59);
+}
+
+export function isOverdue(task: PlanTask, status: PlanStatus = task.status, now = new Date()) {
+  if (status === 'done') return false;
+  const d = parseDeadline(task.deadline);
+  return d ? d.getTime() < now.getTime() : false;
+}
+
+export function daysOverdue(task: PlanTask, now = new Date()) {
+  const d = parseDeadline(task.deadline);
+  if (!d) return 0;
+  return Math.max(0, Math.floor((now.getTime() - d.getTime()) / 86400000));
+}
+
+export function overdueLabel(days: number) {
+  if (days < 1) return 'срок истёк сегодня';
+  const mod10 = days % 10;
+  const mod100 = days % 100;
+  let word = 'дней';
+  if (mod10 === 1 && mod100 !== 11) word = 'день';
+  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) word = 'дня';
+  return `просрочено на ${days} ${word}`;
+}
+
 export const countByStatus = (tasks: PlanTask[]) => ({
   todo: tasks.filter((t) => t.status === 'todo').length,
   doing: tasks.filter((t) => t.status === 'doing').length,

@@ -1,5 +1,14 @@
 import ExcelJS from 'exceljs';
-import { PLAN_WAVES, STATUS_META, countByStatus, progressPercent, type PlanStatus } from '@/data/plan';
+import {
+  PLAN_WAVES,
+  STATUS_META,
+  countByStatus,
+  progressPercent,
+  isOverdue,
+  daysOverdue,
+  overdueLabel,
+  type PlanStatus,
+} from '@/data/plan';
 import type { PlanState } from '@/lib/planNotes';
 
 const DARK = 'FF1A1A2E';
@@ -52,6 +61,7 @@ export async function exportPlanToExcel(entries: PlanState) {
     { key: 'target', width: 26 },
     { key: 'priority', width: 12 },
     { key: 'effort', width: 12 },
+    { key: 'overdue', width: 22 },
   ];
 
   const allTasks = PLAN_WAVES.flatMap((w) =>
@@ -59,22 +69,23 @@ export async function exportPlanToExcel(entries: PlanState) {
   );
   const totals = countByStatus(allTasks);
   const progress = progressPercent(allTasks);
+  const overdueCount = allTasks.filter((t) => isOverdue(t)).length;
   const today = new Date().toLocaleDateString('ru-RU');
 
   const title = ws.addRow(['План работы по снижению текучести персонала']);
-  ws.mergeCells(title.number, 1, title.number, 14);
+  ws.mergeCells(title.number, 1, title.number, 15);
   title.height = 30;
   title.getCell(1).font = { bold: true, size: 16, color: { argb: DARK } };
   title.getCell(1).alignment = { vertical: 'middle' };
 
   const sub = ws.addRow([`Концерн КРОСТ · выгружено ${today}`]);
-  ws.mergeCells(sub.number, 1, sub.number, 14);
+  ws.mergeCells(sub.number, 1, sub.number, 15);
   sub.getCell(1).font = { size: 10, color: { argb: GREY } };
 
   const stat = ws.addRow([
-    `Всего задач: ${totals.total}   ·   Выполнено: ${totals.done}   ·   В работе: ${totals.doing}   ·   Не начато: ${totals.todo}   ·   Прогресс: ${progress}%`,
+    `Всего задач: ${totals.total}   ·   Выполнено: ${totals.done}   ·   В работе: ${totals.doing}   ·   Не начато: ${totals.todo}   ·   Прогресс: ${progress}%   ·   Просрочено: ${overdueCount}`,
   ]);
-  ws.mergeCells(stat.number, 1, stat.number, 14);
+  ws.mergeCells(stat.number, 1, stat.number, 15);
   stat.getCell(1).font = { size: 10, bold: true, color: { argb: DARK } };
   ws.addRow([]);
 
@@ -93,6 +104,7 @@ export async function exportPlanToExcel(entries: PlanState) {
     'Целевое значение',
     'Приоритет',
     'Затраты',
+    'Просрочка',
   ]);
   head.height = 26;
   head.eachCell((cell) => {
@@ -111,12 +123,12 @@ export async function exportPlanToExcel(entries: PlanState) {
     const wr = ws.addRow([
       `${wave.name} · ${wave.period} — выполнено ${wc.done} из ${wc.total} (${progressPercent(waveTasks)}%)`,
     ]);
-    ws.mergeCells(wr.number, 1, wr.number, 14);
+    ws.mergeCells(wr.number, 1, wr.number, 15);
     wr.height = 22;
     wr.getCell(1).font = { bold: true, size: 11, color: { argb: DARK } };
     wr.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: WAVE_FILL[wave.tone] } };
     wr.getCell(1).alignment = { vertical: 'middle' };
-    for (let i = 1; i <= 14; i += 1) wr.getCell(i).border = border;
+    for (let i = 1; i <= 15; i += 1) wr.getCell(i).border = border;
 
     waveTasks.forEach((t) => {
       const e = entries[t.id];
@@ -135,6 +147,7 @@ export async function exportPlanToExcel(entries: PlanState) {
         target: t.target,
         priority: priorityLabel[t.priority],
         effort: t.effort,
+        overdue: isOverdue(t) ? overdueLabel(daysOverdue(t)) : '',
       });
 
       row.eachCell((cell) => {
@@ -154,6 +167,14 @@ export async function exportPlanToExcel(entries: PlanState) {
       if (e?.note) {
         row.getCell('note').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFBEB' } };
       }
+
+      if (isOverdue(t)) {
+        const oc = row.getCell('overdue');
+        oc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
+        oc.font = { size: 10, bold: true, color: { argb: 'FFB91C1C' } };
+        row.getCell('deadline').font = { size: 10, bold: true, color: { argb: 'FFB91C1C' } };
+        row.getCell('title').font = { size: 10, bold: true, color: { argb: 'FFB91C1C' } };
+      }
     });
   });
 
@@ -161,10 +182,10 @@ export async function exportPlanToExcel(entries: PlanState) {
   const foot = ws.addRow([
     'Статусы и комментарии выгружены из общего хранилища отчёта. Задача «в работе» учитывается в прогрессе наполовину.',
   ]);
-  ws.mergeCells(foot.number, 1, foot.number, 14);
+  ws.mergeCells(foot.number, 1, foot.number, 15);
   foot.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
 
-  ws.autoFilter = { from: { row: head.number, column: 1 }, to: { row: head.number, column: 14 } };
+  ws.autoFilter = { from: { row: head.number, column: 1 }, to: { row: head.number, column: 15 } };
 
   const buffer = await wb.xlsx.writeBuffer();
   const blob = new Blob([buffer], {

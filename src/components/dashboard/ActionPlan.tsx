@@ -13,6 +13,9 @@ import {
   STATUS_ORDER,
   countByStatus,
   progressPercent,
+  isOverdue,
+  daysOverdue,
+  overdueLabel,
   type PlanTask,
   type PlanStatus,
 } from '@/data/plan';
@@ -70,8 +73,15 @@ function TaskCard({
   onSave: (id: string, patch: { status?: PlanStatus; note?: string }) => Promise<boolean>;
 }) {
   const s = STATUS_META[task.status];
+  const late = isOverdue(task);
+  const days = late ? daysOverdue(task) : 0;
+
   return (
-    <div className={`rounded-xl border bg-white p-5 print-block ${border} ${task.status === 'done' ? 'opacity-90' : ''}`}>
+    <div
+      className={`rounded-xl border p-5 print-block ${
+        late ? 'border-rose-300 bg-rose-50/40 ring-1 ring-rose-200' : `bg-white ${border}`
+      } ${task.status === 'done' ? 'opacity-90' : ''}`}
+    >
       <div className="flex items-start gap-3 mb-3">
         <Icon name={s.icon} size={18} className={`mt-0.5 shrink-0 ${s.text}`} />
         <div className="flex-1">
@@ -85,6 +95,12 @@ function TaskCard({
 
       <div className="flex flex-wrap gap-2 mb-3">
         <StatusChip status={task.status} />
+        {late && (
+          <span className="text-[11px] px-2 py-0.5 rounded-full border bg-rose-100 text-rose-800 border-rose-300 inline-flex items-center gap-1.5 font-medium">
+            <Icon name="TriangleAlert" size={12} />
+            {overdueLabel(days)}
+          </span>
+        )}
         <span className={`text-[11px] px-2 py-0.5 rounded-full border ${effortTone[task.effort]}`}>
           {task.effort} затраты
         </span>
@@ -100,8 +116,12 @@ function TaskCard({
         </div>
         <div>
           <div className="text-[11px] uppercase tracking-wide text-slate-400 mb-1">Срок</div>
-          <div className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
-            <Icon name="CalendarCheck" size={14} className="text-slate-400" />
+          <div className={`text-sm font-semibold flex items-center gap-1.5 ${late ? 'text-rose-700' : 'text-slate-900'}`}>
+            <Icon
+              name={late ? 'CalendarX' : 'CalendarCheck'}
+              size={14}
+              className={late ? 'text-rose-500' : 'text-slate-400'}
+            />
             {task.deadline}
           </div>
         </div>
@@ -153,6 +173,9 @@ export default function ActionPlan() {
   const progress = progressPercent(allTasks);
   const noteCount = allTasks.filter((t) => entries[t.id]?.note).length;
 
+  const overdue = allTasks.filter((t) => isOverdue(t));
+  const overdueSoonest = [...overdue].sort((a, b) => daysOverdue(b) - daysOverdue(a));
+
   const [busy, setBusy] = useState(false);
 
   const download = async () => {
@@ -179,6 +202,43 @@ export default function ActionPlan() {
             </p>
           </div>
         </div>
+
+        {overdue.length > 0 && (
+          <div className="mt-5 rounded-lg border border-rose-300 bg-rose-50 p-4 print-block">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-lg bg-rose-600 flex items-center justify-center shrink-0">
+                <Icon name="TriangleAlert" size={20} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <span className="text-2xl font-bold text-rose-700 tabular-nums leading-none">{overdue.length}</span>
+                  <span className="font-semibold text-rose-900">
+                    {overdue.length === 1 ? 'задача просрочена' : 'задач просрочено'}
+                  </span>
+                </div>
+                <p className="text-sm text-rose-800/80 mt-1 leading-relaxed">
+                  Срок прошёл, а статус не «Выполнена». Эти задачи выделены красным в списке ниже.
+                </p>
+
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {overdueSoonest.slice(0, 6).map((t) => (
+                    <span
+                      key={t.id}
+                      className="text-xs bg-white border border-rose-200 text-rose-900 rounded-lg px-2.5 py-1.5"
+                    >
+                      <span className="tabular-nums text-rose-400 mr-1.5">{t.id}</span>
+                      {t.title}
+                      <span className="text-rose-500 ml-1.5">· {t.owner}</span>
+                    </span>
+                  ))}
+                  {overdue.length > 6 && (
+                    <span className="text-xs text-rose-600 px-1 py-1.5">и ещё {overdue.length - 6}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="no-print flex flex-wrap items-center gap-3 mt-4">
           <button
