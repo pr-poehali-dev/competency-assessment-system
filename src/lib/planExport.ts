@@ -266,20 +266,20 @@ export async function exportPlanToExcel(entries: PlanState) {
     h.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
     h.getCell(1).alignment = { vertical: 'middle' };
 
-    const fio = sv.addRow(['', 'ФИО сотрудника: _______________________    Подразделение: _______________________']);
+    const fio = sv.addRow(['ФИО сотрудника: _______________________    Подразделение: _______________________']);
     sv.mergeCells(fio.number, 1, fio.number, 2);
     fio.getCell(1).font = { size: 10 };
-    const dt = sv.addRow(['', 'Дата увольнения: ______________    Стаж работы: ______________    Заполнил: ______________']);
+    const dt = sv.addRow(['Дата увольнения: ______________    Стаж работы: ______________    Заполнил: ______________']);
     sv.mergeCells(dt.number, 1, dt.number, 2);
     dt.getCell(1).font = { size: 10 };
 
-    const intro = sv.addRow(['', survey.intro]);
+    const intro = sv.addRow([survey.intro]);
     sv.mergeCells(intro.number, 1, intro.number, 2);
     intro.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
     intro.getCell(1).alignment = { wrapText: true, vertical: 'top' };
     intro.height = 30;
 
-    const rule = sv.addRow(['', survey.rule]);
+    const rule = sv.addRow([survey.rule]);
     sv.mergeCells(rule.number, 1, rule.number, 2);
     rule.getCell(1).font = { size: 9, bold: true, color: { argb: 'FFB45309' } };
     rule.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
@@ -288,14 +288,14 @@ export async function exportPlanToExcel(entries: PlanState) {
     sv.addRow([]);
 
     survey.questions.forEach((q) => {
-      const qr = sv.addRow(['', `${q.n}. ${q.question}`]);
+      const qr = sv.addRow([`${q.n}. ${q.question}`]);
       sv.mergeCells(qr.number, 1, qr.number, 2);
       qr.height = 22;
       qr.getCell(1).font = { bold: true, size: 11, color: { argb: DARK } };
       qr.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
       qr.getCell(1).alignment = { vertical: 'middle', wrapText: true };
 
-      const hr = sv.addRow(['', `${q.type}. ${q.hint}`]);
+      const hr = sv.addRow([`${q.type}. ${q.hint}`]);
       sv.mergeCells(hr.number, 1, hr.number, 2);
       hr.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
       hr.getCell(1).alignment = { wrapText: true, vertical: 'top' };
@@ -313,7 +313,7 @@ export async function exportPlanToExcel(entries: PlanState) {
       sv.addRow([]);
     });
 
-    const sign = sv.addRow(['', 'Подпись сотрудника: ______________        Подпись специалиста отдела кадров: ______________']);
+    const sign = sv.addRow(['Подпись сотрудника: ______________        Подпись специалиста отдела кадров: ______________']);
     sv.mergeCells(sign.number, 1, sign.number, 2);
     sign.getCell(1).font = { size: 10 };
   });
