@@ -317,7 +317,7 @@ export function addOppCostSheet(wb: ExcelJS.Workbook) {
 
   const salaryRef = cmpRow(
     'Оклад подбираемого сотрудника, ₽ в месяц',
-    100000,
+    280000,
     'Введите оклад вакансии — от него считается гонорар агентства',
   );
   const feeRef = cmpRow(
