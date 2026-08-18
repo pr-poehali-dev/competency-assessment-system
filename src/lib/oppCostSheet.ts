@@ -114,6 +114,7 @@ const ROWS: CostRow[] = [
 
 export function addOppCostSheet(wb: ExcelJS.Workbook) {
   const ws = wb.addWorksheet('Стоимость подбора ОПП', {
+    properties: { tabColor: { argb: 'FFEF4444' } },
     views: [{ state: 'frozen', ySplit: 8 }],
     pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
   });
