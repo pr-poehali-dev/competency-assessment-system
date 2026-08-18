@@ -344,6 +344,13 @@ export function addOppCostSheet(wb: ExcelJS.Workbook) {
     DARK,
   );
   cmpRow(
+    'ЭКОНОМИЯ на одном сотруднике, %',
+    { formula: `IF(${agencyTotalRef}=0,0,(${agencyTotalRef}-${ownCmpRef})/${agencyTotalRef}*100)` },
+    'На столько процентов свой подбор дешевле агентства',
+    '0.0"%"',
+    DARK,
+  );
+  cmpRow(
     'Свой подбор дешевле агентства, раз',
     { formula: `IF(${ownCmpRef}=0,0,${agencyTotalRef}/${ownCmpRef})` },
     'Во сколько раз собственный подбор выгоднее',
