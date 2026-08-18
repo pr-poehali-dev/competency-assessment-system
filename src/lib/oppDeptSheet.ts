@@ -263,6 +263,120 @@ export function addOppDeptSheet(wb: ExcelJS.Workbook) {
   );
 
   ws.addRow([]);
+
+  const chartTitle = ws.addRow(['График: затраты за год — свой отдел против агентства']);
+  ws.mergeCells(chartTitle.number, 1, chartTitle.number, 10);
+  chartTitle.height = 26;
+  chartTitle.getCell(1).font = { bold: true, size: 13, color: { argb: 'FFFFFFFF' } };
+  chartTitle.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
+  chartTitle.getCell(1).alignment = { vertical: 'middle' };
+
+  const chartHead = ws.addRow(['Вариант', '', '', 'Затраты за год, ₽', '', 'Наглядное сравнение']);
+  ws.mergeCells(chartHead.number, 1, chartHead.number, 3);
+  ws.mergeCells(chartHead.number, 4, chartHead.number, 5);
+  ws.mergeCells(chartHead.number, 6, chartHead.number, 10);
+  chartHead.eachCell((cell) => {
+    cell.font = { bold: true, size: 10, color: { argb: DARK } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+    cell.border = border;
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  });
+
+  const barRow = (label: string, valueFormula: string, color: string) => {
+    const r = ws.addRow([label, '', '', '', '', '']);
+    ws.mergeCells(r.number, 1, r.number, 3);
+    ws.mergeCells(r.number, 4, r.number, 5);
+    ws.mergeCells(r.number, 6, r.number, 10);
+    r.getCell(4).value = { formula: valueFormula } as ExcelJS.CellValue;
+    r.getCell(4).numFmt = '#,##0 ₽';
+    r.getCell(6).value = {
+      formula: `IF((${valueFormula})<=0,"—",REPT("█",ROUND((${valueFormula})/4000000,0)))`,
+    } as ExcelJS.CellValue;
+    r.height = 24;
+    for (let i = 1; i <= 10; i += 1) {
+      const c = r.getCell(i);
+      c.border = border;
+      c.alignment = { vertical: 'middle' };
+      c.font = { size: 10, bold: true, color: { argb: DARK } };
+    }
+    r.getCell(4).alignment = { vertical: 'middle', horizontal: 'right' };
+    r.getCell(6).font = { size: 10, color: { argb: color } };
+    return r.number;
+  };
+
+  barRow('Свой отдел подбора', `${grandTotal}`, DARK);
+  barRow('Кадровое агентство', `${agencyYearRef}`, ACCENT);
+  const saveBarNum = barRow('Экономия собственного отдела', `${agencyYearRef}-${grandTotal}`, 'FF10B981');
+  ws.getRow(saveBarNum).getCell(4).font = { size: 11, bold: true, color: { argb: 'FF047857' } };
+
+  const scaleNote = ws.addRow(['Один знак █ = 4 млн ₽ затрат за год']);
+  ws.mergeCells(scaleNote.number, 1, scaleNote.number, 10);
+  scaleNote.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
+
+  ws.addRow([]);
+
+  const scaleTitle = ws.addRow(['График: как растёт экономия при увеличении объёма найма']);
+  ws.mergeCells(scaleTitle.number, 1, scaleTitle.number, 10);
+  scaleTitle.height = 26;
+  scaleTitle.getCell(1).font = { bold: true, size: 13, color: { argb: 'FFFFFFFF' } };
+  scaleTitle.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
+  scaleTitle.getCell(1).alignment = { vertical: 'middle' };
+
+  const scHead = ws.addRow([
+    'Нанято за год, чел.',
+    'Агентство, ₽',
+    'Свой отдел, ₽',
+    'Экономия, ₽',
+    'Экономия, %',
+    'Наглядно: экономия собственного отдела',
+  ]);
+  scHead.height = 28;
+  ws.mergeCells(scHead.number, 6, scHead.number, 10);
+  scHead.eachCell((cell) => {
+    cell.font = { bold: true, size: 10, color: { argb: 'FFFFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
+    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    cell.border = border;
+  });
+
+  for (let h = 100; h <= 400; h += 20) {
+    const r = ws.addRow([h]);
+    const n = r.number;
+    const isFact = h === HIRES_2025 || (h < HIRES_2025 && h + 20 > HIRES_2025);
+    r.getCell(2).value = { formula: `${agencyOneRef}*A${n}` } as ExcelJS.CellValue;
+    r.getCell(3).value = { formula: `${grandTotal}` } as ExcelJS.CellValue;
+    r.getCell(4).value = { formula: `B${n}-C${n}` } as ExcelJS.CellValue;
+    r.getCell(5).value = { formula: `IF(B${n}=0,0,(B${n}-C${n})/B${n}*100)` } as ExcelJS.CellValue;
+    r.getCell(6).value = { formula: `IF(D${n}<=0,"—",REPT("█",ROUND(D${n}/5000000,0)))` } as ExcelJS.CellValue;
+    ws.mergeCells(n, 6, n, 10);
+    for (let i = 1; i <= 10; i += 1) {
+      const c = r.getCell(i);
+      c.border = border;
+      c.font = { size: 10, color: { argb: DARK } };
+      c.alignment = { vertical: 'middle' };
+    }
+    r.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    r.getCell(1).font = { size: 10, bold: true, color: { argb: DARK } };
+    [2, 3, 4].forEach((i) => {
+      r.getCell(i).numFmt = '#,##0 ₽';
+    });
+    r.getCell(5).numFmt = '0.0"%"';
+    r.getCell(6).font = { size: 10, color: { argb: 'FF10B981' } };
+    if (isFact) {
+      for (let i = 1; i <= 5; i += 1) {
+        r.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
+      }
+      r.getCell(1).font = { size: 10, bold: true, color: { argb: 'FFB45309' } };
+    }
+  }
+
+  const scaleFoot = ws.addRow([
+    `Один знак █ = 5 млн ₽ экономии. Жёлтым отмечен фактический объём найма (${HIRES_2025} чел.). Прочерк означает, что при таком объёме дешевле агентство.`,
+  ]);
+  ws.mergeCells(scaleFoot.number, 1, scaleFoot.number, 10);
+  scaleFoot.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
+
+  ws.addRow([]);
   const foot = ws.addRow([
     'Источник данных: фактический список сотрудников отдела подбора и объём найма за год. Загрузка 200% означает две ставки, 30–50% — частичную занятость подбором.',
   ]);
