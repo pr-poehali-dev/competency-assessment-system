@@ -12,6 +12,7 @@ import {
 import type { PlanState } from '@/lib/planNotes';
 import { addOppCostSheet } from '@/lib/oppCostSheet';
 import { addOppDeptSheet } from '@/lib/oppDeptSheet';
+import { addReviewsSheet } from '@/lib/reviewsSheet';
 
 const DARK = 'FF1A1A2E';
 const GREY = 'FF64748B';
@@ -322,6 +323,7 @@ export async function exportPlanToExcel(entries: PlanState) {
 
   addOppCostSheet(wb);
   addOppDeptSheet(wb);
+  addReviewsSheet(wb);
 
   const buffer = await wb.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
