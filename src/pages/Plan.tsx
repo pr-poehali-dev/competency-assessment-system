@@ -9,6 +9,7 @@ import ActionPlan from '@/components/dashboard/ActionPlan';
 import PlanTimeline from '@/components/dashboard/PlanTimeline';
 import ReferralEconomics from '@/components/dashboard/ReferralEconomics';
 import OppVsAgency from '@/components/dashboard/OppVsAgency';
+import OppScaleChart from '@/components/dashboard/OppScaleChart';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -165,6 +166,7 @@ export default function Plan() {
           sub="Сравнение затрат на подбор за год"
         />
         <OppVsAgency />
+        <OppScaleChart />
 
         <p className="text-xs text-slate-400 font-mono pt-4 border-t border-slate-200">
           Источник данных: внутренняя отчётность отдела подбора персонала · 2025–2026
