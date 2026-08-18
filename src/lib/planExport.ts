@@ -10,6 +10,7 @@ import {
   type PlanStatus,
 } from '@/data/plan';
 import type { PlanState } from '@/lib/planNotes';
+import { addOppCostSheet } from '@/lib/oppCostSheet';
 
 const DARK = 'FF1A1A2E';
 const GREY = 'FF64748B';
@@ -317,6 +318,8 @@ export async function exportPlanToExcel(entries: PlanState) {
     sv.mergeCells(sign.number, 1, sign.number, 2);
     sign.getCell(1).font = { size: 10 };
   });
+
+  addOppCostSheet(wb);
 
   const buffer = await wb.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
