@@ -311,7 +311,7 @@ export function addOppCostSheet(wb: ExcelJS.Workbook) {
   );
   const feeRef = cmpRow(
     'Гонорар агентства, % от годового дохода',
-    20,
+    15,
     'Обычно 15–25%. Измените процент под свой договор',
     '0"%"',
   );

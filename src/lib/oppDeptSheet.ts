@@ -259,7 +259,7 @@ export function addOppDeptSheet(wb: ExcelJS.Workbook) {
   };
 
   const vacSalaryRef = inputRow('Средний оклад подбираемого сотрудника, ₽ в месяц', 280000, 'От него считается гонорар агентства');
-  const feeRef = inputRow('Гонорар агентства, % от годового дохода', 20, 'Обычно 15–25%', '0"%"');
+  const feeRef = inputRow('Гонорар агентства, % от годового дохода', 15, 'Обычно 15–25%', '0"%"');
 
   const agencyOneRef = resRow(
     'Стоимость подбора одного сотрудника через агентство, ₽',
