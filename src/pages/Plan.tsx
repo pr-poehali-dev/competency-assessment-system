@@ -8,6 +8,7 @@ import ReportToc from '@/components/print/ReportToc';
 import ActionPlan from '@/components/dashboard/ActionPlan';
 import PlanTimeline from '@/components/dashboard/PlanTimeline';
 import ReferralEconomics from '@/components/dashboard/ReferralEconomics';
+import OppVsAgency from '@/components/dashboard/OppVsAgency';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -22,6 +23,7 @@ const SECTIONS: CoverSection[] = [
   { id: 'tasks', title: 'Задачи по этапам', sub: 'Что делаем, кто отвечает и к какому сроку' },
   { id: 'timeline', title: 'Диаграмма сроков', sub: 'Как задачи распределены по месяцам' },
   { id: 'referral', title: 'Экономика реферальной премии', sub: 'Сколько платить за приведённого сотрудника' },
+  { id: 'opp', title: 'Свой отдел или агентство', sub: 'Сравнение затрат на подбор за год' },
 ];
 
 function SectionTitle({ id, icon, title, sub }: { id: string; icon: string; title: string; sub: string }) {
@@ -154,6 +156,15 @@ export default function Plan() {
           sub="Сколько платить за приведённого сотрудника"
         />
         <ReferralEconomics />
+
+        <div className="print-page-break" />
+        <SectionTitle
+          id="opp"
+          icon="Scale"
+          title="Свой отдел или кадровое агентство"
+          sub="Сравнение затрат на подбор за год"
+        />
+        <OppVsAgency />
 
         <p className="text-xs text-slate-400 font-mono pt-4 border-t border-slate-200">
           Источник данных: внутренняя отчётность отдела подбора персонала · 2025–2026

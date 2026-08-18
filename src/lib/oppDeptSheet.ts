@@ -1,4 +1,5 @@
 import type ExcelJS from 'exceljs';
+import { OPP_TEAM, OPP_PARAMS } from '@/data/oppDept';
 
 const DARK = 'FF1A1A2E';
 const GREY = 'FF64748B';
@@ -8,40 +9,10 @@ const ACCENT = 'FFEF4444';
 const thin = { style: 'thin' as const, color: { argb: LINE } };
 const border = { top: thin, left: thin, bottom: thin, right: thin };
 
-type Recruiter = { name: string; load: number };
-
-export const OPP_TEAM: Recruiter[] = [
-  { name: 'Алексанова Татьяна Викторовна', load: 100 },
-  { name: 'Алешин Сергей Николаевич', load: 100 },
-  { name: 'Баршина Татьяна Юрьевна', load: 100 },
-  { name: 'Бурцева Татьяна Яковлевна', load: 95 },
-  { name: 'Ванагс Оксана Олеговна', load: 100 },
-  { name: 'Волынец Полина Владимировна', load: 100 },
-  { name: 'Горностаева Надежда Васильевна', load: 30 },
-  { name: 'Гурбанова Анна Сергеевна', load: 100 },
-  { name: 'Зайнетдинов Александр Зарифович', load: 50 },
-  { name: 'Замчалко Анастасия Владимировна', load: 100 },
-  { name: 'Игнатьева Надежда Вячеславовна', load: 50 },
-  { name: 'Киреева Елена Николаевна', load: 100 },
-  { name: 'Корина Елена Анатольевна', load: 100 },
-  { name: 'Куватова Ольга Александровна', load: 100 },
-  { name: 'Ланкевич Анастасия Васильевна', load: 100 },
-  { name: 'Львова Анна Игоревна', load: 100 },
-  { name: 'Мананкова Гелнур Фаритовна', load: 200 },
-  { name: 'Матвеева Ксения Андреевна', load: 100 },
-  { name: 'Москвичева Мария Владимировна', load: 100 },
-  { name: 'Назарук Юлия Александровна', load: 50 },
-  { name: 'Некрасова Эльвира Сергеевна', load: 100 },
-  { name: 'Полубоярова Ирина Витальевна', load: 50 },
-  { name: 'Расулов Роман Саитович', load: 30 },
-  { name: 'Сиворакша Елена Васильевна', load: 30 },
-  { name: 'Шеина Дарья Алексеевна', load: 100 },
-];
-
-const BASE_SALARY = 220000;
-const WORKPLACE = 60000;
-const TAX_RATE = 30;
-const HIRES_2025 = 228;
+const BASE_SALARY = OPP_PARAMS.salary;
+const WORKPLACE = OPP_PARAMS.workplace;
+const TAX_RATE = OPP_PARAMS.taxRate;
+const HIRES_2025 = OPP_PARAMS.hires;
 
 export function addOppDeptSheet(wb: ExcelJS.Workbook) {
   const ws = wb.addWorksheet('Стоимость ОПП', {
@@ -258,8 +229,8 @@ export function addOppDeptSheet(wb: ExcelJS.Workbook) {
     return `$H$${r.number}`;
   };
 
-  const vacSalaryRef = inputRow('Средний оклад подбираемого сотрудника, ₽ в месяц', 280000, 'От него считается гонорар агентства');
-  const feeRef = inputRow('Гонорар агентства, % от годового дохода', 15, 'Обычно 15–25%', '0"%"');
+  const vacSalaryRef = inputRow('Средний оклад подбираемого сотрудника, ₽ в месяц', OPP_PARAMS.vacancySalary, 'От него считается гонорар агентства');
+  const feeRef = inputRow('Гонорар агентства, % от годового дохода', OPP_PARAMS.agencyFee, 'Обычно 15–25%', '0"%"');
 
   const agencyOneRef = resRow(
     'Стоимость подбора одного сотрудника через агентство, ₽',
