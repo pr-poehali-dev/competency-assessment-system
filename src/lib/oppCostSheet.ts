@@ -238,8 +238,11 @@ export function addOppCostSheet(wb: ExcelJS.Workbook) {
 
   ws.addRow([]);
 
+  const totalRefs: Record<string, string> = {};
+
   const addTotal = (label: string, formula: string, strong = false) => {
     const r = ws.addRow([label, '', '', '', '', '', '']);
+    totalRefs[label] = `G${r.number}`;
     ws.mergeCells(r.number, 1, r.number, 6);
     r.getCell(7).value = { formula } as ExcelJS.CellValue;
     r.getCell(7).numFmt = '#,##0 ₽';
@@ -267,6 +270,101 @@ export function addOppCostSheet(wb: ExcelJS.Workbook) {
   addTotal('ПРЯМЫЕ ЗАТРАТЫ', `SUMIF(${rangeKind},"Прямые",${rangeSum})`);
   addTotal('КОСВЕННЫЕ ЗАТРАТЫ', `SUMIF(${rangeKind},"Косвенные",${rangeSum})`);
   addTotal('ИТОГО стоимость подбора одного сотрудника', `SUM(${rangeSum})`, true);
+
+  const ownRef = totalRefs['ИТОГО стоимость подбора одного сотрудника'];
+
+  ws.addRow([]);
+
+  const cmpTitle = ws.addRow(['Сравнение: свой подбор или кадровое агентство']);
+  ws.mergeCells(cmpTitle.number, 1, cmpTitle.number, 8);
+  cmpTitle.height = 26;
+  cmpTitle.getCell(1).font = { bold: true, size: 13, color: { argb: 'FFFFFFFF' } };
+  cmpTitle.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
+  cmpTitle.getCell(1).alignment = { vertical: 'middle' };
+
+  const cmpHead = ws.addRow(['Показатель', '', '', '', '', '', 'Значение', 'Комментарий']);
+  ws.mergeCells(cmpHead.number, 1, cmpHead.number, 6);
+  cmpHead.eachCell((cell) => {
+    cell.font = { bold: true, size: 10, color: { argb: DARK } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+    cell.border = border;
+    cell.alignment = { vertical: 'middle' };
+  });
+
+  const cmpRow = (
+    label: string,
+    value: number | { formula: string },
+    comment: string,
+    fmt = '#,##0 ₽',
+    accent?: string,
+  ) => {
+    const r = ws.addRow([label, '', '', '', '', '', '', comment]);
+    ws.mergeCells(r.number, 1, r.number, 6);
+    r.getCell(7).value = (typeof value === 'number' ? value : value) as ExcelJS.CellValue;
+    r.getCell(7).numFmt = fmt;
+    r.height = 20;
+    for (let i = 1; i <= 8; i += 1) {
+      const c = r.getCell(i);
+      c.border = border;
+      c.alignment = { vertical: 'middle', wrapText: true };
+      c.font = { size: 10, bold: !!accent, color: { argb: accent ? 'FFFFFFFF' : DARK } };
+      if (accent) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: accent } };
+    }
+    r.getCell(7).alignment = { vertical: 'middle', horizontal: 'right' };
+    r.getCell(8).font = { size: 9, color: { argb: accent ? 'FFFFFFFF' : GREY } };
+    return `G${r.number}`;
+  };
+
+  const salaryRef = cmpRow(
+    'Оклад подбираемого сотрудника, ₽ в месяц',
+    100000,
+    'Введите оклад вакансии — от него считается гонорар агентства',
+  );
+  const feeRef = cmpRow(
+    'Гонорар агентства, % от годового дохода',
+    20,
+    'Обычно 15–25%. Измените процент под свой договор',
+    '0"%"',
+  );
+  const agencyRef = cmpRow(
+    'Стоимость подбора через кадровое агентство',
+    { formula: `${salaryRef}*12*${feeRef}/100` },
+    'Гонорар агентства за одного закрытого кандидата',
+  );
+  const ownCmpRef = cmpRow(
+    'Стоимость подбора своими силами',
+    { formula: `${ownRef}` },
+    'Итог расчёта из таблицы выше',
+  );
+  const innerRef = cmpRow(
+    'Внутренние затраты, которые остаются при работе с агентством',
+    { formula: `SUMIF(${rangeKind},"Косвенные",${rangeSum})` },
+    'Интервью руководителя, проверка СБ, оформление и приём выполняются в любом случае',
+  );
+  const agencyTotalRef = cmpRow(
+    'Итого стоимость подбора через агентство',
+    { formula: `${agencyRef}+${innerRef}` },
+    'Гонорар агентства плюс внутренние затраты компании',
+  );
+
+  cmpRow(
+    'ЭКОНОМИЯ на одном сотруднике (агентство минус свой подбор)',
+    { formula: `${agencyTotalRef}-${ownCmpRef}` },
+    'Положительное значение — свой подбор дешевле',
+    '#,##0 ₽',
+    DARK,
+  );
+  cmpRow(
+    'Свой подбор дешевле агентства, раз',
+    { formula: `IF(${ownCmpRef}=0,0,${agencyTotalRef}/${ownCmpRef})` },
+    'Во сколько раз собственный подбор выгоднее',
+    '0.0" x"',
+  );
+  cmpRow(
+    'Экономия на 10 сотрудниках',
+    { formula: `(${agencyTotalRef}-${ownCmpRef})*10` },
+    'Умножьте на свой годовой план найма',
+  );
 
   ws.addRow([]);
   const foot = ws.addRow([
