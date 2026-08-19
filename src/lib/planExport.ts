@@ -14,6 +14,7 @@ import { addOppCostSheet } from '@/lib/oppCostSheet';
 import { addOppDeptSheet } from '@/lib/oppDeptSheet';
 import { addReviewsSheet } from '@/lib/reviewsSheet';
 import { addExitSurveySheets } from '@/lib/exitSurveySheets';
+import { addExitReasonSheets } from '@/lib/exitReasonsSheet';
 
 const DARK = 'FF1A1A2E';
 const GREY = 'FF64748B';
@@ -249,6 +250,7 @@ export async function exportPlanToExcel(entries: PlanState) {
   }
 
   addExitSurveySheets(wb);
+  addExitReasonSheets(wb);
 
   addOppCostSheet(wb);
   addOppDeptSheet(wb);

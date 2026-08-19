@@ -390,22 +390,3 @@ export const EXIT_REASON_SETS: ExitReasonSet[] = [
 ];
 
 export const REASON_TOTAL = EXIT_REASON_SETS.reduce((s, x) => s + x.reasons.length, 0);
-
-export function reasonsToCsv() {
-  const head = ['Код', 'Тип увольнения', 'Анкета', 'Группа', 'Причина', 'Когда ставить', 'Нужен комментарий', 'Что делаем'];
-  const rows = EXIT_REASON_SETS.flatMap((set) =>
-    set.reasons.map((r) => [
-      r.code,
-      set.title,
-      set.form,
-      r.group,
-      r.name,
-      r.when,
-      r.comment ? 'да' : 'нет',
-      r.action,
-    ]),
-  );
-  return [head, ...rows]
-    .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
-    .join('\r\n');
-}

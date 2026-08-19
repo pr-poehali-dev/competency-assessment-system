@@ -4,21 +4,16 @@ import ExitFormSheet from '@/components/print/ExitFormSheet';
 import ExitReasonSheet from '@/components/print/ExitReasonSheet';
 import PrintSheet from '@/components/print/PrintSheet';
 import { EXIT_SURVEYS, EXIT_ROUTER, EXIT_COMMON } from '@/data/exitSurveys';
-import { EXIT_REASON_SETS, REASON_RULES, REASON_TOTAL, reasonsToCsv } from '@/data/exitReasons';
+import { EXIT_REASON_SETS, REASON_RULES, REASON_TOTAL } from '@/data/exitReasons';
+import { exportExitReasonsToExcel } from '@/lib/exitReasonsSheet';
 
 const BADGE = ['text-amber-800 bg-amber-100', 'text-rose-800 bg-rose-100', 'text-sky-800 bg-sky-100'];
 
 export default function ExitForms() {
   const total = EXIT_SURVEYS.reduce((s, k) => s + k.questions.length, 0);
 
-  const handleCsv = () => {
-    const blob = new Blob(['\ufeff' + reasonsToCsv()], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'krost-prichiny-uvolneniya.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExcel = () => {
+    void exportExitReasonsToExcel();
   };
 
   return (
@@ -199,7 +194,7 @@ export default function ExitForms() {
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">
                 {REASON_TOTAL} причин с кодами, разбитые по трём типам текучести. Кадровик ставит одну причину из
                 закрытого списка при оформлении увольнения — по этим кодам считается статистика. Ниже {EXIT_REASON_SETS.length}{' '}
-                листа справочника для печати, плюс выгрузка файлом для программиста.
+                листа справочника для печати, плюс выгрузка в Excel: сводный лист, три листа причин с фильтрами и технический лист для загрузки в программу.
               </p>
               <div className="flex flex-wrap items-center gap-2 mt-3">
                 {EXIT_REASON_SETS.map((s, i) => (
@@ -209,11 +204,11 @@ export default function ExitForms() {
                 ))}
                 <button
                   type="button"
-                  onClick={handleCsv}
+                  onClick={handleExcel}
                   className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-[#1a1a2e] rounded-lg px-3 py-2 hover:bg-[#2d2d4a] transition-colors ml-1"
                 >
                   <Icon name="Download" size={14} />
-                  Выгрузить справочник в таблицу
+                  Скачать справочник в Excel
                 </button>
               </div>
             </div>
