@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { EXIT_SURVEYS, EXIT_ROUTER, EXIT_COMMON, type ExitSurveyKind } from '@/data/exitSurveys';
 import type { SurveyQuestion } from '@/data/plan';
@@ -170,6 +171,16 @@ export default function ExitSurveys() {
             </div>
             <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">{EXIT_COMMON.note}</p>
           </div>
+        </div>
+
+        <div className="px-3 pt-3 no-print">
+          <Link
+            to="/exit-forms"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-[#1a1a2e] rounded-lg px-3 py-2 hover:bg-[#2d2d4a] transition-colors"
+          >
+            <Icon name="Printer" size={14} />
+            Открыть бланки для печати на бумаге
+          </Link>
         </div>
 
         <div className="px-3 pt-4 pb-1">

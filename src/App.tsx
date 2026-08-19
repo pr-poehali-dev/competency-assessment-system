@@ -10,6 +10,7 @@ import Agencies from "./pages/Agencies";
 import Claims from "./pages/Claims";
 import Plan from "./pages/Plan";
 import Present from "./pages/Present";
+import ExitForms from "./pages/ExitForms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/claims" element={<Claims />} />
           <Route path="/plan" element={<Plan />} />
           <Route path="/present" element={<Present />} />
+          <Route path="/exit-forms" element={<ExitForms />} />
           <Route path="/flowchart" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

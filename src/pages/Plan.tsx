@@ -73,6 +73,13 @@ export default function Plan() {
           </div>
           <div className="flex items-center gap-2 no-print">
             <Link
+              to="/exit-forms"
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 transition-colors"
+            >
+              <Icon name="Printer" size={16} />
+              <span className="hidden sm:inline">Бланки анкет</span>
+            </Link>
+            <Link
               to="/present"
               className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#1a1a2e] rounded-lg px-3 py-2 hover:bg-[#2a2a44] transition-colors"
             >
