@@ -1,13 +1,25 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import ExitFormSheet from '@/components/print/ExitFormSheet';
+import ExitReasonSheet from '@/components/print/ExitReasonSheet';
 import PrintSheet from '@/components/print/PrintSheet';
 import { EXIT_SURVEYS, EXIT_ROUTER, EXIT_COMMON } from '@/data/exitSurveys';
+import { EXIT_REASON_SETS, REASON_RULES, REASON_TOTAL, reasonsToCsv } from '@/data/exitReasons';
 
 const BADGE = ['text-amber-800 bg-amber-100', 'text-rose-800 bg-rose-100', 'text-sky-800 bg-sky-100'];
 
 export default function ExitForms() {
   const total = EXIT_SURVEYS.reduce((s, k) => s + k.questions.length, 0);
+
+  const handleCsv = () => {
+    const blob = new Blob(['\ufeff' + reasonsToCsv()], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'krost-prichiny-uvolneniya.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="min-h-screen bg-slate-100 exit-forms-page">
@@ -52,9 +64,9 @@ export default function ExitForms() {
                 Три бланка выходного интервью, готовые к печати
               </h1>
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-                Нажмите «Печать бланков» — выйдет 4 листа A4: памятка по выбору типа увольнения и три анкеты, каждая на
-                отдельном листе. Печатайте нужную анкету по ситуации или сразу весь комплект в папку кадровика. Всего{' '}
-                {total} вопросов.
+                Нажмите «Печать бланков» — выйдет 8 листов A4: памятка по выбору типа увольнения, три анкеты и
+                справочник причин увольнения ({REASON_TOTAL} причин с кодами). Каждый документ на отдельном листе. Всего{' '}
+                {total} вопросов в анкетах.
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
                 {EXIT_SURVEYS.map((s, i) => (
@@ -172,6 +184,148 @@ export default function ExitForms() {
         {EXIT_SURVEYS.map((s) => (
           <PrintSheet key={s.key} className="exit-form">
             <ExitFormSheet survey={s} />
+          </PrintSheet>
+        ))}
+
+        <div className="rounded-xl border border-slate-200 bg-white p-5 no-print">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#1a1a2e] flex items-center justify-center shrink-0">
+              <Icon name="ListTree" size={20} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold text-slate-900 leading-tight">
+                Справочник причин увольнения для кадровой программы
+              </h2>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                {REASON_TOTAL} причин с кодами, разбитые по трём типам текучести. Кадровик ставит одну причину из
+                закрытого списка при оформлении увольнения — по этим кодам считается статистика. Ниже {EXIT_REASON_SETS.length}{' '}
+                листа справочника для печати, плюс выгрузка файлом для программиста.
+              </p>
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                {EXIT_REASON_SETS.map((s, i) => (
+                  <span key={s.key} className={`text-xs font-semibold px-2 py-1 rounded ${BADGE[i]}`}>
+                    {s.form} — {s.reasons.length} причин
+                  </span>
+                ))}
+                <button
+                  type="button"
+                  onClick={handleCsv}
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-[#1a1a2e] rounded-lg px-3 py-2 hover:bg-[#2d2d4a] transition-colors ml-1"
+                >
+                  <Icon name="Download" size={14} />
+                  Выгрузить справочник в таблицу
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <PrintSheet className="exit-form">
+          <div className="border border-slate-800 bg-white">
+            <div className="bg-[#1a1a2e] text-white px-3 py-2">
+              <div className="text-[8.5pt] uppercase tracking-[0.15em] opacity-80 leading-none">
+                Концерн КРОСТ · отдел кадров
+              </div>
+              <div className="text-[14pt] font-black leading-tight mt-1">
+                Справочник причин увольнения: правила заполнения
+              </div>
+            </div>
+
+            <div className="px-3 py-2 border-b border-slate-300">
+              <p className="text-[9pt] text-slate-700 leading-snug">
+                Причина увольнения ставится кадровиком в программе при оформлении каждого увольнения. Список закрытый:{' '}
+                {REASON_TOTAL} причин, разбитых по трём типам текучести. Сначала выбирается тип увольнения, программа
+                показывает только причины этого типа.
+              </p>
+            </div>
+
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-800 text-white">
+                  <th className="text-left px-2 py-1.5 text-[8.5pt] font-bold border border-slate-700 w-[13%]">
+                    Анкета
+                  </th>
+                  <th className="text-left px-2 py-1.5 text-[8.5pt] font-bold border border-slate-700 w-[27%]">
+                    Тип текучести
+                  </th>
+                  <th className="text-center px-2 py-1.5 text-[8.5pt] font-bold border border-slate-700 w-[10%]">
+                    Причин
+                  </th>
+                  <th className="text-left px-2 py-1.5 text-[8.5pt] font-bold border border-slate-700 w-[13%]">Коды</th>
+                  <th className="text-left px-2 py-1.5 text-[8.5pt] font-bold border border-slate-700">
+                    Группы причин
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {EXIT_REASON_SETS.map((s, i) => (
+                  <tr key={s.key}>
+                    <td className={`px-2 py-1.5 text-[9pt] font-black text-center border border-slate-300 ${BADGE[i]}`}>
+                      {s.form}
+                    </td>
+                    <td className="px-2 py-1.5 text-[8.5pt] font-bold text-slate-900 align-top border border-slate-300 leading-snug">
+                      {s.title}
+                    </td>
+                    <td className="px-2 py-1.5 text-[10pt] font-black text-center text-slate-900 border border-slate-300">
+                      {s.reasons.length}
+                    </td>
+                    <td className="px-2 py-1.5 text-[8.5pt] font-bold text-slate-700 text-center border border-slate-300">
+                      {s.reasons[0].code} — {s.reasons[s.reasons.length - 1].code}
+                    </td>
+                    <td className="px-2 py-1.5 text-[8pt] text-slate-700 align-top border border-slate-300 leading-snug">
+                      {[...new Set(s.reasons.map((r) => r.group))].join(', ')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className="px-3 py-2 border-t border-slate-300">
+              <div className="text-[10pt] font-bold text-slate-900">Правила для кадровика и для программы</div>
+              <ol className="mt-1.5 space-y-1">
+                {REASON_RULES.map((rule, i) => (
+                  <li key={rule} className="flex gap-2">
+                    <span className="w-[15px] h-[15px] rounded-full bg-slate-800 text-white text-[7.5pt] font-bold flex items-center justify-center shrink-0 mt-[1px]">
+                      {i + 1}
+                    </span>
+                    <span className="text-[8.5pt] text-slate-800 leading-snug">{rule}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="px-3 py-2 border-t border-slate-300">
+              <div className="text-[10pt] font-bold text-slate-900">Что программа должна хранить по каждой причине</div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-[3px] mt-1.5">
+                {[
+                  'Код причины (A-01, B-09, V-04) — не меняется никогда',
+                  'Тип текучести: А, Б или В',
+                  'Группа причины — для отчёта по блокам',
+                  'Комментарий, если причина его требует',
+                  'ФИО кадровика и дата постановки причины',
+                  'История правок: кто и когда изменил причину',
+                ].map((f) => (
+                  <div key={f} className="flex gap-1.5 items-start">
+                    <span className="w-[10px] h-[10px] border border-slate-500 shrink-0 mt-[2px] bg-white" />
+                    <span className="text-[8.5pt] text-slate-800 leading-snug">{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-2 px-3 py-2 bg-amber-50 border-t border-amber-300">
+              <Icon name="TriangleAlert" size={12} className="text-amber-600 shrink-0 mt-[2px]" />
+              <span className="text-[8.5pt] text-amber-900 leading-snug">
+                Коды причин нельзя переиспользовать и переименовывать: по ним сравнивается статистика год к году. Новую
+                причину добавляют новым кодом, устаревшую скрывают от выбора, но оставляют в базе.
+              </span>
+            </div>
+          </div>
+        </PrintSheet>
+
+        {EXIT_REASON_SETS.map((s) => (
+          <PrintSheet key={`reasons-${s.key}`} className="exit-form">
+            <ExitReasonSheet set={s} />
           </PrintSheet>
         ))}
       </main>

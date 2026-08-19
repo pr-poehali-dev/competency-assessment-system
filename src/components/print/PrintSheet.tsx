@@ -19,7 +19,7 @@ export default function PrintSheet({ children, className = '' }: { children: Rea
     const el = inner.current;
     if (!el) return;
     let z = 1;
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < 12; i += 1) {
       el.style.width = `${SHEET_W / z}px`;
       const h = el.offsetHeight;
       if (!h) break;
