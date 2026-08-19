@@ -23,15 +23,11 @@ const LABEL_SHORT: Record<string, string> = {
   'Свободный ответ': 'записать словами',
 };
 
-export default function ExitFormSheet({ survey, index }: { survey: ExitSurveyKind; index: number }) {
+export default function ExitFormSheet({ survey }: { survey: ExitSurveyKind }) {
   const t = TONE[survey.color];
 
   return (
-    <div
-      className={`exit-form bg-white ${survey.questions.length > 7 ? 'exit-dense' : ''} ${
-        index > 0 ? 'print-page-break' : ''
-      }`}
-    >
+    <div className="bg-white">
       <div className="border border-slate-800">
         <div className={`${t.bar} px-3 py-1.5 flex items-start justify-between gap-3 text-white`}>
           <div>

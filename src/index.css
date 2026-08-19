@@ -325,10 +325,6 @@ html.print-measuring.print-format-a3 main {
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
 }
 
-.exit-dense {
-  zoom: 0.82;
-}
-
 @media print {
   .exit-forms-page {
     background: #fff !important;
@@ -345,14 +341,21 @@ html.print-measuring.print-format-a3 main {
     margin-top: 0 !important;
   }
 
-  .exit-form {
+  .exit-forms-page .print-sheet {
     box-shadow: none !important;
     break-inside: avoid;
     page-break-inside: avoid;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .exit-forms-page .print-sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
   }
 }
 
 @page {
   size: A4 portrait;
-  margin: 8mm;
+  margin: 6mm;
 }

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import ExitFormSheet from '@/components/print/ExitFormSheet';
+import PrintSheet from '@/components/print/PrintSheet';
 import { EXIT_SURVEYS, EXIT_ROUTER, EXIT_COMMON } from '@/data/exitSurveys';
 
 const BADGE = ['text-amber-800 bg-amber-100', 'text-rose-800 bg-rose-100', 'text-sky-800 bg-sky-100'];
@@ -66,7 +67,7 @@ export default function ExitForms() {
           </div>
         </div>
 
-        <div className="exit-form">
+        <PrintSheet className="exit-form">
           <div className="border border-slate-800 bg-white">
             <div className="bg-[#1a1a2e] text-white px-3 py-2">
               <div className="text-[8.5pt] uppercase tracking-[0.15em] opacity-80 leading-none">
@@ -166,10 +167,12 @@ export default function ExitForms() {
               </span>
             </div>
           </div>
-        </div>
+        </PrintSheet>
 
-        {EXIT_SURVEYS.map((s, i) => (
-          <ExitFormSheet key={s.key} survey={s} index={i + 1} />
+        {EXIT_SURVEYS.map((s) => (
+          <PrintSheet key={s.key} className="exit-form">
+            <ExitFormSheet survey={s} />
+          </PrintSheet>
         ))}
       </main>
     </div>
