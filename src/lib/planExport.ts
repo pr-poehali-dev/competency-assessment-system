@@ -13,6 +13,7 @@ import type { PlanState } from '@/lib/planNotes';
 import { addOppCostSheet } from '@/lib/oppCostSheet';
 import { addOppDeptSheet } from '@/lib/oppDeptSheet';
 import { addReviewsSheet } from '@/lib/reviewsSheet';
+import { addExitSurveySheets } from '@/lib/exitSurveySheets';
 
 const DARK = 'FF1A1A2E';
 const GREY = 'FF64748B';
@@ -247,79 +248,7 @@ export async function exportPlanToExcel(entries: PlanState) {
     });
   }
 
-  const withSurvey = PLAN_WAVES.flatMap((w) => w.tasks).filter((t) => t.survey);
-
-  withSurvey.forEach((task) => {
-    const survey = task.survey;
-    if (!survey) return;
-
-    const sv = wb.addWorksheet('Выходное интервью', {
-      views: [{ state: 'frozen', ySplit: 1 }],
-      pageSetup: { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
-    });
-    sv.columns = [
-      { key: 'mark', width: 8 },
-      { key: 'text', width: 96 },
-    ];
-
-    const h = sv.addRow([survey.title]);
-    sv.mergeCells(h.number, 1, h.number, 2);
-    h.height = 30;
-    h.getCell(1).font = { bold: true, size: 15, color: { argb: 'FFFFFFFF' } };
-    h.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
-    h.getCell(1).alignment = { vertical: 'middle' };
-
-    const fio = sv.addRow(['ФИО сотрудника: _______________________    Подразделение: _______________________']);
-    sv.mergeCells(fio.number, 1, fio.number, 2);
-    fio.getCell(1).font = { size: 10 };
-    const dt = sv.addRow(['Дата увольнения: ______________    Стаж работы: ______________    Заполнил: ______________']);
-    sv.mergeCells(dt.number, 1, dt.number, 2);
-    dt.getCell(1).font = { size: 10 };
-
-    const intro = sv.addRow([survey.intro]);
-    sv.mergeCells(intro.number, 1, intro.number, 2);
-    intro.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
-    intro.getCell(1).alignment = { wrapText: true, vertical: 'top' };
-    intro.height = 30;
-
-    const rule = sv.addRow([survey.rule]);
-    sv.mergeCells(rule.number, 1, rule.number, 2);
-    rule.getCell(1).font = { size: 9, bold: true, color: { argb: 'FFB45309' } };
-    rule.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
-    rule.getCell(1).alignment = { wrapText: true, vertical: 'top' };
-    rule.height = 28;
-    sv.addRow([]);
-
-    survey.questions.forEach((q) => {
-      const qr = sv.addRow([`${q.n}. ${q.question}`]);
-      sv.mergeCells(qr.number, 1, qr.number, 2);
-      qr.height = 22;
-      qr.getCell(1).font = { bold: true, size: 11, color: { argb: DARK } };
-      qr.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
-      qr.getCell(1).alignment = { vertical: 'middle', wrapText: true };
-
-      const hr = sv.addRow([`${q.type}. ${q.hint}`]);
-      sv.mergeCells(hr.number, 1, hr.number, 2);
-      hr.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
-      hr.getCell(1).alignment = { wrapText: true, vertical: 'top' };
-
-      q.options.forEach((o) => {
-        const orow = sv.addRow({ mark: '☐', text: o });
-        orow.getCell('mark').alignment = { horizontal: 'center', vertical: 'top' };
-        orow.getCell('mark').font = { size: 12 };
-        orow.getCell('text').font = { size: 10 };
-        orow.getCell('text').alignment = { wrapText: true, vertical: 'top' };
-        orow.getCell('mark').border = border;
-        orow.getCell('text').border = border;
-      });
-
-      sv.addRow([]);
-    });
-
-    const sign = sv.addRow(['Подпись сотрудника: ______________        Подпись специалиста отдела кадров: ______________']);
-    sv.mergeCells(sign.number, 1, sign.number, 2);
-    sign.getCell(1).font = { size: 10 };
-  });
+  addExitSurveySheets(wb);
 
   addOppCostSheet(wb);
   addOppDeptSheet(wb);
