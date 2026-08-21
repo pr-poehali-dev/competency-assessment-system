@@ -3,12 +3,10 @@ import {
   AGENCIES,
   MONTHLY,
   AGE_BANDS,
-  DEPTS,
   POSITIONS,
   FIRED_TENURE,
   FIRED_POSITIONS,
   FIRED_AGE,
-  FIRED_DEPTS,
   AG_TOTAL_2025,
   AG_TOTAL_2026,
   AG_FIRED_2025,
@@ -511,26 +509,6 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
         `ушло ${fired} из ${hired} нанятых`,
       );
     }
-  });
-
-  blockRow('Куда шли люди: подразделения', 'Длина полосы — объём найма в подразделение за два года.');
-  DEPTS.forEach((d, idx) => {
-    const f = FIRED_DEPTS.find((x) => x.dept === d.dept);
-    const fired = (f?.y2025 ?? 0) + (f?.y2026 ?? 0);
-    const hired = d.y2025 + d.y2026;
-    const diff = d.y2026 - d.y2025;
-    const r = line(d.dept, {
-      cat: 'подразделение',
-      idx: idx + 1,
-      v2025: d.y2025,
-      v2026: d.y2026,
-      total: hired,
-      share: diff > 0 ? `+${diff}` : String(diff),
-      hint: fired >= 3 ? `Ушло ${fired} человек — разобрать отдельно` : fired ? `Ушло ${fired} человек` : 'Потерь нет',
-      sum: fired ? th(fired * COST_AVG) : '—',
-      danger: fired >= 3,
-    });
-    bar(r, Math.max(1, Math.round((hired / 35) * 24)), fired >= 3 ? RED_SOFT : BLUE, `нанято ${hired}, ушло ${fired}`);
   });
 
   blockRow('Возраст кандидатов от агентств', 'Кого приводят агентства и кто из них не остаётся.');
