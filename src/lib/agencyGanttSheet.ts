@@ -63,31 +63,14 @@ const BLACK = 'FF000000';
 const RED_TXT = 'FFC00000';
 
 const thin = { style: 'thin' as const, color: { argb: BLACK } };
-const medium = { style: 'medium' as const, color: { argb: BLACK } };
-
-const START = new Date(Date.UTC(2025, 0, 1));
-const END = new Date(Date.UTC(2026, 11, 31));
-const DAY = 24 * 60 * 60 * 1000;
-const DAYS = Math.round((END.getTime() - START.getTime()) / DAY) + 1;
 
 const LEFT = 9;
-const CAL_FROM = LEFT + 1;
-const CAL_TO = LEFT + DAYS;
-const RIGHT_FROM = CAL_TO + 1;
+const BAR_COL = LEFT + 1;
+const RIGHT_FROM = LEFT + 2;
 const RIGHT_COLS = 3;
-const TOTAL_COLS = CAL_TO + RIGHT_COLS;
+const TOTAL_COLS = RIGHT_FROM + RIGHT_COLS - 1;
 
 const MONTH_NAMES = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-
-const dayCol = (d: Date) => LEFT + 1 + Math.round((d.getTime() - START.getTime()) / DAY);
-
-const monthStarts: { col: number; label: string; year: number; month: number }[] = [];
-for (let y = 2025; y <= 2026; y += 1) {
-  for (let m = 0; m < 12; m += 1) {
-    monthStarts.push({ col: dayCol(new Date(Date.UTC(y, m, 1))), label: MONTH_NAMES[m], year: y, month: m });
-  }
-}
-const monthEnd = (i: number) => (i + 1 < monthStarts.length ? monthStarts[i + 1].col - 1 : CAL_TO);
 
 const rateByAgency: Record<string, number> = {};
 COST_ROWS.forEach((c) => {
@@ -108,12 +91,12 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     },
   });
 
-  const widths = [5.5, 3.7, 4.2, 40, 20, 8.5, 8.5, 9, 9];
+  const widths = [5.5, 4, 4.5, 42, 22, 10, 10, 10, 12];
   widths.forEach((w, i) => {
     ws.getColumn(i + 1).width = w;
   });
-  for (let c = CAL_FROM; c <= CAL_TO; c += 1) ws.getColumn(c).width = 0.42;
-  [46, 14, 14].forEach((w, i) => {
+  ws.getColumn(BAR_COL).width = 30;
+  [52, 14, 11].forEach((w, i) => {
     ws.getColumn(RIGHT_FROM + i).width = w;
   });
 
@@ -147,26 +130,14 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     }
   };
 
-  const monthGrid = (row: ExcelJS.Row) => {
-    monthStarts.forEach((m) => {
-      row.getCell(m.col).border = { ...(row.getCell(m.col).border ?? {}), left: thin };
-    });
-    row.getCell(CAL_TO).border = { ...(row.getCell(CAL_TO).border ?? {}), right: thin };
-  };
-
-  const bar = (row: ExcelJS.Row, months: number, color: string, label?: string) => {
-    const from = monthStarts[0].col;
-    const to = Math.min(CAL_TO, from + Math.round(months * 30.44) - 1);
-    for (let c = from; c <= to; c += 1) {
-      row.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color } };
-    }
-    row.getCell(from).border = { ...(row.getCell(from).border ?? {}), left: medium };
-    row.getCell(to).border = { ...(row.getCell(to).border ?? {}), right: medium };
-    if (label) {
-      const lab = Math.min(CAL_TO - 60, to + 3);
-      ws.mergeCells(row.number, lab, row.number, Math.min(CAL_TO, lab + 55));
-      paint(row, lab, { value: label, size: 8, bold: true });
-    }
+  const bar = (row: ExcelJS.Row, share: number, color: string, label?: string) => {
+    const filled = Math.max(1, Math.min(20, Math.round(share * 20)));
+    const c = row.getCell(BAR_COL);
+    c.value = `${'█'.repeat(filled)}${'░'.repeat(20 - filled)}${label ? `  ${label}` : ''}`;
+    c.font = { size: 8, name: 'Arial', color: { argb: BLACK } };
+    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color } };
+    c.alignment = { horizontal: 'left', vertical: 'middle' };
+    c.border = { top: thin, left: thin, bottom: thin, right: thin };
   };
 
   const r1 = ws.addRow([]);
@@ -176,10 +147,10 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
   paint(r1, 1, { value: 'Подбор через кадровые агентства', fill: CREAM, size: 14, bold: true, align: 'center' });
   ws.mergeCells(r1.number, 6, r1.number, 9);
   paint(r1, 6, { value: 'Концерн КРОСТ', fill: CREAM, size: 12, bold: true, align: 'center' });
-  ws.mergeCells(r1.number, CAL_FROM, r1.number, CAL_FROM + 130);
-  paint(r1, CAL_FROM, {
-    value: `2025 – 2026 гг.                    условия договоров на ${TERMS_DATE}`,
-    size: 14,
+  ws.mergeCells(r1.number, BAR_COL, r1.number, TOTAL_COLS);
+  paint(r1, BAR_COL, {
+    value: `2025 – 2026 гг.     условия договоров на ${TERMS_DATE}`,
+    size: 12,
     bold: true,
     color: 'FF3366FF',
   });
@@ -194,20 +165,16 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
   r3.height = 15;
   fillRow(r3, 1, TOTAL_COLS, WHITE);
   const legend: [string, string][] = [
-    [YELLOW, '— итоги по концерну'],
-    [CREAM, '— строки агентств'],
-    [IVORY, '— заголовки блоков'],
-    [BLUE, '— длительность в месяцах'],
-    [BLUE_DARK, '— гарантия по договору'],
-    [RED_SOFT, '— зона потерь'],
-    [GREEN_SOFT, '— покрыто гарантией'],
+    [YELLOW, 'итоги'],
+    [CREAM, 'агентства'],
+    [IVORY, 'блоки'],
+    [BLUE, 'объём'],
+    [BLUE_DARK, 'гарантия'],
+    [RED_SOFT, 'потери'],
+    [GREEN_SOFT, 'покрыто'],
   ];
-  let lc = CAL_FROM;
-  legend.forEach(([color, label]) => {
-    paint(r3, lc, { fill: color, box: true });
-    ws.mergeCells(r3.number, lc + 2, r3.number, lc + 36);
-    paint(r3, lc + 2, { value: label, size: 9 });
-    lc += 42;
+  legend.forEach(([color, label], i) => {
+    if (i < 7) paint(r3, i + 1, { value: label, fill: color, size: 8, align: 'center', box: true });
   });
 
   ws.addRow([]).height = 6;
@@ -215,39 +182,20 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
   const rNum = ws.addRow([]);
   rNum.height = 11;
   fillRow(rNum, 1, TOTAL_COLS, WHITE);
-  for (let c = 1; c <= 9; c += 1) paint(rNum, c, { value: c, size: 7, align: 'center', color: 'FF808080' });
-  monthStarts.forEach((m, i) => {
-    ws.mergeCells(rNum.number, m.col, rNum.number, monthEnd(i));
-    paint(rNum, m.col, { value: i + 10, size: 7, align: 'center', color: 'FF808080' });
-  });
-  for (let i = 0; i < RIGHT_COLS; i += 1)
-    paint(rNum, RIGHT_FROM + i, { value: 34 + i, size: 7, align: 'center', color: 'FF808080' });
+  for (let c = 1; c <= TOTAL_COLS; c += 1)
+    paint(rNum, c, { value: c, size: 7, align: 'center', color: 'FF808080' });
 
   const head = ws.addRow([]);
   head.height = 30;
   ['№\nп/п', '№\nбл.', '№\nскв.', 'Показатель', 'Категория', '2025', '2026', 'Всего', 'Доля /\nдинамика'].forEach(
     (h, i) => paint(head, i + 1, { value: h, bold: true, align: 'center', wrap: true, box: true }),
   );
+  paint(head, BAR_COL, { value: 'Наглядно', bold: true, align: 'center', wrap: true, box: true });
   ['Что это значит', 'Сумма\n(тыс. руб)', 'Гарантия\n(мес.)'].forEach((h, i) =>
     paint(head, RIGHT_FROM + i, { value: h, bold: true, align: 'center', wrap: true, box: true }),
   );
-  [2025, 2026].forEach((y) => {
-    const from = dayCol(new Date(Date.UTC(y, 0, 1)));
-    const to = dayCol(new Date(Date.UTC(y, 11, 31)));
-    ws.mergeCells(head.number, from, head.number, to);
-    paint(head, from, { value: `${y} год`, bold: true, align: 'center', size: 10, box: true });
-  });
 
-  const mrow = ws.addRow([]);
-  mrow.height = 16;
-  fillRow(mrow, 1, TOTAL_COLS, WHITE);
-  paint(mrow, 4, { value: 'Помесячная шкала', bold: true, align: 'center', box: true });
-  monthStarts.forEach((m, i) => {
-    ws.mergeCells(mrow.number, m.col, mrow.number, monthEnd(i));
-    paint(mrow, m.col, { value: m.label, bold: true, align: 'center', box: true });
-  });
-
-  ws.views = [{ state: 'frozen', xSplit: LEFT, ySplit: mrow.number }];
+  ws.views = [{ state: 'frozen', xSplit: 5, ySplit: head.number }];
 
   let block = 0;
   let seq = 0;
@@ -263,10 +211,8 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     ws.mergeCells(r.number, 4, r.number, 5);
     paint(r, 4, { value: title, fill: IVORY, bold: true, size: 10, box: true });
     for (let c = 6; c <= 9; c += 1) paint(r, c, { fill: IVORY, box: true });
-    ws.mergeCells(r.number, CAL_FROM, r.number, CAL_FROM + 150);
-    paint(r, CAL_FROM, { value: hint, fill: IVORY, size: 9, color: 'FF404040' });
-    for (let c = CAL_FROM + 151; c <= TOTAL_COLS; c += 1) paint(r, c, { fill: IVORY });
-    monthGrid(r);
+    ws.mergeCells(r.number, BAR_COL, r.number, TOTAL_COLS);
+    paint(r, BAR_COL, { value: hint, fill: IVORY, size: 9, color: 'FF404040', box: true });
     return r;
   }
 
@@ -308,27 +254,14 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
       bold: true,
       color: o.danger ? RED_TXT : BLACK,
     });
-    monthGrid(r);
+    paint(r, BAR_COL, { fill, box: true });
     paint(r, RIGHT_FROM, { value: o.hint ?? '', fill, box: true });
     paint(r, RIGHT_FROM + 1, { value: o.sum ?? '', fill, align: 'center', box: true, numFmt: '# ##0', bold: true });
     paint(r, RIGHT_FROM + 2, { value: o.guar ?? '', fill, align: 'center', box: true });
     return r;
   }
 
-  function months(row: ExcelJS.Row, get: (i: number) => string | number, fill: string, bold = false) {
-    monthStarts.forEach((m, i) => {
-      ws.mergeCells(row.number, m.col, row.number, monthEnd(i));
-      paint(row, m.col, { value: get(i), fill, align: 'center', box: true, bold });
-    });
-  }
-
-  const hiredMonth = (i: number) => {
-    const m = monthStarts[i];
-    const v = m.year === 2025 ? MONTHLY[m.month].y2025 : MONTHLY[m.month].y2026;
-    return v === null ? '' : v;
-  };
-
-  blockRow('Итоги по концерну', 'Помесячный объём найма через агентства и увольнения из числа принятых.');
+  blockRow('Итоги по концерну', 'Ключевые цифры внешнего подбора за два года.');
   const t1 = line('ИТОГО принято через КА', {
     cat: 'найм',
     v2025: AG_TOTAL_2025,
@@ -340,7 +273,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     fill: YELLOW,
     bold: true,
   });
-  months(t1, hiredMonth, YELLOW, true);
+  bar(t1, 1, YELLOW, '301 человек');
 
   const t2 = line('Уволено из принятых', {
     cat: 'потери',
@@ -354,17 +287,11 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     bold: true,
     danger: true,
   });
-  months(
+  bar(
     t2,
-    (i) => {
-      const m = monthStarts[i];
-      const h = hiredMonth(i);
-      if (h === '') return '';
-      const k = m.year === 2025 ? AG_FIRED_2025 / AG_TOTAL_2025 : AG_FIRED_2026 / AG_TOTAL_2026;
-      return Math.round((h as number) * k) || '';
-    },
+    (AG_FIRED_2025 + AG_FIRED_2026) / (AG_TOTAL_2025 + AG_TOTAL_2026),
     YELLOW,
-    true,
+    `${AG_FIRED_2025 + AG_FIRED_2026} чел.`,
   );
 
   line('Текучесть среди нанятых, %', {
@@ -401,7 +328,33 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     hint: 'Людей у подрядчика стало больше, качество не выросло',
   });
 
-  blockRow('Объём найма по агентствам', 'Распределение найма по месяцам, увольнения и текучесть каждого подрядчика.');
+  blockRow('Помесячная динамика найма', 'Сколько человек приходило через агентства каждый месяц.');
+  MONTHLY.forEach((m, idx) => {
+    const diff = m.y2026 === null ? null : m.y2026 - m.y2025;
+    const r = line(MONTH_NAMES[idx], {
+      cat: 'месяц',
+      idx: idx + 1,
+      v2025: m.y2025,
+      v2026: m.y2026 === null ? '—' : m.y2026,
+      total: m.y2025 + (m.y2026 ?? 0),
+      share: diff === null ? '—' : diff > 0 ? `+${diff}` : String(diff),
+      hint: m.y2026 === null ? 'Данных за 2026 год ещё нет' : `Принято ${m.y2025 + m.y2026} человек за два года`,
+      danger: diff !== null && diff < 0,
+    });
+    bar(r, (m.y2025 + (m.y2026 ?? 0)) / 45, m.y2026 === null ? WHITE : BLUE);
+  });
+  line('ИТОГО за год', {
+    cat: 'итог',
+    v2025: AG_TOTAL_2025,
+    v2026: AG_TOTAL_2026,
+    total: AG_TOTAL_2025 + AG_TOTAL_2026,
+    share: '2026 — 8 мес.',
+    hint: 'В 2026 году данные только по август включительно',
+    fill: YELLOW,
+    bold: true,
+  });
+
+  blockRow('Объём найма по агентствам', 'Найм, увольнения и текучесть каждого подрядчика за два года.');
   AGENCIES.forEach((a, idx) => {
     const hired = a.hired2025 + a.hired2026;
     const fired = a.fired2025 + a.fired2026;
@@ -428,18 +381,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
       fill: CREAM,
       danger: hired > 0 && agPct(fired, hired) >= 30,
     });
-    months(
-      r,
-      (i) => {
-        const m = monthStarts[i];
-        const total = m.year === 2025 ? AG_TOTAL_2025 : AG_TOTAL_2026;
-        const own = m.year === 2025 ? a.hired2025 : a.hired2026;
-        const h = hiredMonth(i);
-        if (h === '' || !total) return '';
-        return Math.round((h as number) * (own / total)) || '';
-      },
-      CREAM,
-    );
+    bar(r, hired / (AG_TOTAL_2025 + AG_TOTAL_2026), CREAM, `${hired} чел., ушло ${fired}`);
   });
 
   const firedAll = AG_FIRED_2025 + AG_FIRED_2026;
@@ -466,8 +408,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
       sum: th(total * COST_AVG),
       danger: idx === 0,
     });
-    const len = idx === 0 ? 3 : idx === 1 ? 6 : 12;
-    bar(r, len, idx === 0 ? RED_SOFT : idx === 1 ? BLUE : BLUE_DARK, `${total} чел. ушли за ${t.band}`);
+    bar(r, total / firedAll, idx === 0 ? RED_SOFT : idx === 1 ? BLUE : BLUE_DARK, `${total} чел. за ${t.band}`);
   });
   line('Средний срок работы до ухода, мес.', {
     cat: 'итог',
@@ -502,12 +443,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
       danger: pct !== null && pct >= 50,
     });
     if (hired) {
-      bar(
-        r,
-        Math.max(1, Math.round((fired / hired) * 24)),
-        pct !== null && pct >= 50 ? RED_SOFT : BLUE,
-        `ушло ${fired} из ${hired} нанятых`,
-      );
+      bar(r, fired / hired, pct !== null && pct >= 50 ? RED_SOFT : BLUE, `ушло ${fired} из ${hired}`);
     }
   });
 
@@ -527,7 +463,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
       sum: fired ? th(fired * COST_AVG) : '—',
       danger: agPct(fired, hired) >= 30,
     });
-    bar(r, Math.max(1, Math.round((hired / 120) * 24)), BLUE, `нанято ${hired} чел.`);
+    bar(r, hired / 120, BLUE, `нанято ${hired} чел.`);
   });
   line('Средний возраст, лет', {
     cat: 'итог',
@@ -553,13 +489,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     share: `${((SEARCH_DAYS + ONBOARDING_DAYS) / WORK_DAYS_MONTH).toFixed(1)} мес.`,
     hint: 'Поиск замены плюс адаптация новичка на каждого ушедшего',
   });
-  const cStart = monthStarts[0].col;
-  for (let c = cStart; c < cStart + SEARCH_DAYS; c += 1)
-    cycle.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: RED_SOFT } };
-  for (let c = cStart + SEARCH_DAYS; c < cStart + SEARCH_DAYS + ONBOARDING_DAYS; c += 1)
-    cycle.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: BLUE } };
-  ws.mergeCells(cycle.number, cStart + 63, cycle.number, cStart + 130);
-  paint(cycle, cStart + 63, { value: 'поиск 30 дней + адаптация 30 дней', size: 8, bold: true });
+  bar(cycle, 0.5, RED_SOFT, 'поиск 30 дн. + адаптация 30 дн.');
 
   const lostDaysAll = LOST_DAYS_2025 + LOST_DAYS_2026;
   const l1 = line('Потеряно рабочих дней', {
@@ -572,7 +502,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     hint: 'Время на поиск и адаптацию вместо работы',
     danger: true,
   });
-  bar(l1, 22, RED_SOFT, `${(lostDaysAll / WORK_DAYS_MONTH / 12).toFixed(1)} человеко-лет`);
+  bar(l1, 1, RED_SOFT, `${(lostDaysAll / WORK_DAYS_MONTH / 12).toFixed(1)} человеко-лет`);
   line('Часов руководителей на собеседования', {
     cat: 'потери',
     idx: 3,
@@ -601,9 +531,9 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     });
     bar(
       r,
-      t.guaranteeMax,
+      t.guaranteeMax / 8,
       t.guaranteeMax >= 6 ? BLUE_DARK : t.guaranteeMax >= 5 ? BLUE : RED_SOFT,
-      `гарантия ${t.guaranteeMax} мес., дальше замена за наш счёт`,
+      `гарантия ${t.guaranteeMax} мес.`,
     );
   });
 
@@ -624,7 +554,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
       fill: CREAM,
       danger: sum > 1_000_000,
     });
-    if (sum) bar(r, Math.max(1, Math.round((sum / COST_TOTAL) * 24)), RED_SOFT);
+    if (sum) bar(r, sum / COST_TOTAL, RED_SOFT, `${((sum / COST_TOTAL) * 100).toFixed(0)}% потерь`);
   });
   line('ИТОГО потрачено на тех, кто ушёл', {
     cat: `в среднем ${th(COST_AVG)} т.р. / чел.`,
@@ -652,8 +582,12 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
       sum: th(b.cases * COST_AVG),
       danger: !b.covered,
     });
-    const len = idx === 0 ? 3 : idx === 1 ? 6 : 12;
-    bar(r, len, b.covered ? GREEN_SOFT : RED_SOFT, b.covered ? 'можно требовать замену' : 'замена за наш счёт');
+    bar(
+      r,
+      b.cases / (COVERED_CASES + UNCOVERED_CASES),
+      b.covered ? GREEN_SOFT : RED_SOFT,
+      b.covered ? 'можно требовать замену' : 'за наш счёт',
+    );
   });
   line('ИТОГО по гарантиям', {
     cat: 'резерв экономии',
@@ -684,7 +618,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
       fill: CREAM,
       danger: cost !== null && cost > 500_000,
     });
-    if (total) bar(r, Math.max(1, Math.round((total / PAID_TOTAL) * 24)), BLUE_DARK);
+    if (total) bar(r, total / PAID_TOTAL, BLUE_DARK, `${((total / PAID_TOTAL) * 100).toFixed(0)}% оплат`);
   });
   line('ИТОГО оплачено агентствам', {
     cat: 'все подрядчики',
@@ -701,7 +635,7 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
   ws.addRow([]).height = 8;
   const src = ws.addRow([]);
   fillRow(src, 1, TOTAL_COLS, WHITE);
-  ws.mergeCells(src.number, 1, src.number, 60);
+  ws.mergeCells(src.number, 1, src.number, TOTAL_COLS);
   paint(src, 1, {
     value:
       'Источник: отчёты «Принятые» и «Уволенные сотрудники» за 2025–2026 годы, договоры с кадровыми агентствами, данные бухгалтерии по оплатам.',
