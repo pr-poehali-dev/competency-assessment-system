@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { printReport, type PageFormat } from '@/lib/print';
 import { exportAgencyDashboardToExcel } from '@/lib/agencyDashboardSheet';
+import { exportAgencyGanttToExcel } from '@/lib/agencyGanttSheet';
 import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
 import PdfProgress, { type PdfState } from '@/components/print/PdfProgress';
 import ReportToc from '@/components/print/ReportToc';
@@ -88,6 +89,10 @@ export default function Agencies() {
     void exportAgencyDashboardToExcel();
   };
 
+  const handleGantt = () => {
+    void exportAgencyGanttToExcel();
+  };
+
   const insights = [
     {
       icon: 'Crown',
@@ -151,13 +156,35 @@ export default function Agencies() {
               <Icon name="ClipboardList" size={16} />
               <span className="hidden sm:inline">Журнал претензий</span>
             </Link>
-            <button
-              onClick={handleExcel}
-              className="inline-flex items-center gap-2 text-sm font-medium text-emerald-800 border border-emerald-300 bg-emerald-50 rounded-lg px-3 py-2 hover:bg-emerald-100 transition-colors"
-            >
-              <Icon name="Sheet" size={16} />
-              <span className="hidden sm:inline">Скачать Excel</span>
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="inline-flex items-center gap-2 text-sm font-medium text-emerald-800 border border-emerald-300 bg-emerald-50 rounded-lg px-3 py-2 hover:bg-emerald-100 transition-colors">
+                  <Icon name="Sheet" size={16} />
+                  <span className="hidden sm:inline">Скачать Excel</span>
+                  <Icon name="ChevronDown" size={14} className="opacity-70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel>Формат таблицы</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleGantt} className="gap-3 py-2.5 cursor-pointer">
+                  <Icon name="CalendarRange" size={18} className="text-slate-500 shrink-0" />
+                  <div>
+                    <div className="font-medium">Как в рабочем файле кадров</div>
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      Помесячная сетка с полосами вакансий, итоги по агентствам
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExcel} className="gap-3 py-2.5 cursor-pointer">
+                  <Icon name="Table" size={18} className="text-slate-500 shrink-0" />
+                  <div>
+                    <div className="font-medium">Аналитическая таблица</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Все разделы дашборда одним листом сверху вниз</div>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#1a1a2e] rounded-lg px-4 py-2 hover:bg-[#2d2d4a] transition-colors">
