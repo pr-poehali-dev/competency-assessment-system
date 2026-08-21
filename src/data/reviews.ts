@@ -177,6 +177,23 @@ export const REVIEW_PLUSES = withShares(PLUSES, REVIEWS_META.withPlus);
 export const REVIEW_MINUSES = withShares(MINUSES, REVIEWS_META.withMinus);
 export const TOP3_MINUSES = REVIEW_MINUSES.slice(0, 3);
 
+export const REVIEW_MIX = (() => {
+  const { total, withPlus, withMinus } = REVIEWS_META;
+  const both = withPlus + withMinus - total;
+  const onlyPlus = withPlus - both;
+  const onlyMinus = withMinus - both;
+  const pct = (v: number) => Math.round((v / total) * 100);
+  return {
+    both,
+    onlyPlus,
+    onlyMinus,
+    bothPct: pct(both),
+    onlyPlusPct: pct(onlyPlus),
+    onlyMinusPct: pct(onlyMinus),
+    checksum: onlyPlus + both + onlyMinus,
+  };
+})();
+
 export const PLUS_MENTIONS = REVIEW_PLUSES.reduce((s, t) => s + t.count, 0);
 export const MINUS_MENTIONS = REVIEW_MINUSES.reduce((s, t) => s + t.count, 0);
 export const TOP3_MENTIONS = TOP3_MINUSES.reduce((s, t) => s + t.count, 0);

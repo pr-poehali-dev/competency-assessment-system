@@ -7,6 +7,7 @@ import {
   PLUS_MENTIONS,
   MINUS_MENTIONS,
   TOP3_MENTIONS,
+  REVIEW_MIX,
   TOP3_SHARE,
   AVG_MINUS_PER_REVIEW,
   AVG_PLUS_PER_REVIEW,
@@ -234,7 +235,10 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   const plusTotal = PLUS_MENTIONS;
   const top3Sum = TOP3_MENTIONS;
 
-  blockRow('Главное по отзывам', 'Сколько отзывов разобрано и что в них преобладает.');
+  blockRow(
+    'Главное по отзывам',
+    'Каждый отзыв отнесён ровно в одну группу — суммы групп дают 48 отзывов без двойного счёта.',
+  );
   const t1 = line('Всего отзывов разобрано', {
     cat: 'выборка',
     count: REVIEWS_META.total,
@@ -247,49 +251,107 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   });
   bar(t1, 1, YELLOW, `${REVIEWS_META.total} отзывов`);
 
-  const t2 = line('Отзывы с указанными плюсами', {
+  const g1 = line('Только плюсы, минусов нет', {
     cat: 'позитив',
+    idx: 1,
+    count: REVIEW_MIX.onlyPlus,
+    share: REVIEWS_META.total,
+    total: `${REVIEW_MIX.onlyPlusPct}%`,
+    tone: 'плюс',
+    hint: 'Названы плюсы, а в графе минусов «нет», «не заметила» или пусто',
+    pctCol: `${REVIEW_MIX.onlyPlusPct}%`,
+    mark: 'лояльные',
+    good: true,
+  });
+  bar(g1, REVIEW_MIX.onlyPlus / REVIEWS_META.total, GREEN_SOFT, `${REVIEW_MIX.onlyPlus} из ${REVIEWS_META.total}`);
+
+  const g2 = line('И плюсы, и минусы в одном отзыве', {
+    cat: 'смешанный',
+    idx: 2,
+    count: REVIEW_MIX.both,
+    share: REVIEWS_META.total,
+    total: `${REVIEW_MIX.bothPct}%`,
+    tone: 'смешанно',
+    hint: 'Взвешенная оценка: человек назвал и сильные стороны, и претензии',
+    pctCol: `${REVIEW_MIX.bothPct}%`,
+    mark: 'нейтральные',
+  });
+  bar(g2, REVIEW_MIX.both / REVIEWS_META.total, BLUE, `${REVIEW_MIX.both} из ${REVIEWS_META.total}`);
+
+  const g3 = line('Только минусы, плюсов нет', {
+    cat: 'негатив',
+    idx: 3,
+    count: REVIEW_MIX.onlyMinus,
+    share: REVIEWS_META.total,
+    total: `${REVIEW_MIX.onlyMinusPct}%`,
+    tone: 'минус',
+    hint: 'Отзыв целиком критический — ни одной сильной стороны не названо',
+    pctCol: `${REVIEW_MIX.onlyMinusPct}%`,
+    mark: 'критики',
+    danger: true,
+  });
+  bar(g3, REVIEW_MIX.onlyMinus / REVIEWS_META.total, RED_SOFT, `${REVIEW_MIX.onlyMinus} из ${REVIEWS_META.total}`);
+
+  const gSum = line('ПРОВЕРКА: сумма трёх групп', {
+    cat: 'контроль',
+    count: REVIEW_MIX.checksum,
+    share: REVIEWS_META.total,
+    total: '100%',
+    hint: `${REVIEW_MIX.onlyPlus} + ${REVIEW_MIX.both} + ${REVIEW_MIX.onlyMinus} = ${REVIEW_MIX.checksum} — сходится с общим числом отзывов`,
+    pctCol: '100%',
+    mark: REVIEW_MIX.checksum === REVIEWS_META.total ? 'сходится' : 'ошибка',
+    fill: YELLOW,
+    bold: true,
+    good: REVIEW_MIX.checksum === REVIEWS_META.total,
+    danger: REVIEW_MIX.checksum !== REVIEWS_META.total,
+  });
+  bar(gSum, 1, YELLOW, `${REVIEW_MIX.checksum} = ${REVIEWS_META.total}`);
+
+  blockRow(
+    'Базы для расчёта долей',
+    'Группы ниже пересекаются: смешанные отзывы попадают и туда, и туда. Это базы процентов, а не части выборки.',
+  );
+  const b1 = line('Отзывы, где названы плюсы', {
+    cat: 'база плюсов',
+    idx: 1,
     count: REVIEWS_META.withPlus,
     share: REVIEWS_META.total,
     total: `${pctOf(REVIEWS_META.withPlus, REVIEWS_META.total)}%`,
     tone: 'плюс',
-    hint: `База для долей плюсов: проценты в блоке плюсов считаются от ${REVIEWS_META.withPlus} отзывов`,
+    hint: `${REVIEW_MIX.onlyPlus} только с плюсами + ${REVIEW_MIX.both} смешанных. От этого числа считаются проценты в блоке плюсов`,
     pctCol: `${pctOf(REVIEWS_META.withPlus, REVIEWS_META.total)}%`,
-    mark: 'основа бренда',
-    fill: YELLOW,
-    bold: true,
     good: true,
   });
-  bar(t2, REVIEWS_META.withPlus / REVIEWS_META.total, GREEN_SOFT, `${REVIEWS_META.withPlus} из ${REVIEWS_META.total}`);
+  bar(b1, REVIEWS_META.withPlus / REVIEWS_META.total, GREEN_SOFT, `${REVIEWS_META.withPlus} из ${REVIEWS_META.total}`);
 
-  const t3 = line('Отзывы с содержательными минусами', {
-    cat: 'негатив',
+  const b2 = line('Отзывы, где названы минусы', {
+    cat: 'база минусов',
+    idx: 2,
     count: REVIEWS_META.withMinus,
     share: REVIEWS_META.total,
     total: `${pctOf(REVIEWS_META.withMinus, REVIEWS_META.total)}%`,
     tone: 'минус',
-    hint: `База для долей минусов: проценты в блоке минусов считаются от ${REVIEWS_META.withMinus} отзывов`,
+    hint: `${REVIEW_MIX.onlyMinus} только с минусами + ${REVIEW_MIX.both} смешанных. От этого числа считаются проценты в блоке минусов`,
     pctCol: `${pctOf(REVIEWS_META.withMinus, REVIEWS_META.total)}%`,
-    mark: 'зона работы',
-    fill: YELLOW,
-    bold: true,
     danger: true,
   });
-  bar(t3, REVIEWS_META.withMinus / REVIEWS_META.total, RED_SOFT, `${REVIEWS_META.withMinus} из ${REVIEWS_META.total}`);
+  bar(b2, REVIEWS_META.withMinus / REVIEWS_META.total, RED_SOFT, `${REVIEWS_META.withMinus} из ${REVIEWS_META.total}`);
 
-  line('Отзывы без минусов', {
-    cat: 'нейтрально',
-    idx: 1,
-    count: REVIEWS_META.noMinus,
+  line('Пересечение групп', {
+    cat: 'пояснение',
+    idx: 3,
+    count: REVIEW_MIX.both,
     share: REVIEWS_META.total,
-    total: `${pctOf(REVIEWS_META.noMinus, REVIEWS_META.total)}%`,
-    hint: 'В графе минусов написано «нет», «не заметила» или пусто',
-    pctCol: `${pctOf(REVIEWS_META.noMinus, REVIEWS_META.total)}%`,
-    good: true,
+    total: `${REVIEW_MIX.bothPct}%`,
+    hint: `${REVIEWS_META.withPlus} + ${REVIEWS_META.withMinus} = ${REVIEWS_META.withPlus + REVIEWS_META.withMinus}, что больше ${REVIEWS_META.total}: ${REVIEW_MIX.both} смешанных отзывов учтены в обеих базах`,
+    pctCol: `${REVIEW_MIX.bothPct}%`,
+    mark: 'не ошибка',
+    height: 24,
   });
+
   line('Уникальных тем в минусах', {
     cat: 'структура',
-    idx: 2,
+    idx: 4,
     count: REVIEWS_META.uniqueMinus,
     share: `${REVIEW_MINUSES.length} групп`,
     total: minusTotal,
@@ -298,7 +360,7 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   });
   line('Доля ТОП-3 минусов', {
     cat: 'концентрация',
-    idx: 3,
+    idx: 5,
     count: top3Sum,
     share: minusTotal,
     total: `${TOP3_SHARE}%`,
@@ -415,8 +477,8 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
     ],
     [
       'Прямая связь с затратами на подбор',
-      `${REVIEWS_META.withMinus} из ${REVIEWS_META.total}`,
-      'Устранение ТОП-3 минусов снижает текучку, а значит и объём повторного подбора',
+      `${REVIEW_MIX.onlyMinus} из ${REVIEWS_META.total}`,
+      `${REVIEW_MIX.onlyMinus} отзывов целиком критические. Устранение ТОП-3 минусов снижает текучку, а значит и объём повторного подбора`,
     ],
   ];
   insights.forEach(([title, val, text], idx) => {
