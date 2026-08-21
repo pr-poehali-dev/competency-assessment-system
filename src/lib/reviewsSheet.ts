@@ -1,5 +1,18 @@
 import type ExcelJS from 'exceljs';
-import { REVIEWS_META, REVIEW_PLUSES, REVIEW_MINUSES, TOP3_MINUSES } from '@/data/reviews';
+import {
+  REVIEWS_META,
+  REVIEW_PLUSES,
+  REVIEW_MINUSES,
+  TOP3_MINUSES,
+  PLUS_MENTIONS,
+  MINUS_MENTIONS,
+  TOP3_MENTIONS,
+  TOP3_SHARE,
+  AVG_MINUS_PER_REVIEW,
+  AVG_PLUS_PER_REVIEW,
+} from '@/data/reviews';
+
+const pctOf = (v: number, base: number) => Math.round((v / base) * 100);
 
 const YELLOW = 'FFFFFF00';
 const CREAM = 'FFFFFF99';
@@ -134,11 +147,11 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
 
   const head = ws.addRow([]);
   head.height = 30;
-  ['№\nп/п', '№\nбл.', '№\nскв.', 'Тема', 'Категория', 'Упомин.', 'Доля', 'Отзывов', 'Тональность'].forEach((h, i) =>
+  ['№\nп/п', '№\nбл.', '№\nскв.', 'Тема', 'Категория', 'Упомин.', 'База', 'Доля от\nотзывов', 'Тональность'].forEach((h, i) =>
     paint(head, i + 1, { value: h, bold: true, align: 'center', wrap: true, box: true }),
   );
   paint(head, BAR_COL, { value: 'Наглядно', bold: true, align: 'center', wrap: true, box: true });
-  ['Что это значит', 'Доля,\n%', 'Оценка'].forEach((h, i) =>
+  ['Что это значит', 'Доля от\nупомин.', 'Оценка'].forEach((h, i) =>
     paint(head, RIGHT_FROM + i, { value: h, bold: true, align: 'center', wrap: true, box: true }),
   );
 
@@ -217,16 +230,16 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   }
 
   /* ── 1. Главное по отзывам ── */
-  const minusTotal = REVIEW_MINUSES.reduce((s, t) => s + t.count, 0);
-  const plusTotal = REVIEW_PLUSES.reduce((s, t) => s + t.count, 0);
-  const top3Sum = TOP3_MINUSES.reduce((s, t) => s + t.count, 0);
+  const minusTotal = MINUS_MENTIONS;
+  const plusTotal = PLUS_MENTIONS;
+  const top3Sum = TOP3_MENTIONS;
 
   blockRow('Главное по отзывам', 'Сколько отзывов разобрано и что в них преобладает.');
   const t1 = line('Всего отзывов разобрано', {
     cat: 'выборка',
     count: REVIEWS_META.total,
-    share: '100%',
-    total: REVIEWS_META.total,
+    share: REVIEWS_META.total,
+    total: '100%',
     hint: 'Отзывы сотрудников и соискателей с открытых площадок',
     pctCol: '100%',
     fill: YELLOW,
@@ -237,11 +250,11 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   const t2 = line('Отзывы с указанными плюсами', {
     cat: 'позитив',
     count: REVIEWS_META.withPlus,
-    share: `${Math.round((REVIEWS_META.withPlus / REVIEWS_META.total) * 100)}%`,
-    total: REVIEWS_META.total,
+    share: REVIEWS_META.total,
+    total: `${pctOf(REVIEWS_META.withPlus, REVIEWS_META.total)}%`,
     tone: 'плюс',
-    hint: 'В этих отзывах люди назвали, что им нравится в компании',
-    pctCol: `${Math.round((REVIEWS_META.withPlus / REVIEWS_META.total) * 100)}%`,
+    hint: `База для долей плюсов: проценты в блоке плюсов считаются от ${REVIEWS_META.withPlus} отзывов`,
+    pctCol: `${pctOf(REVIEWS_META.withPlus, REVIEWS_META.total)}%`,
     mark: 'основа бренда',
     fill: YELLOW,
     bold: true,
@@ -252,11 +265,11 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   const t3 = line('Отзывы с содержательными минусами', {
     cat: 'негатив',
     count: REVIEWS_META.withMinus,
-    share: `${Math.round((REVIEWS_META.withMinus / REVIEWS_META.total) * 100)}%`,
-    total: REVIEWS_META.total,
+    share: REVIEWS_META.total,
+    total: `${pctOf(REVIEWS_META.withMinus, REVIEWS_META.total)}%`,
     tone: 'минус',
-    hint: 'База для расчёта долей: все проценты минусов считаются от этого числа',
-    pctCol: `${Math.round((REVIEWS_META.withMinus / REVIEWS_META.total) * 100)}%`,
+    hint: `База для долей минусов: проценты в блоке минусов считаются от ${REVIEWS_META.withMinus} отзывов`,
+    pctCol: `${pctOf(REVIEWS_META.withMinus, REVIEWS_META.total)}%`,
     mark: 'зона работы',
     fill: YELLOW,
     bold: true,
@@ -268,10 +281,10 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
     cat: 'нейтрально',
     idx: 1,
     count: REVIEWS_META.noMinus,
-    share: `${Math.round((REVIEWS_META.noMinus / REVIEWS_META.total) * 100)}%`,
-    total: REVIEWS_META.total,
+    share: REVIEWS_META.total,
+    total: `${pctOf(REVIEWS_META.noMinus, REVIEWS_META.total)}%`,
     hint: 'В графе минусов написано «нет», «не заметила» или пусто',
-    pctCol: `${Math.round((REVIEWS_META.noMinus / REVIEWS_META.total) * 100)}%`,
+    pctCol: `${pctOf(REVIEWS_META.noMinus, REVIEWS_META.total)}%`,
     good: true,
   });
   line('Уникальных тем в минусах', {
@@ -280,17 +293,18 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
     count: REVIEWS_META.uniqueMinus,
     share: `${REVIEW_MINUSES.length} групп`,
     total: minusTotal,
-    hint: 'Претензии сведены в тематические группы, всего упоминаний по темам',
+    hint: `${REVIEWS_META.uniqueMinus} разных формулировок сведены в ${REVIEW_MINUSES.length} тем, всего ${minusTotal} упоминаний`,
+    pctCol: '100%',
   });
   line('Доля ТОП-3 минусов', {
     cat: 'концентрация',
     idx: 3,
     count: top3Sum,
-    share: `${Math.round((top3Sum / minusTotal) * 100)}%`,
-    total: minusTotal,
+    share: minusTotal,
+    total: `${TOP3_SHARE}%`,
     tone: 'минус',
-    hint: 'Три темы дают больше половины всех претензий — это точка приложения усилий',
-    pctCol: `${Math.round((top3Sum / minusTotal) * 100)}%`,
+    hint: `Три темы дают ${TOP3_SHARE}% всех упоминаний минусов — точка приложения усилий`,
+    pctCol: `${TOP3_SHARE}%`,
     mark: 'приоритет',
     danger: true,
   });
@@ -302,11 +316,11 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
       cat: 'критичный минус',
       idx: idx + 1,
       count: t.count,
-      share: `${t.share}%`,
-      total: REVIEWS_META.withMinus,
+      share: REVIEWS_META.withMinus,
+      total: `${t.share}%`,
       tone: 'минус',
       hint: t.detail,
-      pctCol: `${t.share}%`,
+      pctCol: `${t.mentionShare}%`,
       mark: `приоритет ${idx + 1}`,
       fill: CREAM,
       danger: true,
@@ -318,17 +332,17 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   });
 
   /* ── 3. Все минусы по темам ── */
-  blockRow('Все минусы по темам', `Полный разбор претензий. Доля считается от ${REVIEWS_META.withMinus} отзывов с минусами.`);
+  blockRow('Все минусы по темам', `Полный разбор претензий. Столбец «Доля от отзывов» — от ${REVIEWS_META.withMinus} отзывов с минусами, «Доля от упомин.» — от ${minusTotal} упоминаний.`);
   REVIEW_MINUSES.forEach((t, idx) => {
     const r = line(t.title, {
       cat: idx < 3 ? 'критичный минус' : t.count >= 3 ? 'заметный минус' : 'единичный минус',
       idx: idx + 1,
       count: t.count,
-      share: `${t.share}%`,
-      total: REVIEWS_META.withMinus,
+      share: REVIEWS_META.withMinus,
+      total: `${t.share}%`,
       tone: 'минус',
       hint: t.detail,
-      pctCol: `${t.share}%`,
+      pctCol: `${t.mentionShare}%`,
       mark: idx < 3 ? 'высокий' : t.count >= 3 ? 'средний' : 'низкий',
       danger: idx < 3,
       height: 34,
@@ -339,9 +353,10 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   const mTotal = line('ИТОГО упоминаний минусов', {
     cat: 'итог',
     count: minusTotal,
-    share: `${REVIEW_MINUSES.length} тем`,
-    total: REVIEWS_META.withMinus,
-    hint: 'В среднем каждый недовольный отзыв содержит более двух претензий',
+    share: REVIEWS_META.withMinus,
+    total: '100%',
+    hint: `${minusTotal} упоминаний в ${REVIEWS_META.withMinus} отзывах — в среднем ${AVG_MINUS_PER_REVIEW} претензии на отзыв`,
+    pctCol: '100%',
     fill: YELLOW,
     bold: true,
     danger: true,
@@ -349,17 +364,17 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   bar(mTotal, 1, YELLOW, `${minusTotal} упоминаний`);
 
   /* ── 4. Плюсы по темам ── */
-  blockRow('Плюсы по темам — на чём строить бренд работодателя', `Доля считается от ${REVIEWS_META.withPlus} отзывов, где плюсы названы содержательно.`);
+  blockRow('Плюсы по темам — на чём строить бренд работодателя', `Столбец «Доля от отзывов» — от ${REVIEWS_META.withPlus} отзывов с плюсами, «Доля от упомин.» — от ${plusTotal} упоминаний.`);
   REVIEW_PLUSES.forEach((t, idx) => {
     const r = line(t.title, {
       cat: idx < 3 ? 'сильная сторона' : 'дополнительный плюс',
       idx: idx + 1,
       count: t.count,
-      share: `${t.share}%`,
-      total: REVIEWS_META.withPlus,
+      share: REVIEWS_META.withPlus,
+      total: `${t.share}%`,
       tone: 'плюс',
       hint: t.detail,
-      pctCol: `${t.share}%`,
+      pctCol: `${t.mentionShare}%`,
       mark: idx < 3 ? 'ключевой' : 'поддерживающий',
       good: true,
       height: 26,
@@ -370,9 +385,10 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
   const pTotal = line('ИТОГО упоминаний плюсов', {
     cat: 'итог',
     count: plusTotal,
-    share: `${REVIEW_PLUSES.length} тем`,
-    total: REVIEWS_META.withPlus,
-    hint: 'Зарплата и коллектив названы в двух третях положительных отзывов',
+    share: REVIEWS_META.withPlus,
+    total: '100%',
+    hint: `${plusTotal} упоминаний в ${REVIEWS_META.withPlus} отзывах — в среднем ${AVG_PLUS_PER_REVIEW} плюса на отзыв`,
+    pctCol: '100%',
     fill: YELLOW,
     bold: true,
     good: true,
@@ -385,16 +401,16 @@ export function addReviewsSheet(wb: ExcelJS.Workbook) {
     [
       'Деньги, люди и проекты — работающая основа',
       `${REVIEW_PLUSES[0].share}% и ${REVIEW_PLUSES[1].share}%`,
-      'Зарплата и коллектив упомянуты в двух третях положительных отзывов — на этом строится бренд работодателя',
+      `Зарплата названа в ${REVIEW_PLUSES[0].share}% положительных отзывов, коллектив — в ${REVIEW_PLUSES[1].share}%. На этом строится бренд работодателя`,
     ],
     [
       'Негатив не в зарплате, а в условиях вокруг неё',
-      `${Math.round((top3Sum / minusTotal) * 100)}% претензий`,
-      'Соцпакет, переработки и отношение руководителей дают больше половины всех минусов',
+      `${TOP3_SHARE}% упоминаний`,
+      `Соцпакет, переработки и отношение руководителей дают ${top3Sum} из ${minusTotal} упоминаний минусов`,
     ],
     [
       'Зона риска для подбора',
-      `${REVIEW_MINUSES[3].count} упоминаний`,
+      `${REVIEW_MINUSES[3].share}% отзывов`,
       'Медкомиссия за счёт кандидата и расхождение вакансии с реальностью отсеивают людей ещё до выхода',
     ],
     [

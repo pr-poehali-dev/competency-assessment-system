@@ -2,9 +2,21 @@ export type ReviewTheme = {
   title: string;
   count: number;
   share: number;
+  mentionShare: number;
   detail: string;
   quotes: string[];
   action?: string;
+};
+
+type ReviewThemeInput = Omit<ReviewTheme, 'share' | 'mentionShare'>;
+
+const withShares = (rows: ReviewThemeInput[], base: number): ReviewTheme[] => {
+  const mentions = rows.reduce((s, r) => s + r.count, 0);
+  return rows.map((r) => ({
+    ...r,
+    share: Math.round((r.count / base) * 100),
+    mentionShare: Math.round((r.count / mentions) * 1000) / 10,
+  }));
 };
 
 export const REVIEWS_META = {
@@ -16,11 +28,10 @@ export const REVIEWS_META = {
   source: 'Выгрузка отзывов сотрудников и соискателей (hh.ru, nahjob.club и др.)',
 };
 
-export const REVIEW_PLUSES: ReviewTheme[] = [
+const PLUSES: ReviewThemeInput[] = [
   {
     title: 'Высокая белая зарплата без задержек',
     count: 23,
-    share: 70,
     detail: 'Официальное оформление, регулярная индексация, выплаты вовремя, доход выше рынка',
     quotes: [
       'Белая заработная плата, возможность карьерного роста',
@@ -30,7 +41,6 @@ export const REVIEW_PLUSES: ReviewTheme[] = [
   {
     title: 'Коллектив и руководители',
     count: 22,
-    share: 67,
     detail: 'Профессиональная команда, поддержка коллег и наставников, адекватные руководители отделов',
     quotes: [
       'Ребята в коллективе вежливые, порядочные и очень доброжелательные люди',
@@ -40,7 +50,6 @@ export const REVIEW_PLUSES: ReviewTheme[] = [
   {
     title: 'Карьерный рост и развитие',
     count: 16,
-    share: 48,
     detail: 'Реальные возможности вырасти в должности и доходе, внутреннее обучение, наставничество',
     quotes: [
       'Огромные возможности для реализации',
@@ -50,7 +59,6 @@ export const REVIEW_PLUSES: ReviewTheme[] = [
   {
     title: 'Масштабные проекты и объекты',
     count: 13,
-    share: 39,
     detail: 'Крупнейший застройщик Москвы, передовые технологии, значимые для города проекты',
     quotes: [
       'Крост работает с передовыми технологиями в строительстве',
@@ -60,7 +68,6 @@ export const REVIEW_PLUSES: ReviewTheme[] = [
   {
     title: 'Современный офис и рабочие места',
     count: 12,
-    share: 36,
     detail: 'Новый офис рядом с метро, корпоративная столовая и кафе, оснащённые рабочие места',
     quotes: [
       'Красивый современный офис, возможность выхода на крышу, кафе на крыше',
@@ -70,7 +77,6 @@ export const REVIEW_PLUSES: ReviewTheme[] = [
   {
     title: 'Стабильность компании',
     count: 6,
-    share: 18,
     detail: 'Уверенность в завтрашнем дне, отсутствие сокращений, надёжный работодатель',
     quotes: [
       'Стабильность и уверенность, что завтра не сократят',
@@ -79,11 +85,10 @@ export const REVIEW_PLUSES: ReviewTheme[] = [
   },
 ];
 
-export const REVIEW_MINUSES: ReviewTheme[] = [
+const MINUSES: ReviewThemeInput[] = [
   {
     title: 'Нет социального пакета: ДМС, премии, корпоративы, медкомиссия за свой счёт',
     count: 13,
-    share: 68,
     detail:
       'Самая частая претензия. Отсутствие ДМС, нерегулярные или отменённые премии, нет корпоративной жизни, обязательная медкомиссия при трудоустройстве за счёт кандидата (около 3 000 ₽) без компенсации',
     quotes: [
@@ -97,7 +102,6 @@ export const REVIEW_MINUSES: ReviewTheme[] = [
   {
     title: 'Переработки и ненормированный рабочий день',
     count: 9,
-    share: 47,
     detail:
       'Задержки после окончания смены как норма, работа за пределами графика из вакансии, контроль присутствия вместо результата, отсутствие сокращённой пятницы',
     quotes: [
@@ -111,7 +115,6 @@ export const REVIEW_MINUSES: ReviewTheme[] = [
   {
     title: 'Токсичная атмосфера и давление руководства',
     count: 9,
-    share: 47,
     detail:
       'Жалобы на грубое отношение, давление и запугивание, сплетни, конкуренцию за расположение руководства. Отдельно упоминается отдел кадров как источник конфликтов',
     quotes: [
@@ -125,7 +128,6 @@ export const REVIEW_MINUSES: ReviewTheme[] = [
   {
     title: 'Расхождение вакансии с реальными условиями',
     count: 4,
-    share: 21,
     detail: 'Другой график, другой оклад, неоплачиваемые дополнительные обязанности по сравнению с описанием вакансии',
     quotes: [
       'В вакансии одно, на собеседовании совсем другое',
@@ -135,7 +137,6 @@ export const REVIEW_MINUSES: ReviewTheme[] = [
   {
     title: 'Текучка кадров и нехватка людей',
     count: 4,
-    share: 21,
     detail: 'Быстрый уход новичков в первые месяцы, работа за отсутствующих коллег, вакансии месяцами открыты',
     quotes: [
       'Большая текучка людей, много приходят, еще больше уходят',
@@ -145,14 +146,12 @@ export const REVIEW_MINUSES: ReviewTheme[] = [
   {
     title: 'Нет удалёнки и гибкого графика',
     count: 3,
-    share: 16,
     detail: 'Отсутствие гибридного формата и удалённых дней даже для офисных ролей',
     quotes: ['Нет удалёнки', 'Не дают гибрида и удаленку'],
   },
   {
     title: 'Проблемы подбора и собеседований',
     count: 2,
-    share: 11,
     detail:
       'Некорректные вопросы о личной жизни и планах на детей, отказ из-за времени в дороге, звонки не по той вакансии',
     quotes: [
@@ -163,17 +162,24 @@ export const REVIEW_MINUSES: ReviewTheme[] = [
   {
     title: 'Бюрократия и медленные согласования',
     count: 2,
-    share: 11,
     detail: 'Из-за масштаба компании решения проходят долгую цепочку согласований',
     quotes: ['Из-за масштаба компании часто решения и согласования затягиваются'],
   },
   {
     title: 'Нет обучения и перспектив у части сотрудников',
     count: 2,
-    share: 11,
     detail: 'Новичкам не дают задач и развития, отсутствие программы адаптации в отдельных отделах',
     quotes: ['Нет обучения и перспектив развития и роста'],
   },
 ];
 
+export const REVIEW_PLUSES = withShares(PLUSES, REVIEWS_META.withPlus);
+export const REVIEW_MINUSES = withShares(MINUSES, REVIEWS_META.withMinus);
 export const TOP3_MINUSES = REVIEW_MINUSES.slice(0, 3);
+
+export const PLUS_MENTIONS = REVIEW_PLUSES.reduce((s, t) => s + t.count, 0);
+export const MINUS_MENTIONS = REVIEW_MINUSES.reduce((s, t) => s + t.count, 0);
+export const TOP3_MENTIONS = TOP3_MINUSES.reduce((s, t) => s + t.count, 0);
+export const TOP3_SHARE = Math.round((TOP3_MENTIONS / MINUS_MENTIONS) * 100);
+export const AVG_MINUS_PER_REVIEW = Math.round((MINUS_MENTIONS / REVIEWS_META.withMinus) * 10) / 10;
+export const AVG_PLUS_PER_REVIEW = Math.round((PLUS_MENTIONS / REVIEWS_META.withPlus) * 10) / 10;
