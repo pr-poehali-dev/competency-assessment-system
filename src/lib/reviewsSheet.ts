@@ -1,196 +1,425 @@
 import type ExcelJS from 'exceljs';
 import { REVIEWS_META, REVIEW_PLUSES, REVIEW_MINUSES, TOP3_MINUSES } from '@/data/reviews';
 
-const DARK = 'FF1A1A2E';
-const GREY = 'FF64748B';
-const LINE = 'FFE2E8F0';
-const RED = 'FFDC2626';
-const GREEN = 'FF047857';
+const YELLOW = 'FFFFFF00';
+const CREAM = 'FFFFFF99';
+const IVORY = 'FFFFFFD2';
+const WHITE = 'FFFFFFFF';
+const GREY_F5 = 'FFF5F5F5';
+const BLUE = 'FF9EB9E4';
+const BLUE_DARK = 'FF3264B8';
+const RED_SOFT = 'FFE49E9E';
+const GREEN_SOFT = 'FFA9D08E';
+const BLACK = 'FF000000';
+const RED_TXT = 'FFC00000';
+const GREEN_TXT = 'FF375623';
 
-const thin = { style: 'thin' as const, color: { argb: LINE } };
-const border = { top: thin, left: thin, bottom: thin, right: thin };
+const thin = { style: 'thin' as const, color: { argb: BLACK } };
+
+const LEFT = 9;
+const BAR_COL = LEFT + 1;
+const RIGHT_FROM = LEFT + 2;
+const RIGHT_COLS = 3;
+const TOTAL_COLS = RIGHT_FROM + RIGHT_COLS - 1;
 
 export function addReviewsSheet(wb: ExcelJS.Workbook) {
   const ws = wb.addWorksheet('Отзывы о компании', {
     properties: { tabColor: { argb: 'FFDC2626' } },
+    pageSetup: {
+      paperSize: 8 as ExcelJS.PaperSize,
+      orientation: 'landscape',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
+    },
   });
 
-  ws.columns = [
-    { width: 5 },
-    { width: 46 },
-    { width: 11 },
-    { width: 11 },
-    { width: 62 },
-    { width: 62 },
-    { width: 52 },
+  const widths = [5.5, 4, 4.5, 42, 22, 10, 10, 10, 12];
+  widths.forEach((w, i) => {
+    ws.getColumn(i + 1).width = w;
+  });
+  ws.getColumn(BAR_COL).width = 30;
+  [52, 12, 13].forEach((w, i) => {
+    ws.getColumn(RIGHT_FROM + i).width = w;
+  });
+
+  type PaintOpts = {
+    value?: string | number;
+    fill?: string;
+    size?: number;
+    bold?: boolean;
+    color?: string;
+    align?: 'left' | 'center' | 'right';
+    wrap?: boolean;
+    box?: boolean;
+    italic?: boolean;
+  };
+
+  const paint = (row: ExcelJS.Row, col: number, o: PaintOpts = {}) => {
+    const c = row.getCell(col);
+    if (o.value !== undefined) c.value = o.value;
+    c.font = {
+      size: o.size ?? 8,
+      bold: o.bold,
+      italic: o.italic,
+      color: { argb: o.color ?? BLACK },
+      name: 'Arial',
+    };
+    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: o.fill ?? WHITE } };
+    c.alignment = { horizontal: o.align ?? 'left', vertical: 'middle', wrapText: o.wrap };
+    if (o.box) c.border = { top: thin, left: thin, bottom: thin, right: thin };
+    return c;
+  };
+
+  const fillRow = (row: ExcelJS.Row, from: number, to: number, argb: string) => {
+    for (let c = from; c <= to; c += 1) {
+      row.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb } };
+      row.getCell(c).font = { size: 8, name: 'Arial' };
+    }
+  };
+
+  const bar = (row: ExcelJS.Row, share: number, color: string, label?: string) => {
+    const filled = Math.max(1, Math.min(20, Math.round(share * 20)));
+    const c = row.getCell(BAR_COL);
+    c.value = `${'█'.repeat(filled)}${'░'.repeat(20 - filled)}${label ? `  ${label}` : ''}`;
+    c.font = { size: 8, name: 'Arial', color: { argb: BLACK } };
+    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color } };
+    c.alignment = { horizontal: 'left', vertical: 'middle' };
+    c.border = { top: thin, left: thin, bottom: thin, right: thin };
+  };
+
+  const r1 = ws.addRow([]);
+  r1.height = 20;
+  fillRow(r1, 1, TOTAL_COLS, WHITE);
+  ws.mergeCells(r1.number, 1, r1.number, 5);
+  paint(r1, 1, { value: 'Отзывы о компании', fill: CREAM, size: 14, bold: true, align: 'center' });
+  ws.mergeCells(r1.number, 6, r1.number, 9);
+  paint(r1, 6, { value: 'Концерн КРОСТ', fill: CREAM, size: 12, bold: true, align: 'center' });
+  ws.mergeCells(r1.number, BAR_COL, r1.number, TOTAL_COLS);
+  paint(r1, BAR_COL, {
+    value: `${REVIEWS_META.total} отзывов сотрудников и соискателей`,
+    size: 12,
+    bold: true,
+    color: 'FF3366FF',
+  });
+
+  const r2 = ws.addRow([]);
+  r2.height = 16;
+  fillRow(r2, 1, TOTAL_COLS, WHITE);
+  ws.mergeCells(r2.number, 1, r2.number, 9);
+  paint(r2, 1, { value: 'Плюсы, минусы и ТОП-3 проблемы бренда работодателя', size: 9, bold: true });
+
+  const r3 = ws.addRow([]);
+  r3.height = 15;
+  fillRow(r3, 1, TOTAL_COLS, WHITE);
+  const legend: [string, string][] = [
+    [YELLOW, 'итоги'],
+    [CREAM, 'темы'],
+    [IVORY, 'блоки'],
+    [GREEN_SOFT, 'плюсы'],
+    [RED_SOFT, 'минусы'],
+    [BLUE_DARK, 'ТОП-3'],
+    [BLUE, 'цитаты'],
   ];
-
-  const title = ws.addRow(['Анализ отзывов о компании: плюсы, минусы и ТОП-3 проблемы']);
-  ws.mergeCells(title.number, 1, title.number, 7);
-  title.height = 34;
-  title.getCell(1).font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } };
-  title.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
-  title.getCell(1).alignment = { vertical: 'middle' };
-
-  const sub = ws.addRow([
-    `Разобрано ${REVIEWS_META.total} отзывов сотрудников и соискателей. В ${REVIEWS_META.withPlus} указаны плюсы, в ${REVIEWS_META.withMinus} — содержательные минусы, в ${REVIEWS_META.noMinus} отзывах минусов нет («нет», «не заметила»). Доля считается от ${REVIEWS_META.withMinus} отзывов с минусами.`,
-  ]);
-  ws.mergeCells(sub.number, 1, sub.number, 7);
-  sub.height = 32;
-  sub.getCell(1).font = { size: 10, color: { argb: GREY } };
-  sub.getCell(1).alignment = { vertical: 'middle', wrapText: true };
-
-  ws.addRow([]);
-
-  const sectionTitle = (text: string, color: string) => {
-    const r = ws.addRow([text]);
-    ws.mergeCells(r.number, 1, r.number, 7);
-    r.height = 28;
-    r.getCell(1).font = { bold: true, size: 13, color: { argb: 'FFFFFFFF' } };
-    r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color } };
-    r.getCell(1).alignment = { vertical: 'middle' };
-    return r;
-  };
-
-  const tableHead = (extra: string) => {
-    const r = ws.addRow(['№', 'Тема', 'Упомин.', 'Доля', 'Что именно пишут', 'Цитаты из отзывов', extra]);
-    r.height = 26;
-    for (let i = 1; i <= 7; i += 1) {
-      const c = r.getCell(i);
-      c.font = { bold: true, size: 10, color: { argb: 'FFFFFFFF' } };
-      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
-      c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-      c.border = border;
-    }
-    return r;
-  };
-
-  sectionTitle('ТОП-3 минуса — на что реагировать в первую очередь', RED);
-  const topHead = tableHead('Что предлагается сделать');
-  topHead.eachCell((c) => {
-    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: RED } };
+  legend.forEach(([color, label], i) => {
+    paint(r3, i + 1, { value: label, fill: color, size: 8, align: 'center', box: true });
   });
 
+  ws.addRow([]).height = 6;
+
+  const rNum = ws.addRow([]);
+  rNum.height = 11;
+  fillRow(rNum, 1, TOTAL_COLS, WHITE);
+  for (let c = 1; c <= TOTAL_COLS; c += 1) paint(rNum, c, { value: c, size: 7, align: 'center', color: 'FF808080' });
+
+  const head = ws.addRow([]);
+  head.height = 30;
+  ['№\nп/п', '№\nбл.', '№\nскв.', 'Тема', 'Категория', 'Упомин.', 'Доля', 'Отзывов', 'Тональность'].forEach((h, i) =>
+    paint(head, i + 1, { value: h, bold: true, align: 'center', wrap: true, box: true }),
+  );
+  paint(head, BAR_COL, { value: 'Наглядно', bold: true, align: 'center', wrap: true, box: true });
+  ['Что это значит', 'Доля,\n%', 'Оценка'].forEach((h, i) =>
+    paint(head, RIGHT_FROM + i, { value: h, bold: true, align: 'center', wrap: true, box: true }),
+  );
+
+  ws.views = [{ state: 'frozen', xSplit: 5, ySplit: head.number }];
+
+  let block = 0;
+  let seq = 0;
+
+  function blockRow(title: string, hint: string) {
+    block += 1;
+    const r = ws.addRow([]);
+    r.height = 17;
+    fillRow(r, 1, TOTAL_COLS, IVORY);
+    paint(r, 1, { value: block, fill: IVORY, bold: true, align: 'center', box: true, size: 9 });
+    paint(r, 2, { fill: IVORY, box: true });
+    paint(r, 3, { fill: IVORY, box: true });
+    ws.mergeCells(r.number, 4, r.number, 5);
+    paint(r, 4, { value: title, fill: IVORY, bold: true, size: 10, box: true });
+    for (let c = 6; c <= 9; c += 1) paint(r, c, { fill: IVORY, box: true });
+    ws.mergeCells(r.number, BAR_COL, r.number, TOTAL_COLS);
+    paint(r, BAR_COL, { value: hint, fill: IVORY, size: 9, color: 'FF404040', box: true });
+    return r;
+  }
+
+  type LineOpts = {
+    cat?: string;
+    count?: string | number;
+    share?: string | number;
+    total?: string | number;
+    tone?: string;
+    hint?: string;
+    pctCol?: string | number;
+    mark?: string;
+    fill?: string;
+    bold?: boolean;
+    idx?: number;
+    danger?: boolean;
+    good?: boolean;
+    height?: number;
+  };
+
+  function line(name: string, o: LineOpts = {}) {
+    seq += 1;
+    const fill = o.fill ?? WHITE;
+    const numFill = fill === WHITE ? GREY_F5 : fill;
+    const color = o.danger ? RED_TXT : o.good ? GREEN_TXT : BLACK;
+    const r = ws.addRow([]);
+    r.height = o.height ?? (name.length > 46 ? 24 : 15);
+    fillRow(r, 1, TOTAL_COLS, fill);
+    paint(r, 1, { value: seq, fill: numFill, align: 'center', box: true });
+    paint(r, 2, { value: block, fill: numFill, align: 'center', box: true });
+    paint(r, 3, { value: o.idx ?? '', fill: numFill, align: 'center', box: true });
+    paint(r, 4, { value: name, fill: fill === WHITE ? IVORY : fill, bold: true, box: true, wrap: true });
+    paint(r, 5, { value: o.cat ?? '', fill, box: true, wrap: true });
+    paint(r, 6, { value: o.count ?? '', fill, align: 'center', box: true, bold: true, color });
+    paint(r, 7, { value: o.share ?? '', fill, align: 'center', box: true, bold: true, color });
+    paint(r, 8, { value: o.total ?? '', fill, align: 'center', box: true });
+    paint(r, 9, { value: o.tone ?? '', fill, align: 'center', box: true, bold: true, color });
+    paint(r, BAR_COL, { fill, box: true });
+    paint(r, RIGHT_FROM, { value: o.hint ?? '', fill, box: true, wrap: true });
+    paint(r, RIGHT_FROM + 1, { value: o.pctCol ?? '', fill, align: 'center', box: true, bold: true, color });
+    paint(r, RIGHT_FROM + 2, { value: o.mark ?? '', fill, align: 'center', box: true, color, wrap: true });
+    return r;
+  }
+
+  function detail(label: string, lines: string[], italic = false, color = BLACK) {
+    const r = ws.addRow([]);
+    r.height = Math.max(14, lines.length * 12 + 2);
+    fillRow(r, 1, TOTAL_COLS, WHITE);
+    for (let c = 1; c <= 3; c += 1) paint(r, c, { fill: GREY_F5, box: true });
+    paint(r, 4, { value: label, size: 8, bold: true, color: 'FF606060', box: true, wrap: true });
+    ws.mergeCells(r.number, 5, r.number, TOTAL_COLS);
+    const c = paint(r, 5, { value: lines.join('\n'), size: 8, box: true, italic, color });
+    c.alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+    return r;
+  }
+
+  /* ── 1. Главное по отзывам ── */
+  const minusTotal = REVIEW_MINUSES.reduce((s, t) => s + t.count, 0);
+  const plusTotal = REVIEW_PLUSES.reduce((s, t) => s + t.count, 0);
+  const top3Sum = TOP3_MINUSES.reduce((s, t) => s + t.count, 0);
+
+  blockRow('Главное по отзывам', 'Сколько отзывов разобрано и что в них преобладает.');
+  const t1 = line('Всего отзывов разобрано', {
+    cat: 'выборка',
+    count: REVIEWS_META.total,
+    share: '100%',
+    total: REVIEWS_META.total,
+    hint: 'Отзывы сотрудников и соискателей с открытых площадок',
+    pctCol: '100%',
+    fill: YELLOW,
+    bold: true,
+  });
+  bar(t1, 1, YELLOW, `${REVIEWS_META.total} отзывов`);
+
+  const t2 = line('Отзывы с указанными плюсами', {
+    cat: 'позитив',
+    count: REVIEWS_META.withPlus,
+    share: `${Math.round((REVIEWS_META.withPlus / REVIEWS_META.total) * 100)}%`,
+    total: REVIEWS_META.total,
+    tone: 'плюс',
+    hint: 'В этих отзывах люди назвали, что им нравится в компании',
+    pctCol: `${Math.round((REVIEWS_META.withPlus / REVIEWS_META.total) * 100)}%`,
+    mark: 'основа бренда',
+    fill: YELLOW,
+    bold: true,
+    good: true,
+  });
+  bar(t2, REVIEWS_META.withPlus / REVIEWS_META.total, GREEN_SOFT, `${REVIEWS_META.withPlus} из ${REVIEWS_META.total}`);
+
+  const t3 = line('Отзывы с содержательными минусами', {
+    cat: 'негатив',
+    count: REVIEWS_META.withMinus,
+    share: `${Math.round((REVIEWS_META.withMinus / REVIEWS_META.total) * 100)}%`,
+    total: REVIEWS_META.total,
+    tone: 'минус',
+    hint: 'База для расчёта долей: все проценты минусов считаются от этого числа',
+    pctCol: `${Math.round((REVIEWS_META.withMinus / REVIEWS_META.total) * 100)}%`,
+    mark: 'зона работы',
+    fill: YELLOW,
+    bold: true,
+    danger: true,
+  });
+  bar(t3, REVIEWS_META.withMinus / REVIEWS_META.total, RED_SOFT, `${REVIEWS_META.withMinus} из ${REVIEWS_META.total}`);
+
+  line('Отзывы без минусов', {
+    cat: 'нейтрально',
+    idx: 1,
+    count: REVIEWS_META.noMinus,
+    share: `${Math.round((REVIEWS_META.noMinus / REVIEWS_META.total) * 100)}%`,
+    total: REVIEWS_META.total,
+    hint: 'В графе минусов написано «нет», «не заметила» или пусто',
+    pctCol: `${Math.round((REVIEWS_META.noMinus / REVIEWS_META.total) * 100)}%`,
+    good: true,
+  });
+  line('Уникальных тем в минусах', {
+    cat: 'структура',
+    idx: 2,
+    count: REVIEWS_META.uniqueMinus,
+    share: `${REVIEW_MINUSES.length} групп`,
+    total: minusTotal,
+    hint: 'Претензии сведены в тематические группы, всего упоминаний по темам',
+  });
+  line('Доля ТОП-3 минусов', {
+    cat: 'концентрация',
+    idx: 3,
+    count: top3Sum,
+    share: `${Math.round((top3Sum / minusTotal) * 100)}%`,
+    total: minusTotal,
+    tone: 'минус',
+    hint: 'Три темы дают больше половины всех претензий — это точка приложения усилий',
+    pctCol: `${Math.round((top3Sum / minusTotal) * 100)}%`,
+    mark: 'приоритет',
+    danger: true,
+  });
+
+  /* ── 2. ТОП-3 минуса ── */
+  blockRow('ТОП-3 минуса — на что реагировать в первую очередь', 'Темы с наибольшим числом упоминаний и планом действий.');
   TOP3_MINUSES.forEach((t, idx) => {
-    const r = ws.addRow([idx + 1, t.title, t.count, t.share / 100, t.detail, t.quotes.map((q) => `«${q}»`).join('\n'), t.action || '']);
-    r.height = 92;
-    for (let i = 1; i <= 7; i += 1) {
-      const c = r.getCell(i);
-      c.border = border;
-      c.alignment = { vertical: 'top', wrapText: true };
-      c.font = { size: 10, color: { argb: DARK } };
-      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF2F2' } };
-    }
-    r.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(1).font = { size: 18, bold: true, color: { argb: RED } };
-    r.getCell(2).font = { size: 11, bold: true, color: { argb: DARK } };
-    r.getCell(3).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(3).font = { size: 13, bold: true, color: { argb: RED } };
-    r.getCell(4).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(4).numFmt = '0%';
-    r.getCell(4).font = { size: 13, bold: true, color: { argb: RED } };
-    r.getCell(6).font = { size: 9, italic: true, color: { argb: GREY } };
-    r.getCell(7).font = { size: 10, color: { argb: GREEN } };
+    const r = line(t.title, {
+      cat: 'критичный минус',
+      idx: idx + 1,
+      count: t.count,
+      share: `${t.share}%`,
+      total: REVIEWS_META.withMinus,
+      tone: 'минус',
+      hint: t.detail,
+      pctCol: `${t.share}%`,
+      mark: `приоритет ${idx + 1}`,
+      fill: CREAM,
+      danger: true,
+      height: 34,
+    });
+    bar(r, t.share / 100, RED_SOFT, `${t.count} из ${REVIEWS_META.withMinus} отзывов`);
+    detail('Цитаты из отзывов', t.quotes.map((q) => `«${q}»`), true, 'FF606060');
+    if (t.action) detail('Что предлагается сделать', [t.action], false, GREEN_TXT);
   });
 
-  ws.addRow([]);
-
-  sectionTitle('Все минусы по темам', RED);
-  tableHead('Наглядно');
+  /* ── 3. Все минусы по темам ── */
+  blockRow('Все минусы по темам', `Полный разбор претензий. Доля считается от ${REVIEWS_META.withMinus} отзывов с минусами.`);
   REVIEW_MINUSES.forEach((t, idx) => {
-    const r = ws.addRow([
-      idx + 1,
-      t.title,
-      t.count,
-      t.share / 100,
-      t.detail,
-      t.quotes.map((q) => `«${q}»`).join('\n'),
-      '█'.repeat(Math.max(1, Math.round(t.count))),
-    ]);
-    r.height = 58;
-    for (let i = 1; i <= 7; i += 1) {
-      const c = r.getCell(i);
-      c.border = border;
-      c.alignment = { vertical: 'top', wrapText: true };
-      c.font = { size: 10, color: { argb: DARK } };
-      if (idx < 3) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF2F2' } };
-    }
-    r.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(3).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(3).font = { size: 11, bold: true, color: { argb: RED } };
-    r.getCell(4).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(4).numFmt = '0%';
-    r.getCell(6).font = { size: 9, italic: true, color: { argb: GREY } };
-    r.getCell(7).font = { size: 10, color: { argb: RED } };
-    r.getCell(7).alignment = { vertical: 'middle' };
-    if (idx < 3) r.getCell(2).font = { size: 10, bold: true, color: { argb: DARK } };
+    const r = line(t.title, {
+      cat: idx < 3 ? 'критичный минус' : t.count >= 3 ? 'заметный минус' : 'единичный минус',
+      idx: idx + 1,
+      count: t.count,
+      share: `${t.share}%`,
+      total: REVIEWS_META.withMinus,
+      tone: 'минус',
+      hint: t.detail,
+      pctCol: `${t.share}%`,
+      mark: idx < 3 ? 'высокий' : t.count >= 3 ? 'средний' : 'низкий',
+      danger: idx < 3,
+      height: 34,
+    });
+    bar(r, t.share / 100, idx < 3 ? RED_SOFT : t.count >= 3 ? BLUE_DARK : BLUE, `${t.count} упоминаний`);
+    detail('Цитаты из отзывов', t.quotes.map((q) => `«${q}»`), true, 'FF606060');
   });
-
-  const mNote = ws.addRow(['Один знак █ = 1 упоминание темы в отзывах']);
-  ws.mergeCells(mNote.number, 1, mNote.number, 7);
-  mNote.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
-
-  ws.addRow([]);
-
-  sectionTitle('Плюсы по темам — на чём строить бренд работодателя', GREEN);
-  const pHead = tableHead('Наглядно');
-  pHead.eachCell((c) => {
-    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: GREEN } };
+  const mTotal = line('ИТОГО упоминаний минусов', {
+    cat: 'итог',
+    count: minusTotal,
+    share: `${REVIEW_MINUSES.length} тем`,
+    total: REVIEWS_META.withMinus,
+    hint: 'В среднем каждый недовольный отзыв содержит более двух претензий',
+    fill: YELLOW,
+    bold: true,
+    danger: true,
   });
+  bar(mTotal, 1, YELLOW, `${minusTotal} упоминаний`);
+
+  /* ── 4. Плюсы по темам ── */
+  blockRow('Плюсы по темам — на чём строить бренд работодателя', `Доля считается от ${REVIEWS_META.withPlus} отзывов, где плюсы названы содержательно.`);
   REVIEW_PLUSES.forEach((t, idx) => {
-    const r = ws.addRow([
-      idx + 1,
-      t.title,
-      t.count,
-      t.share / 100,
-      t.detail,
-      t.quotes.map((q) => `«${q}»`).join('\n'),
-      '█'.repeat(Math.max(1, Math.round(t.count / 2))),
-    ]);
-    r.height = 52;
-    for (let i = 1; i <= 7; i += 1) {
-      const c = r.getCell(i);
-      c.border = border;
-      c.alignment = { vertical: 'top', wrapText: true };
-      c.font = { size: 10, color: { argb: DARK } };
-      if (idx < 3) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF4' } };
-    }
-    r.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(3).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(3).font = { size: 11, bold: true, color: { argb: GREEN } };
-    r.getCell(4).alignment = { vertical: 'middle', horizontal: 'center' };
-    r.getCell(4).numFmt = '0%';
-    r.getCell(6).font = { size: 9, italic: true, color: { argb: GREY } };
-    r.getCell(7).font = { size: 10, color: { argb: GREEN } };
-    r.getCell(7).alignment = { vertical: 'middle' };
+    const r = line(t.title, {
+      cat: idx < 3 ? 'сильная сторона' : 'дополнительный плюс',
+      idx: idx + 1,
+      count: t.count,
+      share: `${t.share}%`,
+      total: REVIEWS_META.withPlus,
+      tone: 'плюс',
+      hint: t.detail,
+      pctCol: `${t.share}%`,
+      mark: idx < 3 ? 'ключевой' : 'поддерживающий',
+      good: true,
+      height: 26,
+    });
+    bar(r, t.share / 100, idx < 3 ? GREEN_SOFT : BLUE, `${t.count} упоминаний`);
+    detail('Цитаты из отзывов', t.quotes.map((q) => `«${q}»`), true, 'FF606060');
+  });
+  const pTotal = line('ИТОГО упоминаний плюсов', {
+    cat: 'итог',
+    count: plusTotal,
+    share: `${REVIEW_PLUSES.length} тем`,
+    total: REVIEWS_META.withPlus,
+    hint: 'Зарплата и коллектив названы в двух третях положительных отзывов',
+    fill: YELLOW,
+    bold: true,
+    good: true,
+  });
+  bar(pTotal, 1, YELLOW, `${plusTotal} упоминаний`);
+
+  /* ── 5. Выводы ── */
+  blockRow('Ключевые выводы', 'Что показывают отзывы и как это связано с подбором и текучестью.');
+  const insights: [string, string, string][] = [
+    [
+      'Деньги, люди и проекты — работающая основа',
+      `${REVIEW_PLUSES[0].share}% и ${REVIEW_PLUSES[1].share}%`,
+      'Зарплата и коллектив упомянуты в двух третях положительных отзывов — на этом строится бренд работодателя',
+    ],
+    [
+      'Негатив не в зарплате, а в условиях вокруг неё',
+      `${Math.round((top3Sum / minusTotal) * 100)}% претензий`,
+      'Соцпакет, переработки и отношение руководителей дают больше половины всех минусов',
+    ],
+    [
+      'Зона риска для подбора',
+      `${REVIEW_MINUSES[3].count} упоминаний`,
+      'Медкомиссия за счёт кандидата и расхождение вакансии с реальностью отсеивают людей ещё до выхода',
+    ],
+    [
+      'Прямая связь с затратами на подбор',
+      `${REVIEWS_META.withMinus} из ${REVIEWS_META.total}`,
+      'Устранение ТОП-3 минусов снижает текучку, а значит и объём повторного подбора',
+    ],
+  ];
+  insights.forEach(([title, val, text], idx) => {
+    line(title, {
+      cat: 'вывод',
+      idx: idx + 1,
+      total: val,
+      hint: text,
+      fill: YELLOW,
+      bold: true,
+      height: 22,
+    });
   });
 
-  const pNote = ws.addRow([
-    'Один знак █ = 2 упоминания. Доля плюсов считается от 33 отзывов, где плюсы указаны содержательно.',
-  ]);
-  ws.mergeCells(pNote.number, 1, pNote.number, 7);
-  pNote.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
+  const src = ws.addRow([]);
+  src.height = 22;
+  fillRow(src, 1, TOTAL_COLS, WHITE);
+  ws.mergeCells(src.number, 1, src.number, TOTAL_COLS);
+  paint(src, 1, { value: `Источник: ${REVIEWS_META.source}`, size: 8, color: 'FF808080' });
 
-  ws.addRow([]);
-
-  const concl = sectionTitle('Вывод', DARK);
-  concl.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
-
-  [
-    'Компанию хвалят за деньги, людей и проекты — зарплата и коллектив упомянуты в двух третях положительных отзывов. Это работающая основа бренда работодателя.',
-    'Негатив концентрируется не в зарплате, а в условиях вокруг неё: отсутствие соцпакета, переработки и отношение руководителей. Эти три темы дают более половины всех претензий.',
-    'Отдельная зона риска для подбора — медкомиссия за счёт кандидата и расхождение вакансии с реальными условиями: это отсеивает людей ещё до выхода и разгоняет текучку в первые месяцы.',
-    'Устранение ТОП-3 минусов напрямую снижает текучку, а значит и объём повторного подбора — то есть прямые затраты отдела подбора персонала.',
-  ].forEach((text) => {
-    const r = ws.addRow([`•  ${text}`]);
-    ws.mergeCells(r.number, 1, r.number, 7);
-    r.height = 30;
-    r.getCell(1).font = { size: 11, color: { argb: DARK } };
-    r.getCell(1).alignment = { vertical: 'middle', wrapText: true };
-  });
-
-  ws.addRow([]);
-  const foot = ws.addRow([REVIEWS_META.source]);
-  ws.mergeCells(foot.number, 1, foot.number, 7);
-  foot.getCell(1).font = { size: 9, italic: true, color: { argb: GREY } };
+  return ws;
 }
