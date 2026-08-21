@@ -172,7 +172,7 @@ export default function Agencies() {
                   <div>
                     <div className="font-medium">Как в рабочем файле кадров</div>
                     <div className="text-xs text-slate-500 mt-0.5">
-                      Помесячная сетка с полосами вакансий, итоги по агентствам
+                      Вся аналитика с помесячной сеткой и полосами сроков
                     </div>
                   </div>
                 </DropdownMenuItem>
