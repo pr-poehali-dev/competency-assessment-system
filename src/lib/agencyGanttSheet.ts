@@ -36,6 +36,10 @@ import {
 import {
   TERMS,
   TERMS_DATE,
+  TERMS_COUNT,
+  GUARANTEE_MAX,
+  GUARANTEE_MIN,
+  SPLIT_PAYMENT_COUNT,
   COST_ROWS,
   COST_2025,
   COST_2026,
@@ -513,28 +517,84 @@ export function addAgencyGanttSheet(wb: ExcelJS.Workbook) {
     hint: 'Время руководителей на собеседования по заменам',
   });
 
-  blockRow('Условия договоров с агентствами', 'Длина полосы — срок гарантии по договору. Красная — гарантия всего 3 месяца.');
-  TERMS.forEach((t, idx) => {
-    const rate = rateByAgency[t.name] ?? rateByAgency[`КА ${t.short}`];
-    const r = line(`${t.name} · ${t.contract}`, {
-      cat: t.entity,
-      idx: idx + 1,
-      v2025: t.priceShort,
-      v2026: t.vat,
-      total: t.hired,
-      share: t.paymentSplit ? 'частями' : '100% сразу',
-      hint: `Нанято ${t.hired}, уволилось ${t.fired}. ${t.paymentSplit ? 'Платим частями' : 'Вся сумма вперёд'}`,
-      sum: rate ? th(rate) : '—',
-      guar: t.guaranteeMax,
-      fill: CREAM,
-      danger: t.guaranteeMax <= 3,
+  blockRow(
+    'Условия сотрудничества по договорам',
+    `Стоимость, гарантия замены и порядок оплаты на ${TERMS_DATE}. Всего договоров: ${TERMS_COUNT}.`,
+  );
+  line(`${TERMS_COUNT} агентств в договорах`, {
+    cat: 'сводка',
+    idx: 1,
+    v2025: `${GUARANTEE_MIN}–${GUARANTEE_MAX} мес.`,
+    v2026: '15–18%',
+    total: `${SPLIT_PAYMENT_COUNT} из ${TERMS_COUNT}`,
+    share: 'платят частями',
+    hint: 'Разброс гарантии замены, ставка от годового дохода, остальные — 100% сразу',
+    fill: YELLOW,
+    bold: true,
+  });
+
+  const priceTypeLabel: Record<string, string> = {
+    fixed: 'Фикс',
+    percent: '% от дохода',
+    mixed: 'Фикс + %',
+  };
+
+  [...TERMS]
+    .sort((a, b) => b.guaranteeMax - a.guaranteeMax)
+    .forEach((t, idx) => {
+      const rate = rateByAgency[t.name] ?? rateByAgency[`КА ${t.short}`];
+      const r = line(t.name, {
+        cat: priceTypeLabel[t.priceType],
+        idx: idx + 1,
+        v2025: t.vat,
+        v2026: t.hired > 0 ? `нанято ${t.hired}` : 'наймов нет',
+        total: `${t.guaranteeMax} мес.`,
+        share: t.paymentSplit ? 'частями' : '100% сразу',
+        hint: `Договор ${t.contract} · ${t.entity}`,
+        sum: rate ? th(rate) : '—',
+        guar: t.guaranteeMax,
+        fill: CREAM,
+        danger: t.guaranteeMax <= 3,
+      });
+      bar(
+        r,
+        t.guaranteeMax / GUARANTEE_MAX,
+        t.guaranteeMax >= 6 ? BLUE_DARK : t.guaranteeMax >= 5 ? BLUE : RED_SOFT,
+        `гарантия ${t.guaranteeMax} мес.`,
+      );
+
+      const detail = (label: string, lines: string[]) => {
+        const d = ws.addRow([]);
+        d.height = Math.max(14, lines.length * 12);
+        fillRow(d, 1, TOTAL_COLS, WHITE);
+        for (let c = 1; c <= 3; c += 1) paint(d, c, { fill: GREY_F5, box: true });
+        paint(d, 4, { value: label, fill: WHITE, size: 8, bold: true, color: 'FF606060', box: true });
+        ws.mergeCells(d.number, 5, d.number, TOTAL_COLS);
+        paint(d, 5, {
+          value: lines.map((l) => `· ${l}`).join('\n'),
+          fill: WHITE,
+          size: 8,
+          wrap: true,
+          box: true,
+        });
+        d.getCell(5).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+      };
+
+      detail('Стоимость', t.price);
+      detail('Гарантийная замена', t.guarantee);
+      detail(
+        'Условия оплаты',
+        t.paymentSplit
+          ? [t.payment, 'Единственная схема с оплатой частями — компания рискует меньше']
+          : [t.payment],
+      );
     });
-    bar(
-      r,
-      t.guaranteeMax / 8,
-      t.guaranteeMax >= 6 ? BLUE_DARK : t.guaranteeMax >= 5 ? BLUE : RED_SOFT,
-      `гарантия ${t.guaranteeMax} мес.`,
-    );
+
+  line('Что показывают условия', {
+    cat: 'вывод',
+    hint: `Гарантия есть у всех, но разброс от ${GUARANTEE_MIN} до ${GUARANTEE_MAX} месяцев. Почти все платят 100% сразу после выхода кандидата — кроме Визави Консалт`,
+    fill: YELLOW,
+    bold: true,
   });
 
   blockRow('Стоимость подбора уволившихся', 'Длина полосы — доля агентства в общей сумме потерь на уволившихся.');
