@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { printReport, applyPrintFormat, type PageFormat } from '@/lib/print';
+import { exportHrAnalyticToExcel } from '@/lib/hrAnalyticSheet';
 import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
 import PdfProgress, { type PdfState } from '@/components/print/PdfProgress';
 import ReportToc from '@/components/print/ReportToc';
@@ -171,6 +172,13 @@ export default function Dashboard() {
               <Icon name="GitBranch" size={16} />
               <span className="hidden sm:inline">Блок-схема оценки рабочих</span>
             </Link>
+            <button
+              onClick={() => void exportHrAnalyticToExcel()}
+              className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700 border border-emerald-200 bg-white rounded-lg px-3 py-2 hover:bg-emerald-50 transition-colors"
+            >
+              <Icon name="Table" size={16} />
+              <span className="hidden sm:inline">Скачать Excel</span>
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#1a1a2e] rounded-lg px-4 py-2 hover:bg-[#2d2d4a] transition-colors">
