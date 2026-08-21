@@ -523,31 +523,86 @@ export function addAgencyDashboardSheet(wb: ExcelJS.Workbook) {
   );
   gap();
 
-  head('Условия договоров с агентствами', `Действующие договоры на ${TERMS_DATE}. Всего договоров: ${TERMS_COUNT}.`);
-  tableHead(['Агентство и договор', 'Контрагент', 'Стоимость', 'НДС', 'Гарантия, мес.', 'Оплата', 'Нанято / уволено']);
-  TERMS.forEach((t, i) => {
-    const row = dataRow(
-      [
-        `${t.name}\n${t.contract}`,
-        t.entity,
-        t.priceShort,
-        t.vat,
-        t.guaranteeMax,
-        t.paymentSplit ? 'частями' : '100% сразу',
-        `${t.hired} / ${t.fired}`,
-      ],
-      { zebra: i % 2 === 1, height: 38 },
-    );
-    row.getCell(2).font = { size: 10, bold: true };
-    row.getCell(2).alignment = { wrapText: true, vertical: 'middle' };
-    row.getCell(6).font = {
-      size: 10,
-      bold: true,
-      color: { argb: t.guaranteeMax >= 6 ? GREEN : t.guaranteeMax <= 3 ? RED : AMBER },
-    };
-  });
+  head(
+    'Условия сотрудничества по договорам',
+    `Стоимость, гарантия замены и порядок оплаты на ${TERMS_DATE}. Всего договоров: ${TERMS_COUNT}.`,
+  );
+  tableHead([`${TERMS_COUNT}`, `${GUARANTEE_MIN}–${GUARANTEE_MAX} мес.`, '15–18%', `${SPLIT_PAYMENT_COUNT} из ${TERMS_COUNT}`, null, null, null]);
+  const cardsRow = dataRow(
+    [
+      'агентств в договорах',
+      'разброс гарантии замены',
+      'ставка от годового дохода',
+      'платят частями',
+      null,
+      null,
+      null,
+    ],
+    { height: 20 },
+  );
+  cardsRow.getCell(8).value = 'остальные — 100% сразу';
+  gap();
+
+  const priceTypeLabel: Record<string, string> = {
+    fixed: 'Фикс',
+    percent: '% от дохода',
+    mixed: 'Фикс + %',
+  };
+
+  [...TERMS]
+    .sort((a, b) => b.guaranteeMax - a.guaranteeMax)
+    .forEach((t) => {
+      const hdr = dataRow(
+        [
+          t.name,
+          priceTypeLabel[t.priceType],
+          t.vat,
+          t.hired > 0 ? `нанято ${t.hired}` : 'наймов нет',
+          `${t.guaranteeMax} мес. максимум`,
+          null,
+          `Договор ${t.contract} · ${t.entity}`,
+        ],
+        { bold: true, height: 22 },
+      );
+      ws.mergeCells(hdr.number, 6, hdr.number, 7);
+      for (let i = 2; i <= COLS; i += 1) {
+        hdr.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+      }
+      hdr.getCell(6).font = {
+        size: 10,
+        bold: true,
+        color: { argb: t.guaranteeMax >= 6 ? GREEN : t.guaranteeMax >= 5 ? AMBER : RED },
+      };
+      hdr.getCell(8).font = { size: 9, color: { argb: GREY } };
+
+      const sect = (label: string, lines: string[], extra?: string) => {
+        const r = dataRow([label, ...Array(6).fill(null)], { height: Math.max(20, lines.length * 14 + 6) });
+        ws.mergeCells(r.number, 3, r.number, COLS);
+        r.getCell(2).font = { size: 9, bold: true, color: { argb: GREY } };
+        r.getCell(3).value = lines.map((l) => `· ${l}`).join('\n') + (extra ? `\n${extra}` : '');
+        r.getCell(3).alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
+        r.getCell(3).font = { size: 10 };
+      };
+
+      sect('Стоимость', t.price);
+      sect('Гарантийная замена', t.guarantee);
+      sect(
+        'Условия оплаты',
+        [t.payment],
+        t.paymentSplit ? 'Единственная схема с оплатой частями — компания рискует меньше' : undefined,
+      );
+    });
+
   note(
-    `Разброс гарантии: от ${GUARANTEE_MIN} до ${GUARANTEE_MAX} месяцев. Частями платит только ${SPLIT_PAYMENT_COUNT} подрядчик — остальные получают всю сумму сразу, ещё до того, как станет ясно, останется ли человек.`,
+    `Гарантия замены есть у всех подрядчиков, но разброс большой: от ${GUARANTEE_MIN} месяцев у A.N.T. и ПрофиСтафф до ${GUARANTEE_MAX} месяцев у ИП Мухина. При этом основной объём найма идёт через КА ЭФИР, где гарантия зависит от позиции и составляет от 3 до 6 месяцев.`,
+  );
+  note(
+    'Почти все агентства получают 100% оплаты сразу после выхода кандидата. Исключение — Визави Консалт: 70% после выхода и 30% после испытательного срока. Такая схема напрямую связывает выплату с тем, задержался сотрудник или нет, и снижает риск компании при быстрых уходах.',
+    GREY,
+    SOFT,
+  );
+  note(
+    `Гарантия против реальных сроков ухода: в 2026 году средний срок работы до увольнения — ${AVG_TENURE_2026} месяца, а ${FIRED_TENURE[0].y2026} из ${AG_FIRED_2026} ушли, не отработав и трёх. Почти все случаи попадают в гарантийный период даже по самым коротким договорам, и подбор должен закрываться бесплатно.`,
   );
   gap();
 
