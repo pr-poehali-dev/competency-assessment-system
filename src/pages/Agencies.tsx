@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { printReport, type PageFormat } from '@/lib/print';
+import { exportAgencyDashboardToExcel } from '@/lib/agencyDashboardSheet';
 import PrintCover, { type CoverSection } from '@/components/print/PrintCover';
 import PdfProgress, { type PdfState } from '@/components/print/PdfProgress';
 import ReportToc from '@/components/print/ReportToc';
@@ -83,6 +84,10 @@ export default function Agencies() {
     }
   };
 
+  const handleExcel = () => {
+    void exportAgencyDashboardToExcel();
+  };
+
   const insights = [
     {
       icon: 'Crown',
@@ -146,6 +151,13 @@ export default function Agencies() {
               <Icon name="ClipboardList" size={16} />
               <span className="hidden sm:inline">Журнал претензий</span>
             </Link>
+            <button
+              onClick={handleExcel}
+              className="inline-flex items-center gap-2 text-sm font-medium text-emerald-800 border border-emerald-300 bg-emerald-50 rounded-lg px-3 py-2 hover:bg-emerald-100 transition-colors"
+            >
+              <Icon name="Sheet" size={16} />
+              <span className="hidden sm:inline">Скачать Excel</span>
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#1a1a2e] rounded-lg px-4 py-2 hover:bg-[#2d2d4a] transition-colors">
